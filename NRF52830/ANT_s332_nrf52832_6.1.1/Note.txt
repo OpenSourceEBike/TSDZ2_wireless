@@ -1,0 +1,2 @@
+D52 Modules using this SoftDevice have been designed to operate in typical 
+operating environments up to 30m
