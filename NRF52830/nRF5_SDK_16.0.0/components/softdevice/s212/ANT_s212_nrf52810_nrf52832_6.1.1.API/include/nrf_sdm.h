@@ -188,7 +188,7 @@ the start of the SoftDevice (without MBR)*/
     You MUST obtain a valid commercial license key BEFORE releasing a product to market that uses the ANT SoftDevices. For
     more information about licensing please visit the website below:
     https://www.thisisant.com/developer/ant/licensing */
-#define ANT_LICENSE_KEY "3831-521d-7df9-24d8-eff3-467b-225f-a00e" // This is an EVALUATION license key - DO NOT USE FOR COMMERCIAL PURPOSES
+//#define ANT_LICENSE_KEY "3831-521d-7df9-24d8-eff3-467b-225f-a00e" // This is an EVALUATION license key - DO NOT USE FOR COMMERCIAL PURPOSES
 #ifndef ANT_LICENSE_KEY
    #error "You must obtain a valid license key to use ANT. You may use the evaluation key for non commercial use only by uncommenting it above this error. Commercial use license keys are available from ANT Wireless."
 #endif
