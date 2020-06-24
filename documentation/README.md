@@ -56,5 +56,7 @@ Connecting brake sensors to the TSDZ2
 -------------------------------------
 
 It is strongly advised that you connect brake sensors/switches to the TSDZ2 motor-controller as it will increase safety of operation and reduce the chance of damage to the blue gear, in some circumstances. The brake input to the TSDZ2 is pulled up to 5V by a resistor inside the motor-controller, pulling the brake input to GND indicates that the brakes are being used. This is normally done with a switch (2-Pin Connector), but if you have the 8-Way Higo cable you can use a powered brake-sensor with three wires. In both cases the sensors need to be connected in parallel to the single TSDZ2 motor-controller brake input - check that any active sensors used have an open-collector output and are designed to be connected in parallel like this. The pinout and colour of the wires is likely to change without notice, so check first. An optional diode is shown, to protect from high voltages going into brake input. Use a Schottky type to reduce the dropped voltage when it's conducting. The optional Fuse is a PTC self-resetting type to protect the TSDZ2 5V supply - 50mA should be about right, but check the spec. of your 3-wire brake sensors first.
+
 ![2-Wire brake connection](2-Wire_Brakes.png)
+
 ![3-Wire brake connection](3-Wire_Brakes.png)
