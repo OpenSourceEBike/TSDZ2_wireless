@@ -4,7 +4,7 @@ Project aims
 ------------
 
 This project aims to replace the LCD Display with an nRF52840 Bluetooth/ANT+ module and supporting circuitry. This allows the use of wireless buttons to control the TSDZ2 motor and it acts as a bridge between the motor, an Android phone running an app, and/or an ANT+ GPS/Fitness Display. It aims to be compatible with any display that can handle the ANT+ eBike data format, displaying relevant motor data and warnings. The Android app aims to duplicate (more or less) the 850C display, working either from the touchscreen or via wireless buttons on the handlebar.
-![Overview of connection](Overview.png)
+![Overview of connection](documentation/Overview.png)
 
 Warnings!
 ---------
@@ -16,14 +16,14 @@ Warnings!
 
 TSDZ2 cable pinout for LCD Display
 ----------------------------------
-![TSDZ2 Pinout for cables to standard LCD](TSDZ2_LCD_Cables.png)
+![TSDZ2 Pinout for cables to standard LCD](documentation/TSDZ2_LCD_Cables.png)
 
 The nRF5280 module needs to connect to the TSDZ2 motor-controller and the easiest way to do this is by either using an old LCD cable or buying an extension cable and cutting the relevant end off. The type of cable you have/need will depend on which TSDZ2 model you ordered - there are currently two types, one with a throttle and one without. The throttle needs a 5V connection as well as an anlogue input going to the motor-controller, so it has two extra cable - eight compared to the other motor-controller's six. For this project it is advised that you do not use the throttle, so either model is fine. The pinout of the two cable types is shown above - please note that the wire colouring and pin numbers may change! Always check with a meter first.
 
 
 Connecting the nRF52840 UART to the TSDZ2 STM8S105 Motor-Controller UART
 -------------------------------------------------------------------------------
-![nRF52840 connections to peripherals](nRF52840_Connections.png)
+![nRF52840 connections to peripherals](documentation/nRF52840_Connections.png)
 
 The TSDZ2 motor-controller's STM8S105 processor runs at 5V logic supply, whilst the nRF52840 processor runs at 3.3V. Unfortunately the nRF52 does not have 5V-tolerant GPIO inputs, so we need to be careful how we connect the two.
 
@@ -52,13 +52,13 @@ Connecting power to the nRF5280
 -------------------------------
 
 A generic DC-DC converter is used to power the nRF5280's 5V input from the battery voltage. As such is should handle an input range of between 20V and 60V (check the capacitor ratings on the PCB) and provide a stable 5V supply at 1A. As mentioned above, connect it temporarily to your battery and check/adjust the output is correct before you start wiring up the nRF5280. When everything is connected up and running, it is worth checking it again and if it is adjustable, gluing the adjuster in place with a drop of nail-varnish - this has the right consistency to secure it against vibration but is easy enough to break the seal if you need to adjust it in the future. You can use a PTC fuse if you want - 250mA to 500mA is probably enough. Check it doesn't get warm/hot to the touch when in normal use - if it does, see how much voltage is being dropped across it and replace it with a larger value if it's more than 0.5Vish.
-![Powering the nRF5280 with a DC-DC converter](nRF52840_and_DC-DC_Converter.png)
+![Powering the nRF5280 with a DC-DC converter](documentation/nRF52840_and_DC-DC_Converter.png)
 
 Connecting brake sensors to the TSDZ2
 -------------------------------------
 
 It is strongly advised that you connect brake sensors/switches to the TSDZ2 motor-controller as it will increase safety of operation and reduce the chance of damage to the blue gear, in some circumstances. The brake input to the TSDZ2 is pulled up to 5V by a resistor inside the motor-controller, pulling the brake input to GND indicates that the brakes are being used. This is normally done with a switch (2-Pin Connector), but if you have the 8-Way Higo cable you can use a powered brake-sensor with three wires. In both cases the sensors need to be connected in parallel to the single TSDZ2 motor-controller brake input - check that any active sensors used have an open-collector output and are designed to be connected in parallel like this. The pinout and colour of the wires is likely to change without notice, so check first. An optional diode is shown, to protect from high voltages going into brake input. Use a Schottky type to reduce the dropped voltage when it's conducting. The optional Fuse is a PTC self-resetting type to protect the TSDZ2 5V supply - 50mA should be about right, but check the spec. of your 3-wire brake sensors first.
 
-![2-Wire brake connection](2-Wire_Brakes.png)
+![2-Wire brake connection](documentation/2-Wire_Brakes.png)
 
-![3-Wire brake connection](3-Wire_Brakes.png)
+![3-Wire brake connection](documentation/3-Wire_Brakes.png)
