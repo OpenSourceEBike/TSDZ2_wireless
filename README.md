@@ -3,7 +3,7 @@
 Project aims
 ------------
 
-This project aims to replace the LCD Display with an nRF52840 Bluetooth/ANT+ module and supporting circuitry. This allows the use of wireless buttons to control the TSDZ2 motor and it acts as a bridge between the motor, an Android phone running an app, and/or an ANT+ GPS/Fitness Display. It aims to be compatible with any display that can handle the ANT+ eBike data format, displaying relevant motor data and warnings. The Android app aims to duplicate (more or less) the 850C display, working either from the touchscreen or via wireless buttons on the handlebar.
+This project aims to make TSDZ2 mid drive motor support wireless displays and remote control buttons just like the new commercial ebikes as [Specialized Turbo Levo Ebike.](https://www.youtube.com/watch?v=F43oqj1Zlww). The LCD Display will be replaced by a nRF52840 Bluetooth/ANT+ module and supporting circuitry. This allows the use of wireless buttons to control the TSDZ2 motor and it acts as a bridge between the motor, an Android phone running an app, and/or an ANT+ GPS/Fitness Display. It aims to be compatible with any display that can handle the ANT+ eBike data format, displaying relevant motor data and warnings. The Android app aims to duplicate (more or less) the 850C display, working either from the touchscreen or via wireless buttons on the handlebar.
 ![Overview of connection](documentation/Overview.png)
 
 Warnings!
