@@ -3,7 +3,14 @@
 Project aims
 ------------
 
-This project aims to make TSDZ2 mid drive motor support wireless displays and remote control buttons just like the new commercial ebikes as [Specialized Turbo Levo Ebike.](https://www.youtube.com/watch?v=F43oqj1Zlww). The LCD Display will be replaced by a nRF52840 Bluetooth/ANT+ module and supporting circuitry. This allows the use of wireless buttons to control the TSDZ2 motor and it acts as a bridge between the motor, an Android phone running an app, and/or an ANT+ GPS/Fitness Display. It aims to be compatible with any display that can handle the ANT+ eBike data format, displaying relevant motor data and warnings. The Android app aims to duplicate (more or less) the 850C display, working either from the touchscreen or via wireless buttons on the handlebar.
+This project aims to make TSDZ2 mid drive motor support wireless displays and wireless remote control buttons just like the new commercial ebikes as [Specialized Turbo Levo Ebike.](https://www.youtube.com/watch?v=F43oqj1Zlww).
+
+A very simple and cheap DIY board, that costs only 25€, will implement the wireless ANT+ LEV and Bluetooth. This board can be placed inside a small and waterproof black box, that will connect to the TSDZ2 motor display connector.
+
+The wireless displays and wireless remote buttons are available from some different brands: there are simple ones with monochrome screen and others very advanced with GPS navigation, cycling fitness metrics and with wireless connection to cycling sensors like pedal power sensors and even tire pressure sensors. Some brands: Garmin, Wahoo, Sigma, O-synce, Specialized and Selfloops.
+
+The LCD Display will be replaced by the DIY board, a nRF52840 Bluetooth/ANT+ module and supporting circuitry. This allows the use of wireless buttons to control the TSDZ2 motor and it acts as a bridge between the motor, an Android phone running an app, and/or an ANT+ GPS/Fitness Display. It aims to be compatible with any display that can handle the ANT+ eBike data format, displaying relevant motor data and warnings. The Android app aims to duplicate (more or less) the 850C display, working either from the touchscreen or via wireless buttons on the handlebar.
+
 ![Overview of connection](documentation/Overview.png)
 
 Warnings!
@@ -31,7 +38,7 @@ The nRF52 UART HIGH output (V.OH) is ~3.3V, which falls slightly out of the spec
 
 Connecting the 5V STM8S105 UART output to the 3.3V nRF52 UART input is more problematic and there are [an almost infinite number of ways of doing this](https://next-hack.com/index.php/2017/09/15/how-to-interface-a-5v-output-to-a-3-3v-input/ "a random guide to interfacing 5v to 3.3v logic"). The easiest way is to rely on the [nRF52's input protection diodes](io_protection.png) to keep the input voltage below the maximum allowed.
 
-![nRF52840 input protection diodes](io_protection.png)
+![nRF52840 input protection diodes](documentation/io_protection.png)
 
 If you just connect the two together a large amount of current will flow through the upper diode into the power supply, burning the diode out almost instantly and then destroying the input circuitry as the maximum voltage is exceeded. To avoid this, a current-limiting resistor is used as shown above. __NOTE__ - there is a trade off between small-resistor/high-current/high-speed and large-resistor/low-current/low-speed.
 
