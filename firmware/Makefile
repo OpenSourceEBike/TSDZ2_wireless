@@ -50,22 +50,17 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uarte.c \
   $(SDK_ROOT)/components/ant/ant_channel_config/ant_channel_config.c \
-  $(SDK_ROOT)/components/ant/ant_profiles/ant_hrm/ant_hrm.c \
-  $(SDK_ROOT)/components/ant/ant_profiles/ant_hrm/pages/ant_hrm_page_0.c \
-  $(SDK_ROOT)/components/ant/ant_profiles/ant_hrm/pages/ant_hrm_page_1.c \
-  $(SDK_ROOT)/components/ant/ant_profiles/ant_hrm/pages/ant_hrm_page_2.c \
-  $(SDK_ROOT)/components/ant/ant_profiles/ant_hrm/pages/ant_hrm_page_3.c \
-  $(SDK_ROOT)/components/ant/ant_profiles/ant_hrm/pages/ant_hrm_page_4.c \
-  $(SDK_ROOT)/components/ant/ant_profiles/ant_hrm/simulator/ant_hrm_simulator.c \
   $(SDK_ROOT)/components/ant/ant_key_manager/ant_key_manager.c \
   $(SDK_ROOT)/components/ant/ant_state_indicator/ant_state_indicator.c \
   $(SDK_ROOT)/components/libraries/bsp/bsp.c \
-  $(PROJ_DIR)/main.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ant.c \
+  $(PROJ_DIR)/main.c \
+  $(PROJ_DIR)/ant_lev/ant_lev.c \
+  $(PROJ_DIR)/ant_lev/pages/ant_lev_page_1.c \
 
 # Include folders common to all targets
 INC_FOLDERS += \
@@ -113,7 +108,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/mutex \
   $(SDK_ROOT)/components/libraries/pwr_mgmt \
   $(SDK_ROOT)/components/libraries/timer \
-  $(SDK_ROOT)/components/ant/ant_profiles/ant_hrm/pages \
+  $(PROJ_DIR)/ant_lev/pages \
 
 # Libraries common to all targets
 LIB_FILES += \

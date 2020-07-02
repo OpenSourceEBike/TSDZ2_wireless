@@ -1,3 +1,11 @@
+/*
+ * TSDZ2 wireless firmware
+ *
+ * Copyright (C) Casainho, 2020
+ *
+ * Released under the GPL License, Version 3
+ */
+
 #include <stdio.h>
 
 uint16_t cnt_1;
