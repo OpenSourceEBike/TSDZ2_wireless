@@ -6,7 +6,6 @@
  * Released under the GPL License, Version 3
  */
 
-
 #include <stdint.h>
 #include "ant_lev_page_1.h"
 
