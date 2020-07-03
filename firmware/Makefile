@@ -62,6 +62,10 @@ SRC_FILES += \
   $(PROJ_DIR)/ant_lev/ant_lev.c \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_1.c \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_2.c \
+  $(PROJ_DIR)/ant_lev/pages/ant_lev_page_3.c \
+  $(PROJ_DIR)/ant_lev/pages/ant_lev_page_4.c \
+  $(PROJ_DIR)/ant_lev/pages/ant_lev_page_5.c \
+  $(PROJ_DIR)/ant_lev/pages/ant_lev_page_34.c \
 
 # Include folders common to all targets
 INC_FOLDERS += \

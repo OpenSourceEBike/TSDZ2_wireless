@@ -10,10 +10,10 @@
 
 typedef struct
 {
-    uint8_t temperature_state;
+    uint8_t battery_soc;
     uint8_t travel_mode_state;
     uint8_t system_state;
     uint8_t gear_state;
-    uint8_t error_message;
+    uint8_t assist;
     uint16_t lev_speed;
-} ant_lev_page_1_data_t;
+} ant_lev_page_3_data_t;

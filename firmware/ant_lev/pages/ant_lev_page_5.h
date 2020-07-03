@@ -10,7 +10,6 @@
 
 typedef struct
 {
-    uint32_t odometer;
-    uint16_t remaining_range;
-    uint16_t lev_speed;
-} ant_lev_page_2_data_t;
+    uint8_t travel_modes_supported;
+    uint16_t wheel_circumference;
+} ant_lev_page_5_data_t;
