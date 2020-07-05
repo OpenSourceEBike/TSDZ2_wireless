@@ -7,11 +7,11 @@
 TSDZ2 Wireless project aims
 ------------
 
-This project aims to make TSDZ2 mid drive motor support wireless displays and wireless remote control buttons just like the new commercial ebikes as [Specialized Turbo Levo Ebike.](https://www.youtube.com/watch?v=F43oqj1Zlww).
+This project aims to make TSDZ2 mid drive motor support wireless displays and wireless remote control buttons just like the new commercial ebikes as [Specialized Turbo Levo Ebike](https://www.youtube.com/watch?v=F43oqj1Zlww).
 
 A very simple and cheap DIY board, that costs only 25€, will implement the wireless ANT+ LEV and Bluetooth. This board can be placed inside a small and waterproof black box, that will connect to the TSDZ2 motor display connector.
 
-The wireless displays and wireless remote buttons are available from some different brands: there are simple ones with monochrome screen and others very advanced with GPS navigation, cycling fitness metrics and with wireless connection to cycling sensors like pedal power sensors and even tire pressure sensors. Some brands: Garmin, Wahoo, Sigma, O-synce, Specialized and Selfloops.
+The wireless displays and wireless remote buttons are available from some different brands: Garmin, Wahoo, Sigma, O-synce, Specialized and Selfloops. Somes displays are simple with a monochrome screen and others are very advanced with GPS navigation, cycling fitness metrics and with wireless connection to cycling sensors like pedal power sensors and even tire pressure sensors.
 
 The LCD Display will be replaced by the DIY board, a nRF52840 Bluetooth/ANT+ module and supporting circuitry. This allows the use of wireless buttons to control the TSDZ2 motor and it acts as a bridge between the motor, an Android phone running an app, and/or an ANT+ GPS/Fitness Display. It aims to be compatible with any display that can handle the ANT+ eBike data format, displaying relevant motor data and warnings. The Android app aims to duplicate (more or less) the 850C display, working either from the touchscreen or via wireless buttons on the handlebar.
 
