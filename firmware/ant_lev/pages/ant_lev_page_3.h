@@ -6,14 +6,27 @@
  * Released under the GPL License, Version 3
  */
 
+#ifndef ANT_LEV_PAGE_3_H__
+#define ANT_LEV_PAGE_3_H__
+
 #include <stdint.h>
+#include "ant_sdm_common_data.h"
 
 typedef struct
 {
     uint8_t battery_soc;
-    uint8_t travel_mode_state;
-    uint8_t system_state;
-    uint8_t gear_state;
     uint8_t assist;
-    uint16_t lev_speed;
 } ant_lev_page_3_data_t;
+
+#define DEFAULT_ANT_LEV_PAGE3() \
+    (ant_sdm_page_3_data_t)      \
+    {                           \
+        .battery_soc = 0,    \
+        .assist     = 0,    \
+    }
+
+void ant_lev_page_3_encode(uint8_t * p_page_buffer,
+                            ant_lev_page_3_data_t const * p_page_data,
+                            ant_lev_common_data_t const * p_common_data);
+
+#endif
