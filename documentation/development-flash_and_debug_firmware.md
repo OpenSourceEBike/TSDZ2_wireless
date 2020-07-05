@@ -6,6 +6,7 @@ This guide assumes you are using Linux Ubuntu (if you are on Windows or such, th
 
 ## Software to install
 
+- Add your user to the dialout group: __sudo usermod -a -G dialout USER_NAME__ and reboot
 - install [Visual Studio Code](https://code.visualstudio.com/)
   - install C/C++ extension (to edit C/C++ source files)
   - install Cortex-Debug extension (to be able to debug ARM microcontroller)
@@ -15,6 +16,7 @@ This guide assumes you are using Linux Ubuntu (if you are on Windows or such, th
 - install ARM C/C++ GCC compiler: __sudo apt-get install gcc-arm-none-eabi__
 - install ARM binutils: __sudo apt-get install binutils-arm-none-eabi__
 - install ARM newlib: __sudo apt-get install libnewlib-arm-none-eabi__
+- install srec_cat tool: __sudo apt-get install srecord__
 
 ## Open project folder with Visual Studio Code
 
