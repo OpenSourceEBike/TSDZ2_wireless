@@ -14,7 +14,6 @@
 #include "ant_lev_pages.h"
 #include "ant_lev.h"
 #include "app_error.h"
-#include "ant_sdm_utils.h"
 
 #define COMMON_DATA_INTERVAL 20          /**< Common data page is sent every 20th message. */
 
@@ -29,13 +28,13 @@ static ret_code_t ant_lev_init(ant_lev_profile_t          * p_profile,
 {
     p_profile->channel_number = p_channel_config->channel_number;
 
-    p_profile->page_1  = DEFAULT_ANT_SDM_PAGE1();
-    p_profile->page_2  = DEFAULT_ANT_SDM_PAGE2();
-    p_profile->page_3  = DEFAULT_ANT_SDM_PAGE3();
-    p_profile->page_4  = DEFAULT_ANT_SDM_PAGE4();
-    p_profile->page_5  = DEFAULT_ANT_SDM_PAGE5();
-    p_profile->page_34  = DEFAULT_ANT_SDM_PAGE5();
-    p_profile->common  = DEFAULT_ANT_SDM_COMMON_DATA();
+    p_profile->page_1  = DEFAULT_ANT_LEV_PAGE1();
+    p_profile->page_2  = DEFAULT_ANT_LEV_PAGE2();
+    p_profile->page_3  = DEFAULT_ANT_LEV_PAGE3();
+    p_profile->page_4  = DEFAULT_ANT_LEV_PAGE4();
+    p_profile->page_5  = DEFAULT_ANT_LEV_PAGE5();
+    p_profile->page_34  = DEFAULT_ANT_LEV_PAGE34();
+    p_profile->common  = DEFAULT_ANT_LEV_COMMON_DATA();
     p_profile->page_80 = DEFAULT_ANT_COMMON_page80();
     p_profile->page_81 = DEFAULT_ANT_COMMON_page81();
 
@@ -51,12 +50,6 @@ ret_code_t ant_lev_sens_init(ant_lev_profile_t           * p_profile,
     ASSERT(p_sens_config != NULL);
     ASSERT(p_sens_config->p_cb != NULL);
     ASSERT(p_sens_config->evt_handler != NULL);
-    ASSERT(p_sens_config->supplementary_page_number == ANT_LEV_PAGE_1
-        || p_sens_config->supplementary_page_number == ANT_LEV_PAGE_2
-        || p_sens_config->supplementary_page_number == ANT_LEV_PAGE_3
-        || p_sens_config->supplementary_page_number == ANT_LEV_PAGE_4
-        || p_sens_config->supplementary_page_number == ANT_LEV_PAGE_5
-        || p_sens_config->supplementary_page_number == ANT_LEV_PAGE_34);
 
     p_profile->evt_handler    = p_sens_config->evt_handler;
     p_profile->_cb.p_sens_cb = p_sens_config->p_cb;
@@ -189,24 +182,6 @@ static void sens_message_encode(ant_lev_profile_t * p_profile, uint8_t * p_messa
     p_profile->evt_handler(p_profile, (ant_lev_evt_t)p_sdm_message_payload->page_number);
 }
 
-ret_code_t ant_lev_sens_open(ant_lev_profile_t * p_profile)
-{
-    ASSERT(p_profile != NULL);
-
-    // Fill tx buffer for the first frame
-    uint32_t err_code;
-    uint8_t  p_message_payload[ANT_STANDARD_DATA_PAYLOAD_SIZE];
-
-    sens_message_encode(p_profile, p_message_payload);
-    err_code =
-        sd_ant_broadcast_message_tx(p_profile->channel_number,
-                                    sizeof(p_message_payload),
-                                    p_message_payload);
-    APP_ERROR_CHECK(err_code);
-
-    return sd_ant_channel_open(p_profile->channel_number);
-}
-
 void ant_lev_sens_evt_handler(ant_evt_t * p_ant_evt, void * p_context)
 {
     ASSERT(p_context   != NULL);
@@ -244,4 +219,22 @@ void ant_lev_sens_evt_handler(ant_evt_t * p_ant_evt, void * p_context)
                 break;
         }
     }
+}
+
+ret_code_t ant_lev_sens_open(ant_lev_profile_t * p_profile)
+{
+    ASSERT(p_profile != NULL);
+
+    // Fill tx buffer for the first frame
+    uint32_t err_code;
+    uint8_t  p_message_payload[ANT_STANDARD_DATA_PAYLOAD_SIZE];
+
+    sens_message_encode(p_profile, p_message_payload);
+    err_code =
+        sd_ant_broadcast_message_tx(p_profile->channel_number,
+                                    sizeof(p_message_payload),
+                                    p_message_payload);
+    APP_ERROR_CHECK(err_code);
+
+    return sd_ant_channel_open(p_profile->channel_number);
 }

@@ -23,8 +23,8 @@ typedef struct
 void ant_lev_common_data_encode(uint8_t * p_page_buffer,
                                 ant_lev_common_data_t const * p_page_data)
 {
-    ant_lev_common_data_layout_t * p_outcoming_data = (ant_lev_common_data_layout_t *)p_page_buffer;
-
+    // ant_lev_common_data_layout_t * p_outcoming_data = (ant_lev_common_data_layout_t *)p_page_buffer;
+// 
     // p_outcoming_data->travel_mode_state = p_page_data->travel_mode_state;
     // p_outcoming_data->system_state = p_page_data->system_state;
     // p_outcoming_data->gear_state = p_page_data->gear_state;

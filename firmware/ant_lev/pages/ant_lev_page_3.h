@@ -10,7 +10,7 @@
 #define ANT_LEV_PAGE_3_H__
 
 #include <stdint.h>
-#include "ant_sdm_common_data.h"
+#include "ant_lev_common_data.h"
 
 typedef struct
 {
@@ -19,7 +19,7 @@ typedef struct
 } ant_lev_page_3_data_t;
 
 #define DEFAULT_ANT_LEV_PAGE3() \
-    (ant_sdm_page_3_data_t)      \
+    (ant_lev_page_3_data_t)      \
     {                           \
         .battery_soc = 0,    \
         .assist     = 0,    \

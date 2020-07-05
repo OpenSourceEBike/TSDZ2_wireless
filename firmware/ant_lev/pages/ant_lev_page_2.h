@@ -17,7 +17,7 @@ typedef struct
     uint16_t remaining_range;
 } ant_lev_page_2_data_t;
 
-#define DEFAULT_ANT_LEV_PAGE1() \
+#define DEFAULT_ANT_LEV_PAGE2() \
     (ant_lev_page_2_data_t)      \
     {                           \
         .remaining_range = 0,    \

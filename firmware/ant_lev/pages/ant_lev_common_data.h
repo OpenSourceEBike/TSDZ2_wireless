@@ -21,7 +21,7 @@ typedef struct
 } ant_lev_common_data_t;
 
 #define DEFAULT_ANT_LEV_COMMON_DATA() \
-    (ant_sdm_page_4_data_t)      \
+    (ant_lev_common_data_t)      \
     {                           \
         .travel_mode_state = 0,    \
         .system_state     = 0,    \

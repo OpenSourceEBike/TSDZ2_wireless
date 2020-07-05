@@ -49,15 +49,19 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/drivers/src/prs/nrfx_prs.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uarte.c \
-  $(SDK_ROOT)/components/ant/ant_channel_config/ant_channel_config.c \
-  $(SDK_ROOT)/components/ant/ant_key_manager/ant_key_manager.c \
-  $(SDK_ROOT)/components/ant/ant_state_indicator/ant_state_indicator.c \
   $(SDK_ROOT)/components/libraries/bsp/bsp.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ant.c \
+  $(SDK_ROOT)/components/ant/ant_profiles/ant_common/ant_request_controller/ant_request_controller.c \
+  $(SDK_ROOT)/components/ant/ant_channel_config/ant_channel_config.c \
+  $(SDK_ROOT)/components/ant/ant_key_manager/ant_key_manager.c \
+  $(SDK_ROOT)/components/ant/ant_state_indicator/ant_state_indicator.c \
+  $(SDK_ROOT)/components/ant/ant_profiles/ant_common/pages/ant_common_page_70.c \
+  $(SDK_ROOT)/components/ant/ant_profiles/ant_common/pages/ant_common_page_80.c \
+  $(SDK_ROOT)/components/ant/ant_profiles/ant_common/pages/ant_common_page_81.c \
   $(PROJ_DIR)/main.c \
   $(PROJ_DIR)/ant_lev/ant_lev.c \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_1.c \
@@ -66,38 +70,33 @@ SRC_FILES += \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_4.c \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_5.c \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_34.c \
+  $(PROJ_DIR)/ant_lev/pages/ant_lev_common_data.c \
+
 
 # Include folders common to all targets
 INC_FOLDERS += \
   $(SDK_ROOT)/ \
   $(SDK_ROOT)/components/libraries/sensorsim \
   $(SDK_ROOT)/external/fprintf \
-  $(SDK_ROOT)/components/ant/ant_key_manager \
   $(SDK_ROOT)/components/softdevice/s340/headers \
   $(SDK_ROOT)/components/softdevice/s340/headers/nrf52 \
   $(SDK_ROOT)/components/libraries/hardfault/nrf52 \
   $(SDK_ROOT)/integration/nrfx \
-  $(SDK_ROOT)/components/ant/ant_profiles/ant_hrm \
-  $(SDK_ROOT)/components/ant/ant_profiles/ant_hrm/simulator \
   $(SDK_ROOT)/components/libraries/scheduler \
   $(SDK_ROOT)/components/libraries/experimental_section_vars \
   $(SDK_ROOT)/components/libraries/atomic_fifo \
   $(SDK_ROOT)/modules/nrfx/mdk \
-  $(SDK_ROOT)/components/ant/ant_profiles/ant_hrm/utils \
   $(SDK_ROOT)/components/libraries/strerror \
   $(SDK_ROOT)/integration/nrfx/legacy \
   $(SDK_ROOT)/components/boards \
   $(SDK_ROOT)/components/softdevice/s340/headers \
   $(SDK_ROOT)/components/libraries/button \
-  $(SDK_ROOT)/components/ant/ant_state_indicator \
   $(SDK_ROOT)/components/libraries/log \
   $(SDK_ROOT)/modules/nrfx/hal \
   $(SDK_ROOT)/components/libraries/log/src \
   $(SDK_ROOT)/components/libraries/bsp \
-  $(SDK_ROOT)/components/ant/ant_key_manager/config \
   $(SDK_ROOT)/components/libraries/sortlist \
   $(SDK_ROOT)/modules/nrfx/drivers/include \
-  $(SDK_ROOT)/components/ant/ant_channel_config \
   $(SDK_ROOT)/components/libraries/hardfault \
   $(SDK_ROOT)/components/libraries/balloc \
   $(SDK_ROOT)/components/libraries/util \
@@ -113,6 +112,13 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/mutex \
   $(SDK_ROOT)/components/libraries/pwr_mgmt \
   $(SDK_ROOT)/components/libraries/timer \
+  $(SDK_ROOT)/components/ant/ant_state_indicator \
+  $(SDK_ROOT)/components/ant/ant_key_manager \
+  $(SDK_ROOT)/components/ant/ant_key_manager/config \
+  $(SDK_ROOT)/components/ant/ant_channel_config \
+  $(SDK_ROOT)/components/ant/ant_profiles/ant_common/ant_request_controller \
+  $(SDK_ROOT)/components/ant/ant_profiles/ant_common/pages \
+  $(PROJ_DIR)/ant_lev \
   $(PROJ_DIR)/ant_lev/pages \
 
 # Libraries common to all targets

@@ -20,7 +20,7 @@ typedef struct
 } ant_lev_page_4_data_t;
 
 #define DEFAULT_ANT_LEV_PAGE4() \
-    (ant_sdm_page_4_data_t)      \
+    (ant_lev_page_4_data_t)      \
     {                           \
         .charging_cycle_count = 0,    \
         .fuel_consumption     = 0,    \
