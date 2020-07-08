@@ -70,6 +70,7 @@ SRC_FILES += \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_4.c \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_5.c \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_34.c \
+  $(PROJ_DIR)/ant_lev/pages/ant_lev_page_16.c \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_common_data.c \
 
 

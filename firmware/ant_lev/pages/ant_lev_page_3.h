@@ -21,8 +21,8 @@ typedef struct
 #define DEFAULT_ANT_LEV_PAGE3() \
     (ant_lev_page_3_data_t)      \
     {                           \
-        .battery_soc = 0,    \
-        .assist     = 0,    \
+        .battery_soc = 50,    \
+        .assist     = 0xff,    \
     }
 
 void ant_lev_page_3_encode(uint8_t * p_page_buffer,

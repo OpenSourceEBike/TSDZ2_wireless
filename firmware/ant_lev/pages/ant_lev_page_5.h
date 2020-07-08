@@ -20,8 +20,8 @@ typedef struct
 #define DEFAULT_ANT_LEV_PAGE5() \
     (ant_lev_page_5_data_t)      \
     {                           \
-        .travel_modes_supported = 0,    \
-        .wheel_circumference     = 0,    \
+        .travel_modes_supported = 0x38,    \
+        .wheel_circumference     = 2050,    \
     }
 
 void ant_lev_page_5_encode(uint8_t                    * p_page_buffer,

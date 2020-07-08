@@ -23,10 +23,10 @@ typedef struct
 #define DEFAULT_ANT_LEV_COMMON_DATA() \
     (ant_lev_common_data_t)      \
     {                           \
-        .travel_mode_state = 0,    \
-        .system_state     = 0,    \
+        .travel_mode_state = 0x10,    \
+        .system_state     = 0x8,    \
         .gear_state     = 0,    \
-        .lev_speed     = 0,    \
+        .lev_speed     = 0xFA ,    \
         .odometer     = 0,    \
     }
 

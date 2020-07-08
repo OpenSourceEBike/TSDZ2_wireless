@@ -33,7 +33,8 @@ static ret_code_t ant_lev_init(ant_lev_profile_t          * p_profile,
     p_profile->page_3  = DEFAULT_ANT_LEV_PAGE3();
     p_profile->page_4  = DEFAULT_ANT_LEV_PAGE4();
     p_profile->page_5  = DEFAULT_ANT_LEV_PAGE5();
-    p_profile->page_34  = DEFAULT_ANT_LEV_PAGE34();
+    p_profile->page_16 = DEFAULT_ANT_LEV_PAGE16();
+    p_profile->page_34 = DEFAULT_ANT_LEV_PAGE34();
     p_profile->common  = DEFAULT_ANT_LEV_COMMON_DATA();
     p_profile->page_80 = DEFAULT_ANT_COMMON_page80();
     p_profile->page_81 = DEFAULT_ANT_COMMON_page81();
@@ -132,55 +133,74 @@ static ant_lev_page_t next_page_number_get(ant_lev_profile_t * p_profile)
 
 static void sens_message_encode(ant_lev_profile_t * p_profile, uint8_t * p_message_payload)
 {
-    ant_lev_message_layout_t * p_sdm_message_payload =
+    ant_lev_message_layout_t * p_lev_message_payload =
         (ant_lev_message_layout_t *)p_message_payload;
 
-    p_sdm_message_payload->page_number = next_page_number_get(p_profile);
+    p_lev_message_payload->page_number = next_page_number_get(p_profile);
 
-    switch (p_sdm_message_payload->page_number)
+    switch (p_lev_message_payload->page_number)
     {
         case ANT_LEV_PAGE_1:
-            ant_lev_page_1_encode(p_sdm_message_payload->page_payload, &(p_profile->page_1),
+            ant_lev_page_1_encode(p_lev_message_payload->page_payload, &(p_profile->page_1),
                                   &(p_profile->common));
             break;
 
         case ANT_LEV_PAGE_2:
-            ant_lev_page_2_encode(p_sdm_message_payload->page_payload, &(p_profile->page_2),
+            ant_lev_page_2_encode(p_lev_message_payload->page_payload, &(p_profile->page_2),
                         &(p_profile->common));
             break;
 
         case ANT_LEV_PAGE_3:
-            ant_lev_page_3_encode(p_sdm_message_payload->page_payload, &(p_profile->page_3),
+            ant_lev_page_3_encode(p_lev_message_payload->page_payload, &(p_profile->page_3),
                         &(p_profile->common));
             break;
 
         case ANT_LEV_PAGE_4:
-            ant_lev_page_4_encode(p_sdm_message_payload->page_payload, &(p_profile->page_4));
+            ant_lev_page_4_encode(p_lev_message_payload->page_payload, &(p_profile->page_4));
             break;
 
         case ANT_LEV_PAGE_5:
-            ant_lev_page_5_encode(p_sdm_message_payload->page_payload, &(p_profile->page_5));
+            ant_lev_page_5_encode(p_lev_message_payload->page_payload, &(p_profile->page_5));
             break;
 
         case ANT_LEV_PAGE_34:
-            ant_lev_page_34_encode(p_sdm_message_payload->page_payload, &(p_profile->page_34),
+            ant_lev_page_34_encode(p_lev_message_payload->page_payload, &(p_profile->page_34),
                         &(p_profile->common));
             break;            
 
         case ANT_LEV_PAGE_80:
-            ant_common_page_80_encode(p_sdm_message_payload->page_payload, &(p_profile->page_80));
+            ant_common_page_80_encode(p_lev_message_payload->page_payload, &(p_profile->page_80));
             break;
 
         case ANT_LEV_PAGE_81:
-            ant_common_page_81_encode(p_sdm_message_payload->page_payload, &(p_profile->page_81));
+            ant_common_page_81_encode(p_lev_message_payload->page_payload, &(p_profile->page_81));
             break;
 
         default:
             return;
     }
 
-    p_profile->evt_handler(p_profile, (ant_lev_evt_t)p_sdm_message_payload->page_number);
+    p_profile->evt_handler(p_profile, (ant_lev_evt_t)p_lev_message_payload->page_number);
 }
+
+// static void disp_message_decode(ant_lev_profile_t * p_profile, uint8_t * p_message_payload)
+// {
+//     const ant_lev_message_layout_t * p_lev_message_payload =
+//         (ant_lev_message_layout_t *)p_message_payload;
+
+//     switch (p_lev_message_payload->page_number)
+//     {
+//         case ANT_LEV_PAGE_16:
+//             ant_lev_page_16_decode(p_lev_message_payload->page_payload,
+//                                   &(p_profile->page_16));
+//             break;
+
+//         default:
+//             return;
+//     }
+
+//     p_profile->evt_handler(p_profile, (ant_lev_evt_t)p_lev_message_payload->page_number);
+// }
 
 void ant_lev_sens_evt_handler(ant_evt_t * p_ant_evt, void * p_context)
 {
@@ -215,6 +235,16 @@ void ant_lev_sens_evt_handler(ant_evt_t * p_ant_evt, void * p_context)
                 }
                 APP_ERROR_CHECK(err_code);
                 break;
+
+            // case EVENT_RX:
+            //     if (p_ant_evt->message.ANT_MESSAGE_ucMesgID == MESG_BROADCAST_DATA_ID
+            //      || p_ant_evt->message.ANT_MESSAGE_ucMesgID == MESG_ACKNOWLEDGED_DATA_ID
+            //      || p_ant_evt->message.ANT_MESSAGE_ucMesgID == MESG_BURST_DATA_ID)
+            //     {
+            //         disp_message_decode(p_profile, p_ant_evt->message.ANT_MESSAGE_aucPayload);
+            //     }
+            //     break;
+
             default:
                 break;
         }

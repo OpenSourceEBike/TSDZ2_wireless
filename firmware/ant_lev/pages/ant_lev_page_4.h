@@ -24,7 +24,7 @@ typedef struct
     {                           \
         .charging_cycle_count = 0,    \
         .fuel_consumption     = 0,    \
-        .battery_voltage     = 0,    \
+        .battery_voltage     = 0xD0,    \
         .distance_on_current_charge     = 0,    \
     }
 

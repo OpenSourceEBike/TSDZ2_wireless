@@ -110,24 +110,6 @@ static void profile_setup(void)
                                           LEV_SW_REVISION_MINOR,
                                           LEV_SERIAL_NUMBER);
 
-    m_ant_lev.page_1.error_message = 0;
-    m_ant_lev.page_1.temperature_state = 0;
-    m_ant_lev.page_2.remaining_range = 0;
-    m_ant_lev.page_3.battery_soc = 100;
-    m_ant_lev.page_3.assist = 0xff;
-    m_ant_lev.page_4.charging_cycle_count = 0;
-    m_ant_lev.page_4.fuel_consumption = 0;
-    m_ant_lev.page_4.battery_voltage = 208; // 52V / 0.25 = 208
-    m_ant_lev.page_4.distance_on_current_charge = 0;
-    m_ant_lev.page_5.travel_modes_supported = 0x38; // 7 assist levels
-    m_ant_lev.page_5.wheel_circumference = 2050;
-    m_ant_lev.page_34.fuel_consumption = 0;
-    m_ant_lev.common.travel_mode_state = 0;
-    m_ant_lev.common.system_state = 0;
-    m_ant_lev.common.gear_state = 0;
-    m_ant_lev.common.lev_speed = 0;
-    m_ant_lev.common.odometer = 0;
-
     err_code = ant_lev_sens_open(&m_ant_lev);
     APP_ERROR_CHECK(err_code);
 }
@@ -169,7 +151,7 @@ int main(void)
         __asm__("nop");
 
         NRF_LOG_FLUSH();
-        nrf_pwr_mgmt_run();
+        // nrf_pwr_mgmt_run();
     }
 }
 
