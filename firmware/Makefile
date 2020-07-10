@@ -7,7 +7,7 @@ PROJ_DIR := .
 
 $(OUTPUT_DIRECTORY)/TSDZ2_wireless.out: \
   LINKER_SCRIPT  := TSDZ2_wireless_gcc_nrf52.ld
-  
+
 SOFT_DEVICE = $(SDK_ROOT)/components/softdevice/s340/hex/ANT_s340_nrf52840_6.1.1.hex
 
 # Source files common to all targets
@@ -191,6 +191,7 @@ LIB_FILES += -lc -lnosys -lm
 # Default target - first one defined
 default: TSDZ2_wireless TSDZ2_with_SD
 
+# We use srec_cat here but if you want to be able to use the combined hex file with nRF Connect you should use Nordic's mergehex tool
 TSDZ2_with_SD:
 	$(SREC_PATH)srec_cat $(SOFT_DEVICE) -Intel $(OUTPUT_DIRECTORY)/TSDZ2_wireless.hex -Intel -Output $(OUTPUT_DIRECTORY)/TSDZ2_wireless_with_SD.hex
 

@@ -36,9 +36,13 @@ The clean and build tasks call the __make clean__ and __make__ on the terminal. 
 
 ## Flash the firmware and debug
 
-1. Connect the STLinkV2 to the board.
+1. Connect the STLinkV2 to the board. If you have a nRF52840 MDK Dongle see the pinout in the schematic folder. If you have the blue nRF52840 Dongle it has a different pinout, see [nRF52840 Dongle Pinout.png](./nRF52840%20Dongle%20Pinout.png), note that you do not need to connect the RST pin.
 
-Note that you will also need to install the STLinkV2 udev rules file that are on the firmware/tools/ folder, so the STLinkV2 can be accessed by the OpenOCD - search on Internet for how to install udev rule file.
+Note that you will also need to install the STLinkV2 udev rules file that are on the firmware/tools/ folder, so the STLinkV2 can be accessed by the OpenOCD:
+```
+sudo cp 60-st_link_v2.rules /etc/udev/rules.d
+sudo udevadm control --reload-rules
+```
 
 2. Click on the task Launch OpenOCD
 
@@ -55,3 +59,16 @@ Click on the debug icon on the left panel and then click on the small green arro
 ![](flash_debug_4.png)
 
 The NRF52 Flash and Debug configuration is on the file .vscode/launch.json.
+
+## Troubleshooting
+
+### Flashing appears to work fine but I cannot debug
+If you are flashing code via your STLinkV2 but unable to debug as when you pause the debugger it stops in unknown code you cannot step through (you see the error `ERROR: Unexpected GDB output from command "-exec-next". Cannot find bounds of current function`) then the issue is that your bootloader is doing CRC validation which fails and then refusing to load your code. You have two options to fix this:
+
+1. Change the makefile to generate the bootloader settings with correct CRC in e.g. (you will need to install nrfutil `pip install nrfutil`)
+```make
+TSDZ2_with_SD:
+  nrfutil settings generate --family NRF52840 --bootloader-version 0 --bl-settings-version 1 --application $(OUTPUT_DIRECTORY)/TSDZ2_wireless.hex --application-version 4294967295 $(OUTPUT_DIRECTORY)/settings.hex
+  $(SREC_PATH)srec_cat $(OUTPUT_DIRECTORY)/settings.hex -Intel $(SOFT_DEVICE) -Intel $(OUTPUT_DIRECTORY)/TSDZ2_wireless.hex -Intel -Output $(OUTPUT_DIRECTORY)/TSDZ2_wireless_with_SD.hex
+```
+2. Or flash a more permission bootloader which doesn't do CRC checks using the dfu/open_bootloader/pca100059_usb_debug example from the SDK.
