@@ -1,5 +1,5 @@
 /*
- * TSDZ2 wireless firmware
+ * TSDZ2 EBike wireless firmware
  *
  * Copyright (C) Casainho, 2020
  *

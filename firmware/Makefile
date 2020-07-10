@@ -62,7 +62,6 @@ SRC_FILES += \
   $(SDK_ROOT)/components/ant/ant_profiles/ant_common/pages/ant_common_page_70.c \
   $(SDK_ROOT)/components/ant/ant_profiles/ant_common/pages/ant_common_page_80.c \
   $(SDK_ROOT)/components/ant/ant_profiles/ant_common/pages/ant_common_page_81.c \
-  $(PROJ_DIR)/main.c \
   $(PROJ_DIR)/ant_lev/ant_lev.c \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_1.c \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_2.c \
@@ -72,7 +71,8 @@ SRC_FILES += \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_34.c \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_16.c \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_common_data.c \
-
+  $(PROJ_DIR)/pins.c \
+  $(PROJ_DIR)/main.c \
 
 # Include folders common to all targets
 INC_FOLDERS += \

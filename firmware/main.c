@@ -1,5 +1,5 @@
 /*
- * TSDZ2 wireless firmware
+ * TSDZ2 EBike wireless firmware
  *
  * Copyright (C) Casainho, 2020
  *
@@ -19,6 +19,7 @@
 #include "nrf_sdh_ant.h"
 #include "ant_key_manager.h"
 #include "ant_lev.h"
+#include "pins.h"
 
 #define LEV_HW_REVISION 1
 #define LEV_MANUFACTURER_ID (UINT16_MAX - 1)
@@ -73,6 +74,14 @@ void ant_lev_evt_handler(ant_lev_profile_t * p_profile, ant_lev_evt_t event)
             break;
 
         case ANT_LEV_PAGE_16_UPDATED:
+            if ((p_profile->page_16.travel_mode & 0x38) > 0)
+                motor_power_enable(false);
+            else
+                motor_power_enable(true);
+
+            // update the assist level
+            p_profile->common.travel_mode_state = p_profile->page_16.travel_mode;
+
             break;
 
         case ANT_LEV_PAGE_80_UPDATED:
@@ -141,6 +150,7 @@ int main(void)
     static uint16_t cnt_2;
 
     log_init();
+    pins_init();
     softdevice_setup();
     profile_setup();
 
