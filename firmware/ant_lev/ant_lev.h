@@ -18,14 +18,13 @@
 #include "ant_lev_pages.h"
 #include "sdk_errors.h"
 
-#define LEV_DEVICE_TYPE       0x14u                                         ///< Device type reserved for ANT+ LEV.
-#define LEV_ANTPLUS_RF_FREQ   0x39u                                         ///< Frequency, decimal 57 (2457 MHz).
+#define LEV_DEVICE_TYPE       0x14u // ANT+ LEV datasheet: Device type reserved for ANT+ LEV.
+#define LEV_ANTPLUS_RF_FREQ   0x39u // ANT+ LEV datasheet: Frequency, decimal 57 / 0x39 (2457 MHz).
 
-#define LEV_MSG_PERIOD_4Hz    0x1FC6u                                       ///< Message period, decimal 8134 (4.03 Hz).
-#define LEV_MSG_PERIOD_2Hz    0x3F8Cu                                       ///< Message period, decimal 16268 (2.01 Hz).
+#define LEV_MSG_PERIOD_4Hz    0x2000u // Message period, decimal 8192 (4.00 Hz).
 
-#define LEV_EXT_ASSIGN        0x00                                          ///< ANT ext assign (see Ext. Assign Channel Parameters in ant_parameters.h: @ref ant_parameters).
-#define LEV_SENS_CHANNEL_TYPE CHANNEL_TYPE_MASTER                           ///< TX LEV channel type.
+#define LEV_EXT_ASSIGN        0x00 //< ANT ext assign (see Ext. Assign Channel Parameters in ant_parameters.h: @ref ant_parameters).
+#define LEV_SENS_CHANNEL_TYPE CHANNEL_TYPE_MASTER // TX LEV channel type.
 
 #define LEV_SENS_CHANNEL_CONFIG_DEF(NAME,                                       \
                                     CHANNEL_NUMBER,                             \
@@ -35,7 +34,7 @@
 static const ant_channel_config_t   CONCAT_2(NAME,_channel_lev_sens_config) =   \
     {                                                                           \
         .channel_number     = (CHANNEL_NUMBER),                                 \
-        .channel_type       = LEV_SENS_CHANNEL_TYPE,                            \
+        .channel_type       = LEV_SENS_CHANNEL_TYPE,                          \
         .ext_assign         = LEV_EXT_ASSIGN,                                   \
         .rf_freq            = LEV_ANTPLUS_RF_FREQ,                              \
         .transmission_type  = (TRANSMISSION_TYPE),                              \

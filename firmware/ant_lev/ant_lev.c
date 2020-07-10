@@ -77,54 +77,42 @@ static ant_lev_page_t next_page_number_get(ant_lev_profile_t * p_profile)
     else if (p_lev_cb->message_counter == (COMMON_DATA_INTERVAL)) // send either 80 or 81 common data page
     {
         page_number  = p_lev_cb->common_page_number;
-        p_lev_cb->message_counter++;
-    }
-    else if (p_lev_cb->message_counter == (COMMON_DATA_INTERVAL + 1))  // send again the previous common page
-    {
-        page_number  = p_lev_cb->common_page_number;
         // next time will send the other common page: either 80 or 81
         p_lev_cb->common_page_number = (p_lev_cb->common_page_number == ANT_LEV_PAGE_80)
                                      ? ANT_LEV_PAGE_81 : ANT_LEV_PAGE_80;
         p_lev_cb->message_counter = 0;
+        p_lev_cb->block_cnt = 1;
     }
     else
     {
-        switch (p_lev_cb->block_cnt) 
+        switch (p_lev_cb->block_cnt)
         {
-            case 0:
-                page_number = ANT_LEV_PAGE_1;
-                break;
-
             case 1:
-                if (p_lev_cb->pag_2_34)
-                    page_number = ANT_LEV_PAGE_2;
-                else
-                    page_number = ANT_LEV_PAGE_34;
-
-                p_lev_cb->pag_2_34 = !p_lev_cb->pag_2_34;
+                page_number = ANT_LEV_PAGE_1;
+                p_lev_cb->block_cnt = 2;
                 break;
 
             case 2:
-                page_number = ANT_LEV_PAGE_3;
+                page_number = ANT_LEV_PAGE_2;
+                p_lev_cb->block_cnt = 3;
                 break;
 
             case 3:
-                if (p_lev_cb->pag_4_5)
-                    page_number = ANT_LEV_PAGE_4;
-                else
-                    page_number = ANT_LEV_PAGE_5;
+                page_number = ANT_LEV_PAGE_3;
+                p_lev_cb->block_cnt = 5;
+                break;
 
-                p_lev_cb->pag_4_5 = !p_lev_cb->pag_4_5;
-                p_lev_cb->block_cnt = 0;
+            case 5:
+                page_number = ANT_LEV_PAGE_5;
+                p_lev_cb->block_cnt = 1;
                 break;
 
             default:
                 page_number = ANT_LEV_PAGE_1;
-                p_lev_cb->block_cnt = 0;
+                p_lev_cb->block_cnt = 2;
                 break;
         }
 
-        p_lev_cb->block_cnt++;
         p_lev_cb->message_counter++;
     }
 
@@ -183,24 +171,24 @@ static void sens_message_encode(ant_lev_profile_t * p_profile, uint8_t * p_messa
     p_profile->evt_handler(p_profile, (ant_lev_evt_t)p_lev_message_payload->page_number);
 }
 
-// static void disp_message_decode(ant_lev_profile_t * p_profile, uint8_t * p_message_payload)
-// {
-//     const ant_lev_message_layout_t * p_lev_message_payload =
-//         (ant_lev_message_layout_t *)p_message_payload;
+static void disp_message_decode(ant_lev_profile_t * p_profile, uint8_t * p_message_payload)
+{
+    const ant_lev_message_layout_t * p_lev_message_payload =
+        (ant_lev_message_layout_t *)p_message_payload;
 
-//     switch (p_lev_message_payload->page_number)
-//     {
-//         case ANT_LEV_PAGE_16:
-//             ant_lev_page_16_decode(p_lev_message_payload->page_payload,
-//                                   &(p_profile->page_16));
-//             break;
+    switch (p_lev_message_payload->page_number)
+    {
+        case ANT_LEV_PAGE_16:
+            ant_lev_page_16_decode(p_lev_message_payload->page_payload,
+                                  &(p_profile->page_16));
+            break;
 
-//         default:
-//             return;
-//     }
+        default:
+            return;
+    }
 
-//     p_profile->evt_handler(p_profile, (ant_lev_evt_t)p_lev_message_payload->page_number);
-// }
+    p_profile->evt_handler(p_profile, (ant_lev_evt_t)p_lev_message_payload->page_number);
+}
 
 void ant_lev_sens_evt_handler(ant_evt_t * p_ant_evt, void * p_context)
 {
@@ -236,14 +224,14 @@ void ant_lev_sens_evt_handler(ant_evt_t * p_ant_evt, void * p_context)
                 APP_ERROR_CHECK(err_code);
                 break;
 
-            // case EVENT_RX:
-            //     if (p_ant_evt->message.ANT_MESSAGE_ucMesgID == MESG_BROADCAST_DATA_ID
-            //      || p_ant_evt->message.ANT_MESSAGE_ucMesgID == MESG_ACKNOWLEDGED_DATA_ID
-            //      || p_ant_evt->message.ANT_MESSAGE_ucMesgID == MESG_BURST_DATA_ID)
-            //     {
-            //         disp_message_decode(p_profile, p_ant_evt->message.ANT_MESSAGE_aucPayload);
-            //     }
-            //     break;
+            case EVENT_RX:
+                if (p_ant_evt->message.ANT_MESSAGE_ucMesgID == MESG_BROADCAST_DATA_ID
+                 || p_ant_evt->message.ANT_MESSAGE_ucMesgID == MESG_ACKNOWLEDGED_DATA_ID
+                 || p_ant_evt->message.ANT_MESSAGE_ucMesgID == MESG_BURST_DATA_ID)
+                {
+                    disp_message_decode(p_profile, p_ant_evt->message.ANT_MESSAGE_aucPayload);
+                }
+                break;
 
             default:
                 break;

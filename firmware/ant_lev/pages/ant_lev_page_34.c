@@ -27,6 +27,10 @@ void ant_lev_page_34_encode(uint8_t * p_page_buffer,
 {
     ant_lev_page_34_data_layout_t * p_outcoming_data = (ant_lev_page_34_data_layout_t *)p_page_buffer;
 
+    p_outcoming_data->odometer_lsb = ((uint8_t) p_common_data->odometer) & 0xff;
+    p_outcoming_data->odometer = ((uint8_t) (p_common_data->odometer >> 8)) & 0x0f;
+    p_outcoming_data->odometer_msb = ((uint8_t) (p_common_data->odometer >> 16)) & 0x0f;
+
     p_outcoming_data->fuel_consumption_lsb = ((uint8_t) p_page_data->fuel_consumption) & 0xff;
     p_outcoming_data->fuel_consumption_msn = ((uint8_t) (p_page_data->fuel_consumption >> 8)) & 0x0f;
 

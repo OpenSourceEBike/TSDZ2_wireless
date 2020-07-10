@@ -26,9 +26,9 @@
 #define LEV_SW_REVISION_MAJOR 1
 #define LEV_SW_REVISION_MINOR 1
 #define LEV_SERIAL_NUMBER 1234567
-#define LEV_CHANNEL_NUM 0
-#define CHAN_ID_TRANS_TYPE 5
-#define CHAN_ID_DEV_NUM 1
+#define LEV_CHANNEL_NUM 0 // ?? seems can be any value from 0 to 8
+#define CHAN_ID_TRANS_TYPE 5 // LEV table 4.2
+#define CHAN_ID_DEV_NUM 1 // [1 - 65535], LEV table 4.2
 #define ANTPLUS_NETWORK_NUM 0
 #define ANT_LEV_ANT_OBSERVER_PRIO 1
 
