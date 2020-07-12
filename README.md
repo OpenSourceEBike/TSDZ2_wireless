@@ -34,7 +34,7 @@ The nRF5280 module needs to connect to the TSDZ2 motor-controller and the easies
 
 Connecting the nRF52840 UART to the TSDZ2 STM8S105 Motor-Controller UART
 -------------------------------------------------------------------------------
-![nRF52840 connections to peripherals](documentation/nRF52840_Connections.png)
+![nRF52840 connections to peripherals](documentation/nRF52840_Connections_V2.png)
 
 The TSDZ2 motor-controller's STM8S105 processor runs at 5V logic supply, whilst the nRF52840 processor runs at 3.3V. Unfortunately the nRF52 does not have 5V-tolerant GPIO inputs, so we need to be careful how we connect the two.
 
@@ -56,7 +56,7 @@ For convenience it is advised that you permanently wire in a connector to allow 
 
 Connecting the nRF52840 to the BTS4140N High-Side Mosfet Relay
 --------------------------------------------------------------
-The high-side mosfet relay can be wired up directly to the nRF5280, provided the output of the nRF52850 is either floating (relay is open-circuit) or ground (relay is conducting). This can be achieved by switching the "output" pin between Output = LOW and configuring it as a High-Z Input. Alternatively look at the BTS4140N datasheet to see how a fet can be used to interface a HIGH/LOW output with the high-side relay.
+The high-side mosfet-relay input needs to be driven by an open-drain/open-collector circuit that can withstand the battery voltage across it when the device is floating. Following the BTS4140N datasheet on page 6, a BSS138 mosfet (supersedes BSS100) pulls the BTS4140N input to ground to make it conduct. When the mosfet is off, the BTS4140N stops conducting and the input floats at the battery voltage, which means that the Drain-Source breakdown voltage must be higher than 60V - the BSS138 is 100V.
 
 
 Connecting power to the nRF5280
