@@ -192,7 +192,7 @@ static void disp_message_decode(ant_lev_profile_t * p_profile, uint8_t * p_messa
 
 void ant_lev_sens_evt_handler(ant_evt_t * p_ant_evt, void * p_context)
 {
-    ASSERT(p_context   != NULL);
+    ASSERT(p_context != NULL);
     ASSERT(p_ant_evt != NULL);
     ant_lev_profile_t * p_profile = (ant_lev_profile_t *)p_context;
 

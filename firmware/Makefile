@@ -72,6 +72,8 @@ SRC_FILES += \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_16.c \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_common_data.c \
   $(PROJ_DIR)/pins.c \
+	$(PROJ_DIR)/eeprom_hw.c \
+	$(PROJ_DIR)/eeprom.c \
   $(PROJ_DIR)/main.c \
 
 # Include folders common to all targets
@@ -119,6 +121,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/ant/ant_channel_config \
   $(SDK_ROOT)/components/ant/ant_profiles/ant_common/ant_request_controller \
   $(SDK_ROOT)/components/ant/ant_profiles/ant_common/pages \
+	$(PROJ_DIR)/include \
   $(PROJ_DIR)/ant_lev \
   $(PROJ_DIR)/ant_lev/pages \
   $(PROJ_DIR)/config \
