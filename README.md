@@ -29,7 +29,7 @@ TSDZ2 cable pinout for LCD Display
 ----------------------------------
 ![TSDZ2 Pinout for cables to standard LCD](schematic/TSDZ2_LCD_Cables.png)
 
-The nRF5280 module needs to connect to the TSDZ2 motor-controller and the easiest way to do this is by either using an old LCD cable or buying an extension cable and cutting the relevant end off. The type of cable you have/need will depend on which TSDZ2 model you ordered - there are currently two types, one with a throttle and one without. The throttle needs a 5V connection as well as an anlogue input going to the motor-controller, so it has two extra cable - eight compared to the other motor-controller's six. For this project it is advised that you do not use the throttle, so either model is fine. The pinout of the two cable types is shown above - please note that the wire colouring and pin numbers may change! Always check with a meter first.
+The nRF52840 module needs to connect to the TSDZ2 motor-controller and the easiest way to do this is by either using an old LCD cable or buying an extension cable and cutting the relevant end off. The type of cable you have/need will depend on which TSDZ2 model you ordered - there are currently two types, one with a throttle and one without. The throttle needs a 5V connection as well as an anlogue input going to the motor-controller, so it has two extra cable - eight compared to the other motor-controller's six. For this project it is advised that you do not use the throttle, so either model is fine. The pinout of the two cable types is shown above - please note that the wire colouring and pin numbers may change! Always check with a meter first.
 
 
 Connecting the nRF52840 UART to the TSDZ2 STM8S105 Motor-Controller UART
@@ -51,7 +51,7 @@ The absolute best way would be to use a pair of buffer/translators, [one with a 
 
 Connecting the nRF52840 to the STLinkV2 Programmer
 --------------------------------------------------
-For convenience it is advised that you permanently wire in a connector to allow programming the nRF52840, to allow for future Firmware updates - the pinout is up to you, as long as it matches the programmer's cable. Please note that the nRF5280 will need to be powered separately for the programming to be successful.
+For convenience it is advised that you permanently wire in a connector to allow programming the nRF52840, to allow for future Firmware updates - the pinout is up to you, as long as it matches the programmer's cable. Please note that the nRF52840 will need to be powered separately for the programming to be successful.
 
 
 Connecting the nRF52840 to the BTS4140N High-Side Mosfet Relay
@@ -59,11 +59,11 @@ Connecting the nRF52840 to the BTS4140N High-Side Mosfet Relay
 The high-side mosfet-relay input needs to be driven by an open-drain/open-collector circuit that can withstand the battery voltage across it when the device is floating. Following the BTS4140N datasheet on page 6, a BSS138 mosfet (supersedes BSS100) pulls the BTS4140N input to ground to make it conduct. When the mosfet is off, the BTS4140N stops conducting and the input floats at the battery voltage, which means that the Drain-Source breakdown voltage must be higher than 60V - the BSS138 is 100V.
 
 
-Connecting power to the nRF5280
+Connecting power to the nRF52840
 -------------------------------
 
-A generic DC-DC converter is used to power the nRF5280's 5V input from the battery voltage. As such is should handle an input range of between 20V and 60V (check the capacitor ratings on the PCB) and provide a stable 5V supply at 1A. As mentioned above, connect it temporarily to your battery and check/adjust the output is correct before you start wiring up the nRF5280. When everything is connected up and running, it is worth checking it again and if it is adjustable, gluing the adjuster in place with a drop of nail-varnish - this has the right consistency to secure it against vibration but is easy enough to break the seal if you need to adjust it in the future. You can use a PTC fuse if you want - 250mA to 500mA is probably enough. Check it doesn't get warm/hot to the touch when in normal use - if it does, see how much voltage is being dropped across it and replace it with a larger value if it's more than 0.5Vish.
-![Powering the nRF5280 with a DC-DC converter](documentation/nRF52840_and_DC-DC_Converter.png)
+A generic DC-DC converter is used to power the nRF52840's 5V input from the battery voltage. As such is should handle an input range of between 20V and 60V (check the capacitor ratings on the PCB) and provide a stable 5V supply at 1A. As mentioned above, connect it temporarily to your battery and check/adjust the output is correct before you start wiring up the nRF52840. When everything is connected up and running, it is worth checking it again and if it is adjustable, gluing the adjuster in place with a drop of nail-varnish - this has the right consistency to secure it against vibration but is easy enough to break the seal if you need to adjust it in the future. You can use a PTC fuse if you want - 250mA to 500mA is probably enough. Check it doesn't get warm/hot to the touch when in normal use - if it does, see how much voltage is being dropped across it and replace it with a larger value if it's more than 0.5Vish.
+![Powering the nRF52840 with a DC-DC converter](documentation/nRF52840_and_DC-DC_Converter.png)
 
 Connecting brake sensors to the TSDZ2
 -------------------------------------
