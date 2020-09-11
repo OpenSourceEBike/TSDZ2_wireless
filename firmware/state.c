@@ -14,11 +14,11 @@
 // #include "rtc.h"
 // #include "fonts.h"
 // #include "uart.h"
-// #include "mainscreen.h"
+// #include "main_screen.h"
 // #include "eeprom.h"
 // #include "buttons.h"
 // #include "fault.h"
-// #include "state.h"
+#include "state.h"
 // #include "adc.h"
 // #include "timer.h"
 

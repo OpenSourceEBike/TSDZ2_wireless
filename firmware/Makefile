@@ -49,6 +49,7 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/drivers/src/prs/nrfx_prs.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uarte.c \
+	$(SDK_ROOT)/modules/nrfx/hal/nrf_nvmc.c \
   $(SDK_ROOT)/components/libraries/bsp/bsp.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
@@ -74,6 +75,9 @@ SRC_FILES += \
   $(PROJ_DIR)/pins.c \
 	$(PROJ_DIR)/eeprom_hw.c \
 	$(PROJ_DIR)/eeprom.c \
+	$(PROJ_DIR)/main_screen.c \
+	$(PROJ_DIR)/screen.c \
+	$(PROJ_DIR)/state.c \
   $(PROJ_DIR)/main.c \
 
 # Include folders common to all targets

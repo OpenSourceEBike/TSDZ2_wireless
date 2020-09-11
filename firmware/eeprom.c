@@ -10,7 +10,7 @@
 #include <string.h>
 #include "eeprom_hw.h"
 #include "eeprom.h"
-#include "mainscreen.h"
+#include "main_screen.h"
 #include "state.h"
 //#include "lcd_configurations.h"
 

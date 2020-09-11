@@ -2,40 +2,41 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "state.h"
 
 #define ASSIST_LEVEL_NUMBER 20
 
-typedef enum {
-  MOTOR_INIT_GET_MOTOR_ALIVE,
-  MOTOR_INIT_WAIT_MOTOR_ALIVE,
-  MOTOR_INIT_GET_MOTOR_FIRMWARE_VERSION,
-  MOTOR_INIT_WAIT_MOTOR_FIRMWARE_VERSION,
-  MOTOR_INIT_GOT_MOTOR_FIRMWARE_VERSION,
-  MOTOR_INIT_ERROR_GET_FIRMWARE_VERSION,
-  MOTOR_INIT_RECEIVED_MOTOR_FIRMWARE_VERSION,
-  MOTOR_INIT_ERROR_FIRMWARE_VERSION,
-  MOTOR_INIT_SET_CONFIGURATIONS,
-  MOTOR_INIT_WAIT_CONFIGURATIONS_OK,
-  MOTOR_INIT_WAIT_GOT_CONFIGURATIONS_OK,
-  MOTOR_INIT_ERROR_SET_CONFIGURATIONS,
-  MOTOR_INIT_ERROR,
-  MOTOR_INIT_READY,
-  MOTOR_INIT_SIMULATING,
-} motor_init_state_t;
+// typedef enum {
+//   MOTOR_INIT_GET_MOTOR_ALIVE,
+//   MOTOR_INIT_WAIT_MOTOR_ALIVE,
+//   MOTOR_INIT_GET_MOTOR_FIRMWARE_VERSION,
+//   MOTOR_INIT_WAIT_MOTOR_FIRMWARE_VERSION,
+//   MOTOR_INIT_GOT_MOTOR_FIRMWARE_VERSION,
+//   MOTOR_INIT_ERROR_GET_FIRMWARE_VERSION,
+//   MOTOR_INIT_RECEIVED_MOTOR_FIRMWARE_VERSION,
+//   MOTOR_INIT_ERROR_FIRMWARE_VERSION,
+//   MOTOR_INIT_SET_CONFIGURATIONS,
+//   MOTOR_INIT_WAIT_CONFIGURATIONS_OK,
+//   MOTOR_INIT_WAIT_GOT_CONFIGURATIONS_OK,
+//   MOTOR_INIT_ERROR_SET_CONFIGURATIONS,
+//   MOTOR_INIT_ERROR,
+//   MOTOR_INIT_READY,
+//   MOTOR_INIT_SIMULATING,
+// } motor_init_state_t;
 
-typedef enum {
-  MOTOR_INIT_CONFIG_SEND_CONFIG,
-  MOTOR_INIT_CONFIG_GET_STATUS,
-  MOTOR_INIT_CONFIG_CHECK_STATUS,
-} motor_init_state_config_t;
+// typedef enum {
+//   MOTOR_INIT_CONFIG_SEND_CONFIG,
+//   MOTOR_INIT_CONFIG_GET_STATUS,
+//   MOTOR_INIT_CONFIG_CHECK_STATUS,
+// } motor_init_state_config_t;
 
-typedef enum {
-  MOTOR_INIT_STATUS_RESET = 0,
-  MOTOR_INIT_STATUS_GOT_CONFIG = 1,
-  MOTOR_INIT_STATUS_INIT_OK = 2,
-} motor_init_status_t;
+// typedef enum {
+//   MOTOR_INIT_STATUS_RESET = 0,
+//   MOTOR_INIT_STATUS_GOT_CONFIG = 1,
+//   MOTOR_INIT_STATUS_INIT_OK = 2,
+// } motor_init_status_t;
 
-extern volatile motor_init_state_t g_motor_init_state;
+// extern volatile motor_init_state_t g_motor_init_state;
 
 typedef struct battery_energy_h_km_struct {
   uint32_t ui32_sum_x50;
@@ -108,13 +109,34 @@ typedef struct rt_vars_struct {
 	uint8_t ui8_temperature_limit_feature_enabled;
 	uint8_t ui8_motor_temperature_min_value_to_limit;
 	uint8_t ui8_motor_temperature_max_value_to_limit;
+	uint8_t ui8_lcd_backlight_on_brightness;
+	uint8_t ui8_lcd_backlight_off_brightness;
 	uint8_t ui8_offroad_feature_enabled;
 	uint8_t ui8_offroad_enabled_on_startup;
 	uint8_t ui8_offroad_speed_limit;
 	uint8_t ui8_offroad_power_limit_enabled;
 	uint8_t ui8_offroad_power_limit_div25;
 	uint32_t ui32_odometer_x10;
-	uint32_t ui32_trip_x10;
+
+#ifndef SW102
+	uint8_t  ui8_trip_a_auto_reset;
+	uint16_t ui16_trip_a_auto_reset_hours;
+	uint32_t ui32_trip_a_last_update_time;
+#endif
+	uint32_t ui32_trip_a_distance_x1000;
+	uint32_t ui32_trip_a_time;
+	uint16_t ui16_trip_a_avg_speed_x10;
+	uint16_t ui16_trip_a_max_speed_x10;
+
+#ifndef SW102
+	uint8_t  ui8_trip_b_auto_reset;
+	uint16_t ui16_trip_b_auto_reset_hours;
+	uint32_t ui32_trip_b_last_update_time;
+#endif
+	uint32_t ui32_trip_b_distance_x1000;
+	uint32_t ui32_trip_b_time;
+  	uint16_t ui16_trip_b_avg_speed_x10;
+  	uint16_t ui16_trip_b_max_speed_x10;
 
 	uint8_t ui8_lights;
 	uint8_t ui8_braking;
@@ -232,7 +254,29 @@ typedef struct ui_vars_struct {
 	uint8_t ui8_offroad_power_limit_enabled;
 	uint8_t ui8_offroad_power_limit_div25;
 	uint32_t ui32_odometer_x10;
-	uint32_t ui32_trip_x10;
+
+#ifndef SW102
+	uint8_t  ui8_trip_a_auto_reset;
+	uint16_t ui16_trip_a_auto_reset_hours;
+	uint32_t ui32_trip_a_last_update_time;
+#endif
+	uint32_t ui32_trip_a_distance_x1000;
+	uint32_t ui32_trip_a_distance_x100;
+	uint32_t ui32_trip_a_time;
+	uint16_t ui16_trip_a_avg_speed_x10;
+	uint16_t ui16_trip_a_max_speed_x10;
+
+#ifndef SW102
+	uint8_t  ui8_trip_b_auto_reset;
+	uint16_t ui16_trip_b_auto_reset_hours;
+	uint32_t ui32_trip_b_last_update_time;
+#endif
+	uint32_t ui32_trip_b_distance_x1000;
+	uint32_t ui32_trip_b_distance_x100;
+	uint32_t ui32_trip_b_time;
+  	uint16_t ui16_trip_b_avg_speed_x10;
+  	uint16_t ui16_trip_b_max_speed_x10;
+
 	uint32_t battery_energy_km_value_x100;
 
 	uint8_t ui8_lights;
@@ -360,54 +404,53 @@ rt_vars_t* get_rt_vars(void);
 extern rt_vars_t rt_vars; // FIXME - this shouldn't be exposed outside of state.c - but currently mid merge
 extern ui_vars_t ui_vars;
 
-extern volatile uint8_t ui8_g_motorVariablesStabilized;
+// extern volatile uint8_t ui8_g_motorVariablesStabilized;
 
-typedef struct {
-  uint8_t major;
-  uint8_t minor;
-  uint8_t patch;
-} tsdz2_firmware_version_t;
+// typedef struct {
+//   uint8_t major;
+//   uint8_t minor;
+//   uint8_t patch;
+// } tsdz2_firmware_version_t;
 
-void rt_processing(void);
-void rt_processing_stop(void);
-void rt_processing_start(void);
+// void rt_processing(void);
+// void rt_processing_stop(void);
+// void rt_processing_start(void);
 
-/**
- * Called from the main thread every 100ms
- *
- */
-void copy_rt_to_ui_vars(void);
+// /**
+//  * Called from the main thread every 100ms
+//  *
+//  */
+// void copy_rt_to_ui_vars(void);
 
-/// must be called from main() idle loop
-void automatic_power_off_management(void);
+// /// must be called from main() idle loop
+// void automatic_power_off_management(void);
 
-void lcd_power_off(uint8_t updateDistanceOdo); // provided by LCD
+// void lcd_power_off(uint8_t updateDistanceOdo); // provided by LCD
 
-/// Set correct backlight brightness for current headlight state
-void set_lcd_backlight();
+// /// Set correct backlight brightness for current headlight state
+// void set_lcd_backlight();
 
 void prepare_torque_sensor_calibration_table(void);
 
-void reset_wh(void);
+// void reset_wh(void);
 
-extern uint8_t ui8_g_battery_soc;
+// extern uint8_t ui8_g_battery_soc;
 
-extern tsdz2_firmware_version_t g_tsdz2_firmware_version;
+// extern tsdz2_firmware_version_t g_tsdz2_firmware_version;
 
-extern volatile motor_init_status_t ui8_g_motor_init_status;
+// extern volatile motor_init_status_t ui8_g_motor_init_status;
 
-// Battery voltage (readed on motor controller):
-#define ADC_BATTERY_VOLTAGE_PER_ADC_STEP_X10000 866
+// // Battery voltage (readed on motor controller):
+// #define ADC_BATTERY_VOLTAGE_PER_ADC_STEP_X10000 866
 
-// Battery voltage (readed on LCD3):
-// 30.0V --> 447 | 0.0671 volts per each ADC unit
-// 40.0V --> 595 | 0.0672 volts per each ADC unit
+// // Battery voltage (readed on LCD3):
+// // 30.0V --> 447 | 0.0671 volts per each ADC unit
+// // 40.0V --> 595 | 0.0672 volts per each ADC unit
 
-// Possible values: 0, 1, 2, 3, 4, 5, 6
-// 0 equal to no filtering and no delay, higher values will increase filtering but will also add bigger delay
-#define BATTERY_VOLTAGE_FILTER_COEFFICIENT 3
-#define BATTERY_CURRENT_FILTER_COEFFICIENT 2
-#define MOTOR_CURRENT_FILTER_COEFFICIENT   2
-#define PEDAL_POWER_FILTER_COEFFICIENT     3
-#define PEDAL_CADENCE_FILTER_COEFFICIENT   3
-
+// // Possible values: 0, 1, 2, 3, 4, 5, 6
+// // 0 equal to no filtering and no delay, higher values will increase filtering but will also add bigger delay
+// #define BATTERY_VOLTAGE_FILTER_COEFFICIENT 3
+// #define BATTERY_CURRENT_FILTER_COEFFICIENT 2
+// #define MOTOR_CURRENT_FILTER_COEFFICIENT   2
+// #define PEDAL_POWER_FILTER_COEFFICIENT     3
+// #define PEDAL_CADENCE_FILTER_COEFFICIENT   3

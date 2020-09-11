@@ -9,12 +9,12 @@
 #ifndef _EEPROM_H_
 #define _EEPROM_H_
 
+#include "state.h"
+
 // For compatible changes, just add new fields at the end of the table (they will be inited to 0xff for old eeprom images).  For incompatible
 // changes bump up EEPROM_MIN_COMPAT_VERSION and the user's EEPROM settings will be discarded.
 #define EEPROM_MIN_COMPAT_VERSION 0x3B
 #define EEPROM_VERSION 0x3B
-
-#define ASSIST_LEVEL_NUMBER 20
 
 typedef struct eeprom_data {
 	uint8_t eeprom_version; // Used to detect changes in eeprom encoding, if != EEPROM_VERSION we will not use it
