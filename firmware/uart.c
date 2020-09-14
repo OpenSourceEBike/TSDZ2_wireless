@@ -51,7 +51,7 @@ void uart_event_handler(app_uart_evt_t * p_event)
   {
     case APP_UART_DATA_READY:
       //Data is ready on the UART
-      (void*) app_uart_get(&ui8_byte_received);
+      (void) app_uart_get(&ui8_byte_received);
       switch (ui8_state_machine)
       {
         case 0:

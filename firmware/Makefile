@@ -47,8 +47,6 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/soc/nrfx_atomic.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/prs/nrfx_prs.c \
-  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
-  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uarte.c \
 	$(SDK_ROOT)/modules/nrfx/hal/nrf_nvmc.c \
   $(SDK_ROOT)/components/libraries/bsp/bsp.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
@@ -56,6 +54,11 @@ SRC_FILES += \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ant.c \
+	$(SDK_ROOT)/components/libraries/fifo/app_fifo.c \
+  $(SDK_ROOT)/components/libraries/uart/app_uart_fifo.c \
+	$(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_uart.c \
+	$(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uarte.c \
   $(SDK_ROOT)/components/ant/ant_profiles/ant_common/ant_request_controller/ant_request_controller.c \
   $(SDK_ROOT)/components/ant/ant_channel_config/ant_channel_config.c \
   $(SDK_ROOT)/components/ant/ant_key_manager/ant_key_manager.c \
@@ -78,6 +81,8 @@ SRC_FILES += \
 	$(PROJ_DIR)/main_screen.c \
 	$(PROJ_DIR)/screen.c \
 	$(PROJ_DIR)/state.c \
+	$(PROJ_DIR)/uart.c \
+	$(PROJ_DIR)/utils.c \
   $(PROJ_DIR)/main.c \
 
 # Include folders common to all targets
@@ -92,6 +97,8 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/scheduler \
   $(SDK_ROOT)/components/libraries/experimental_section_vars \
   $(SDK_ROOT)/components/libraries/atomic_fifo \
+	$(SDK_ROOT)/components/libraries/uart \
+	$(SDK_ROOT)/components/libraries/fifo \
   $(SDK_ROOT)/modules/nrfx/mdk \
   $(SDK_ROOT)/components/libraries/strerror \
   $(SDK_ROOT)/integration/nrfx/legacy \
