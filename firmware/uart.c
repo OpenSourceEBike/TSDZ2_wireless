@@ -111,12 +111,12 @@ void uart_event_handler(app_uart_evt_t * p_event)
 
     case APP_UART_COMMUNICATION_ERROR:
       ui8_state_machine = 0;
-      APP_ERROR_HANDLER(p_event->data.error_communication);
+      // APP_ERROR_HANDLER(p_event->data.error_communication);
       break;
 
     case APP_UART_FIFO_ERROR:
       ui8_state_machine = 0;
-      APP_ERROR_HANDLER(p_event->data.error_code);
+      // APP_ERROR_HANDLER(p_event->data.error_code);
       break;
 
     default:

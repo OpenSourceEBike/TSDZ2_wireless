@@ -136,19 +136,10 @@ static void ant_setup(void)
   APP_ERROR_CHECK(err_code);
 }
 
-static void log_init(void)
-{
-    ret_code_t err_code = NRF_LOG_INIT(NULL);
-    APP_ERROR_CHECK(err_code);
-
-    NRF_LOG_DEFAULT_BACKENDS_INIT();
-}
-
 int main(void)
 {
   static uint16_t cnt_2;
 
-  log_init();
   pins_init();
   ant_setup();
   uart_init();
@@ -158,9 +149,12 @@ int main(void)
   {
     cnt_1 += 3;
     cnt_2++;
+
+eeprom_write_variables();
+while(1);
+
     __asm__("nop");
 
-    NRF_LOG_FLUSH();
     // nrf_pwr_mgmt_run();
   }
 }

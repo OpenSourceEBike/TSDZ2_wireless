@@ -13,7 +13,7 @@
 #include "nrf_nvmc.h"
 #include "eeprom_hw.h"
 
-#define FLASH_END_ADDRESS              (0x100000 - 0x1) // 1Mbytes of flash memory on NRF52840
+#define FLASH_END_ADDRESS               (0x31000 + 0xCF000 - 0x1)
 #define EEPROM_PAGE_LENGHT              (0x1000) // flash memory page of 4k on NRF52840
 #define EEPROM_START_ADDRESS            ((FLASH_END_ADDRESS + 1) - (2 * EEPROM_PAGE_LENGHT))
 #define EEPROM_START_ADDRESS_PAGE_0     EEPROM_START_ADDRESS
@@ -126,21 +126,21 @@ bool flash_write_words(const void *value, uint16_t length_words)
 
 uint8_t eeprom_read(uint32_t ui32_address)
 {
-  uint16_t *ui16_p_address = (uint16_t *) (((uint32_t) EEPROM_START_ADDRESS) + (ui32_m_eeprom_page * EEPROM_PAGE_LENGHT) + (ui32_address * 2));
-  return (uint8_t) (*ui16_p_address);
+  uint32_t ui32_final_address = (((uint32_t) EEPROM_START_ADDRESS) + (ui32_m_eeprom_page * EEPROM_PAGE_LENGHT) + ui32_address);
+  return *((uint8_t*) ui32_final_address);
 }
 
 uint8_t eeprom_read_from_page(uint32_t ui32_address, uint32_t ui32_eeprom_page)
 {
-  uint16_t *ui16_p_address = (uint16_t *) (((uint32_t) EEPROM_START_ADDRESS) + (ui32_eeprom_page * EEPROM_PAGE_LENGHT) + (ui32_address * 2));
-  return (uint8_t) (*ui16_p_address);
+  uint32_t ui32_final_address = (((uint32_t) EEPROM_START_ADDRESS) + (ui32_eeprom_page * EEPROM_PAGE_LENGHT) + ui32_address);
+  return *((uint8_t*) ui32_final_address);
 }
 
 uint32_t eeprom_write(uint32_t ui32_address, uint8_t ui8_data)
 {
-  ui32_address = ((uint32_t) EEPROM_START_ADDRESS) + (ui32_m_eeprom_page * EEPROM_PAGE_LENGHT) + (ui32_address * 2);
+  uint32_t ui32_final_address = ((uint32_t) EEPROM_START_ADDRESS) + (ui32_m_eeprom_page * EEPROM_PAGE_LENGHT) + ui32_address;
 
-  nrf_nvmc_write_byte(ui32_address, ui8_data);
+  nrf_nvmc_write_byte(ui32_final_address, ui8_data);
 
   return 0;
 }
