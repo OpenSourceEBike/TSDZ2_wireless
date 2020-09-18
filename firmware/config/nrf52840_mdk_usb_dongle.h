@@ -80,8 +80,8 @@ extern "C" {
 
 #define BSP_BUTTON_0   BUTTON_1
 
-#define RX_PIN_NUMBER  19
-#define TX_PIN_NUMBER  20
+#define RX_PIN_NUMBER  7
+#define TX_PIN_NUMBER  6
 #define CTS_PIN_NUMBER 0xFFFFFFFF  // UART_PIN_DISCONNECTED
 #define RTS_PIN_NUMBER 0xFFFFFFFF  // UART_PIN_DISCONNECTED
 #define HWFC           false

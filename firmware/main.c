@@ -21,6 +21,9 @@
 #include "ant_lev.h"
 #include "pins.h"
 #include "uart.h"
+#include "nrf_drv_uart.h"
+#include "app_util_platform.h"
+#include "app_uart.h"
 #include "eeprom.h"
 
 #define LEV_HW_REVISION 1
@@ -150,12 +153,9 @@ int main(void)
     cnt_1 += 3;
     cnt_2++;
 
-eeprom_write_variables();
-while(1);
+    (void) app_uart_put(1);
 
     __asm__("nop");
-
-    // nrf_pwr_mgmt_run();
   }
 }
 
