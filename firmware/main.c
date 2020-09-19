@@ -20,6 +20,8 @@
 #include "ant_key_manager.h"
 #include "ant_lev.h"
 #include "pins.h"
+#include "uart.h"
+#include "eeprom.h"
 
 #define LEV_HW_REVISION 1
 #define LEV_MANUFACTURER_ID (UINT16_MAX - 1)
@@ -101,67 +103,59 @@ void ant_lev_evt_handler(ant_lev_profile_t * p_profile, ant_lev_evt_t event)
     }
 }
 
-static void profile_setup(void)
+static void ant_setup(void)
 {
-    uint32_t err_code;
+  // Softdevice setup
+  ret_code_t err_code = nrf_sdh_enable_request();
+  APP_ERROR_CHECK(err_code);
 
-    err_code = ant_lev_sens_init(&m_ant_lev,
-                                 LEV_SENS_CHANNEL_CONFIG(m_ant_lev),
-                                 LEV_SENS_PROFILE_CONFIG(m_ant_lev));
-    APP_ERROR_CHECK(err_code);
+  ASSERT(nrf_sdh_is_enabled());
 
-    // fill manufacturer's common data page.
-    m_ant_lev.page_80 = ANT_COMMON_page80(LEV_HW_REVISION,
-                                          LEV_MANUFACTURER_ID,
-                                          LEV_MODEL_NUMBER);
-    // fill product's common data page.
-    m_ant_lev.page_81 = ANT_COMMON_page81(LEV_SW_REVISION_MAJOR,
-                                          LEV_SW_REVISION_MINOR,
-                                          LEV_SERIAL_NUMBER);
+  err_code = nrf_sdh_ant_enable();
+  APP_ERROR_CHECK(err_code);
 
-    err_code = ant_lev_sens_open(&m_ant_lev);
-    APP_ERROR_CHECK(err_code);
-}
+  err_code = ant_plus_key_set(ANTPLUS_NETWORK_NUM);
+  APP_ERROR_CHECK(err_code);
 
-static void softdevice_setup(void)
-{
-    ret_code_t err_code = nrf_sdh_enable_request();
-    APP_ERROR_CHECK(err_code);
+  // ANT+ profile setup
+  err_code = ant_lev_sens_init(&m_ant_lev,
+                                LEV_SENS_CHANNEL_CONFIG(m_ant_lev),
+                                LEV_SENS_PROFILE_CONFIG(m_ant_lev));
+  APP_ERROR_CHECK(err_code);
 
-    ASSERT(nrf_sdh_is_enabled());
+  // fill manufacturer's common data page.
+  m_ant_lev.page_80 = ANT_COMMON_page80(LEV_HW_REVISION,
+                                        LEV_MANUFACTURER_ID,
+                                        LEV_MODEL_NUMBER);
+  // fill product's common data page.
+  m_ant_lev.page_81 = ANT_COMMON_page81(LEV_SW_REVISION_MAJOR,
+                                        LEV_SW_REVISION_MINOR,
+                                        LEV_SERIAL_NUMBER);
 
-    err_code = nrf_sdh_ant_enable();
-    APP_ERROR_CHECK(err_code);
-
-    err_code = ant_plus_key_set(ANTPLUS_NETWORK_NUM);
-    APP_ERROR_CHECK(err_code);
-}
-
-static void log_init(void)
-{
-    ret_code_t err_code = NRF_LOG_INIT(NULL);
-    APP_ERROR_CHECK(err_code);
-
-    NRF_LOG_DEFAULT_BACKENDS_INIT();
+  err_code = ant_lev_sens_open(&m_ant_lev);
+  APP_ERROR_CHECK(err_code);
 }
 
 int main(void)
 {
-    static uint16_t cnt_2;
+  static uint16_t cnt_2;
 
-    log_init();
-    pins_init();
-    softdevice_setup();
-    profile_setup();
+  pins_init();
+  ant_setup();
+  uart_init();
+  eeprom_init(); // must be after BLE init
 
-    for (;;)
-    {
-        cnt_1 += 3;
-        cnt_2++;
-        __asm__("nop");
+  for (;;)
+  {
+    cnt_1 += 3;
+    cnt_2++;
 
-        NRF_LOG_FLUSH();
-        // nrf_pwr_mgmt_run();
-    }
+eeprom_write_variables();
+while(1);
+
+    __asm__("nop");
+
+    // nrf_pwr_mgmt_run();
+  }
 }
 

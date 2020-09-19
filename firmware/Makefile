@@ -47,14 +47,18 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/soc/nrfx_atomic.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_gpiote.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/prs/nrfx_prs.c \
-  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
-  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uarte.c \
+	$(SDK_ROOT)/modules/nrfx/hal/nrf_nvmc.c \
   $(SDK_ROOT)/components/libraries/bsp/bsp.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ant.c \
+	$(SDK_ROOT)/components/libraries/fifo/app_fifo.c \
+  $(SDK_ROOT)/components/libraries/uart/app_uart_fifo.c \
+	$(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_uart.c \
+	$(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
+  $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uarte.c \
   $(SDK_ROOT)/components/ant/ant_profiles/ant_common/ant_request_controller/ant_request_controller.c \
   $(SDK_ROOT)/components/ant/ant_channel_config/ant_channel_config.c \
   $(SDK_ROOT)/components/ant/ant_key_manager/ant_key_manager.c \
@@ -72,6 +76,13 @@ SRC_FILES += \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_16.c \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_common_data.c \
   $(PROJ_DIR)/pins.c \
+	$(PROJ_DIR)/eeprom_hw.c \
+	$(PROJ_DIR)/eeprom.c \
+	$(PROJ_DIR)/main_screen.c \
+	$(PROJ_DIR)/screen.c \
+	$(PROJ_DIR)/state.c \
+	$(PROJ_DIR)/uart.c \
+	$(PROJ_DIR)/utils.c \
   $(PROJ_DIR)/main.c \
 
 # Include folders common to all targets
@@ -86,6 +97,8 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/scheduler \
   $(SDK_ROOT)/components/libraries/experimental_section_vars \
   $(SDK_ROOT)/components/libraries/atomic_fifo \
+	$(SDK_ROOT)/components/libraries/uart \
+	$(SDK_ROOT)/components/libraries/fifo \
   $(SDK_ROOT)/modules/nrfx/mdk \
   $(SDK_ROOT)/components/libraries/strerror \
   $(SDK_ROOT)/integration/nrfx/legacy \
@@ -119,6 +132,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/ant/ant_channel_config \
   $(SDK_ROOT)/components/ant/ant_profiles/ant_common/ant_request_controller \
   $(SDK_ROOT)/components/ant/ant_profiles/ant_common/pages \
+	$(PROJ_DIR)/include \
   $(PROJ_DIR)/ant_lev \
   $(PROJ_DIR)/ant_lev/pages \
   $(PROJ_DIR)/config \
@@ -144,7 +158,8 @@ CFLAGS += -DS340
 CFLAGS += -DSOFTDEVICE_PRESENT
 CFLAGS += -mcpu=cortex-m4
 CFLAGS += -mthumb -mabi=aapcs
-CFLAGS += -Wall -Werror
+#CFLAGS += -Wall -Werror
+CFLAGS += -Wall
 CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 # keep every function in a separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
