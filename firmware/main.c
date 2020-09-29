@@ -10,6 +10,7 @@
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
 #include "nrf_log_default_backends.h"
+#include "nrf_drv_clock.h"
 #include "nrf.h"
 #include "hardfault.h"
 #include "app_error.h"
@@ -52,7 +53,10 @@ static ant_lev_profile_t m_ant_lev;
 
 NRF_SDH_ANT_OBSERVER(m_ant_observer, ANT_LEV_ANT_OBSERVER_PRIO, ant_lev_sens_evt_handler, &m_ant_lev);
 
-uint16_t cnt_1;
+#define MSEC_PER_TICK 20
+APP_TIMER_DEF(gui_timer);
+#define GUI_INTERVAL APP_TIMER_TICKS(MSEC_PER_TICK)
+volatile uint32_t gui_ticks;
 
 void ant_lev_evt_handler(ant_lev_profile_t * p_profile, ant_lev_evt_t event)
 {
@@ -139,23 +143,67 @@ static void ant_setup(void)
   APP_ERROR_CHECK(err_code);
 }
 
+static void gui_timer_timeout(void *p_context)
+{
+  UNUSED_PARAMETER(p_context);
+
+  gui_ticks++;
+
+  if(gui_ticks % (1000 / MSEC_PER_TICK) == 0) {
+    // ui32_seconds_since_startup++;
+  }
+    
+  // if((gui_ticks % (100 / MSEC_PER_TICK) == 0) && // every 100ms
+  //     m_rt_processing_stop == false)
+  //   rt_processing();
+}
+
+static void lfclk_config(void)
+{
+    uint32_t err_code;
+
+    err_code = nrf_drv_clock_init();
+    APP_ERROR_CHECK(err_code);
+
+    nrf_drv_clock_lfclk_request(NULL);
+}
+
+static void init_app_timers(void)
+{
+  ret_code_t err_code;
+
+  err_code = app_timer_init();
+  APP_ERROR_CHECK(err_code);
+
+  err_code = app_timer_create(&gui_timer, APP_TIMER_MODE_REPEATED, gui_timer_timeout);
+  APP_ERROR_CHECK(err_code);
+
+  err_code = app_timer_start(gui_timer, GUI_INTERVAL, NULL);
+  APP_ERROR_CHECK(err_code);
+}
+
 int main(void)
 {
   static uint16_t cnt_2;
 
   pins_init();
+  lfclk_config(); // needed by the APP_TIMER
+  init_app_timers();
   ant_setup();
   uart_init();
   eeprom_init(); // must be after BLE init
 
-  for (;;)
+  uint32_t lasttick = gui_ticks;
+  while (1)
   {
-    cnt_1 += 3;
-    cnt_2++;
+    uint32_t tick = gui_ticks;
+    if (tick != lasttick)
+    {
+      lasttick = tick;
+      // main_idle();
 
-    (void) app_uart_put(1);
-
-    __asm__("nop");
+      cnt_2++;
+    }
   }
 }
 
