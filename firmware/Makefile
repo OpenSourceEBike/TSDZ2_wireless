@@ -1,5 +1,10 @@
 PROJECT_NAME     := TSDZ2_wireless
 TARGETS          := TSDZ2_wireless
+
+# This is the expected version of the motor firmware. Display will stop to work with correct TSDZ2 firmware version
+TSDZ2_FIRMWARE_MAJOR := 1
+TSDZ2_FIRMWARE_MINOR := 0
+
 OUTPUT_DIRECTORY := _build
 
 SDK_ROOT := ./nRF5_SDK_16.0.0
@@ -78,10 +83,9 @@ SRC_FILES += \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_16.c \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_common_data.c \
   $(PROJ_DIR)/pins.c \
+	$(PROJ_DIR)/utils.c \
 	$(PROJ_DIR)/eeprom_hw.c \
 	$(PROJ_DIR)/eeprom.c \
-	$(PROJ_DIR)/main_screen.c \
-	$(PROJ_DIR)/screen.c \
 	$(PROJ_DIR)/state.c \
 	$(PROJ_DIR)/uart.c \
 	$(PROJ_DIR)/utils.c \
@@ -166,6 +170,8 @@ CFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 # keep every function in a separate section, this allows linker to discard unused ones
 CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fno-builtin -fshort-enums
+CFLAGS += -DTSDZ2_FIRMWARE_MAJOR=\"$(TSDZ2_FIRMWARE_MAJOR)\"
+CFLAGS += -DTSDZ2_FIRMWARE_MINOR=\"$(TSDZ2_FIRMWARE_MINOR)\"
 
 # C++ flags common to all targets
 CXXFLAGS += $(OPT)
