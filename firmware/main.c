@@ -28,6 +28,8 @@
 #include "eeprom.h"
 #include "state.h"
 
+// small test, to remove this line
+
 #define MSEC_PER_TICK 10
 APP_TIMER_DEF(main_timer);
 #define MAIN_INTERVAL APP_TIMER_TICKS(MSEC_PER_TICK)
