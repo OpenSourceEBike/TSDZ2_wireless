@@ -46,12 +46,14 @@ static const ant_channel_config_t   CONCAT_2(NAME,_channel_lev_sens_config) =   
 #define LEV_SENS_CHANNEL_CONFIG(NAME) &CONCAT_2(NAME,_channel_lev_sens_config)
 
 #define LEV_SENS_PROFILE_CONFIG_DEF(NAME,                                       \
-                                    EVT_HANDLER)                                \
+                                    EVT_HANDLER_PRE,                            \
+                                    EVT_HANDLER_POST)                           \
 static ant_lev_sens_cb_t            CONCAT_2(NAME,_lev_sens_cb);                \
 static const ant_lev_sens_config_t  CONCAT_2(NAME,_profile_lev_sens_config) =   \
     {                                                                           \
         .p_cb                       = &CONCAT_2(NAME,_lev_sens_cb),             \
-        .evt_handler                = (EVT_HANDLER),                            \
+        .evt_handler_pre            = (EVT_HANDLER_PRE),                        \
+        .evt_handler_post           = (EVT_HANDLER_POST),                       \
     }
 #define LEV_SENS_PROFILE_CONFIG(NAME) &CONCAT_2(NAME,_profile_lev_sens_config)
 
@@ -98,7 +100,8 @@ extern "C" {
 typedef struct
 {
     ant_lev_sens_cb_t     * p_cb;                       ///< Pointer to the data buffer for internal use.
-    ant_lev_evt_handler_t   evt_handler;                ///< Event handler to be called for handling events in the SDM profile.
+    ant_lev_evt_handler_t   evt_handler_pre;                ///< Event handler to be called for handling events in the LEV profile.
+    ant_lev_evt_handler_t   evt_handler_post;                ///< Event handler to be called for handling events in the LEV profile.
 } ant_lev_sens_config_t;
 
 struct ant_lev_profile_s
@@ -107,7 +110,8 @@ struct ant_lev_profile_s
     union {
         ant_lev_sens_cb_t * p_sens_cb;
     } _cb;                                      ///< Pointer to internal control block.
-    ant_lev_evt_handler_t       evt_handler;    ///< Event handler to be called for handling events in the LEV profile.
+    ant_lev_evt_handler_t       evt_handler_pre;    ///< Event handler to be called for handling events in the LEV profile.
+    ant_lev_evt_handler_t       evt_handler_post;    ///< Event handler to be called for handling events in the LEV profile.
     ant_lev_page_1_data_t       page_1;         ///< Page 1.
     ant_lev_page_2_data_t       page_2;         ///< Page 2.
     ant_lev_page_3_data_t       page_3;         ///< Page 3.

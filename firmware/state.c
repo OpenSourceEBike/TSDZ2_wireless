@@ -456,6 +456,8 @@ void communications(void) {
     ui8_m_usart1_received_first_package++;
     if (ui8_m_usart1_received_first_package > 10)
       ui8_m_usart1_received_first_package = 10;
+
+    uart_get_rx_buffer_rdy_clear();
   }
 
   if (g_motor_init_state == MOTOR_INIT_READY)

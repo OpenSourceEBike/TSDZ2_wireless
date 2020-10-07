@@ -3,7 +3,7 @@ TARGETS          := TSDZ2_wireless
 
 # This is the expected version of the motor firmware. Display will stop to work with correct TSDZ2 firmware version
 TSDZ2_FIRMWARE_MAJOR := 1
-TSDZ2_FIRMWARE_MINOR := 0
+TSDZ2_FIRMWARE_MINOR := 1
 
 OUTPUT_DIRECTORY := _build
 

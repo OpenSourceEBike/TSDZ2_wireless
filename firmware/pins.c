@@ -20,7 +20,7 @@ void pins_init(void)
 void motor_power_enable(bool state)
 {
   if (state)
-    nrf_gpio_pin_clear(MOTOR_POWER_ENABLE__PIN);
-  else
     nrf_gpio_pin_set(MOTOR_POWER_ENABLE__PIN);
+  else
+    nrf_gpio_pin_clear(MOTOR_POWER_ENABLE__PIN);
 }

@@ -129,8 +129,8 @@ void uart_event_handler(app_uart_evt_t * p_event)
  */
 void uart_init(void)
 {
-#define UART_TX_BUF_SIZE 128
-#define UART_RX_BUF_SIZE 128
+#define UART_TX_BUF_SIZE 256
+#define UART_RX_BUF_SIZE 256
 
   uint32_t err_code;
   app_uart_comm_params_t const comm_params =
@@ -164,6 +164,11 @@ const uint8_t* uart_get_rx_buffer_rdy(void)
 
   uint8_t *r = uart_get_rx_buffer();
   return r;
+}
+
+const void uart_get_rx_buffer_rdy_clear(void)
+{
+  ui8_received_package_flag = 0;
 }
 
 /**

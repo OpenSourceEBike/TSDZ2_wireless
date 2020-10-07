@@ -28,7 +28,7 @@
 #include "eeprom.h"
 #include "state.h"
 
-// small test, to remove this line
+ui_vars_t *mp_ui_vars;
 
 #define MSEC_PER_TICK 10
 APP_TIMER_DEF(main_timer);
@@ -58,7 +58,8 @@ void rt_processing_start(void) {
 #define ANTPLUS_NETWORK_NUM 0
 #define ANT_LEV_ANT_OBSERVER_PRIO 1
 
-void ant_lev_evt_handler(ant_lev_profile_t * p_profile, ant_lev_evt_t event);
+void ant_lev_evt_handler_pre(ant_lev_profile_t * p_profile, ant_lev_evt_t event);
+void ant_lev_evt_handler_post(ant_lev_profile_t * p_profile, ant_lev_evt_t event);
 
 LEV_SENS_CHANNEL_CONFIG_DEF(m_ant_lev,
                             LEV_CHANNEL_NUM,
@@ -66,13 +67,68 @@ LEV_SENS_CHANNEL_CONFIG_DEF(m_ant_lev,
                             CHAN_ID_DEV_NUM,
                             ANTPLUS_NETWORK_NUM);
 LEV_SENS_PROFILE_CONFIG_DEF(m_ant_lev,
-                            ant_lev_evt_handler);
+                            ant_lev_evt_handler_pre,
+                            ant_lev_evt_handler_post);
 
 static ant_lev_profile_t m_ant_lev;
 
 NRF_SDH_ANT_OBSERVER(m_ant_observer, ANT_LEV_ANT_OBSERVER_PRIO, ant_lev_sens_evt_handler, &m_ant_lev);
 
-void ant_lev_evt_handler(ant_lev_profile_t * p_profile, ant_lev_evt_t event)
+void ant_lev_evt_handler_pre(ant_lev_profile_t * p_profile, ant_lev_evt_t event)
+{
+  nrf_pwr_mgmt_feed();
+
+  switch (event)
+  {
+    case ANT_LEV_PAGE_1_UPDATED:
+      // assist level
+      p_profile->common.travel_mode_state |= (mp_ui_vars->ui8_assist_level << 3) & 0x38;
+
+      // lights
+      p_profile->common.system_state |= (mp_ui_vars->ui8_lights << 3) & 0x08;
+      break;
+
+    case ANT_LEV_PAGE_2_UPDATED:
+      break;
+
+    case ANT_LEV_PAGE_3_UPDATED:
+      // assist level
+      p_profile->common.travel_mode_state |= (mp_ui_vars->ui8_assist_level << 3) & 0x38;
+
+      // lights
+      p_profile->common.system_state |= (mp_ui_vars->ui8_lights << 3) & 0x08;
+      break;
+
+    case ANT_LEV_PAGE_4_UPDATED:
+      break;
+
+    case ANT_LEV_PAGE_5_UPDATED:
+      break;
+
+    case ANT_LEV_PAGE_34_UPDATED:
+      break;
+
+    case ANT_LEV_PAGE_16_UPDATED:
+      break;
+
+    case ANT_LEV_PAGE_80_UPDATED:
+      break;
+
+    case ANT_LEV_PAGE_81_UPDATED:
+      break;
+
+    case ANT_LEV_PAGE_REQUEST_SUCCESS:
+      break;
+
+    case ANT_LEV_PAGE_REQUEST_FAILED:
+      break;
+
+    default:
+      break;
+  }
+}
+
+void ant_lev_evt_handler_post(ant_lev_profile_t * p_profile, ant_lev_evt_t event)
 {
   nrf_pwr_mgmt_feed();
 
@@ -97,13 +153,13 @@ void ant_lev_evt_handler(ant_lev_profile_t * p_profile, ant_lev_evt_t event)
       break;
 
     case ANT_LEV_PAGE_16_UPDATED:
-      if ((p_profile->page_16.travel_mode & 0x38) > 0)
-        motor_power_enable(false);
-      else
-        motor_power_enable(true);
-
-      // update the assist level
+      // assist level
       p_profile->common.travel_mode_state = p_profile->page_16.travel_mode;
+      mp_ui_vars->ui8_assist_level = p_profile->page_16.travel_mode >> 3;
+
+      // lights
+      p_profile->common.system_state |= ((((uint8_t) p_profile->page_16.light) << 3) & 0x08);
+      mp_ui_vars->ui8_lights = ((uint8_t) p_profile->page_16.light);
       break;
 
     case ANT_LEV_PAGE_80_UPDATED:
@@ -204,11 +260,14 @@ static void init_app_timers(void)
 int main(void)
 {
   pins_init();
+  motor_power_enable(true);
   lfclk_config(); // needed by the APP_TIMER
   init_app_timers();
   ant_setup();
   uart_init();
   eeprom_init(); // must be after BLE init
+
+  mp_ui_vars = get_ui_vars();
 
   while (1)
   {
@@ -223,4 +282,3 @@ int main(void)
     }
   }
 }
-
