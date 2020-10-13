@@ -145,6 +145,8 @@ const eeprom_data_t m_eeprom_data_defaults = {
   .ui8_torque_sensor_filter = DEFAULT_TORQUE_SENSOR_FILTER,
   .ui8_torque_sensor_adc_threshold = DEFAULT_TORQUE_SENSOR_ADC_THRESHOLD,
   .ui8_coast_brake_enable = DEFAULT_COAST_BRAKE_ENABLE,
+
+  .ui8_ant_device_id = 1,
 };
 
 void eeprom_init() {
@@ -293,6 +295,9 @@ void eeprom_init_variables(void) {
       m_eeprom_data.ui8_torque_sensor_adc_threshold;
   ui_vars->ui8_coast_brake_enable =
       m_eeprom_data.ui8_coast_brake_enable;
+
+  ui_vars->ui8_ant_device_id =
+    m_eeprom_data.ui8_ant_device_id;
 }
 
 void eeprom_write_variables(void) {
@@ -411,6 +416,9 @@ void eeprom_write_variables(void) {
       ui_vars->ui8_torque_sensor_adc_threshold;
   m_eeprom_data.ui8_coast_brake_enable =
       ui_vars->ui8_coast_brake_enable;
+
+  m_eeprom_data.ui8_ant_device_id =
+    ui_vars->ui8_ant_device_id;
 
 	flash_write_words(&m_eeprom_data, sizeof(m_eeprom_data) / sizeof(uint32_t));
 }

@@ -96,7 +96,7 @@ typedef struct rt_vars_struct {
 	uint8_t ui8_motor_type;
 	uint8_t ui8_motor_current_control_mode;
 	uint8_t ui8_motor_assistance_startup_without_pedal_rotation;
-	uint16_t ui16_assist_level_factor[ASSIST_LEVEL_NUMBER - 1];
+	uint16_t ui16_assist_level_factor[ASSIST_LEVEL_NUMBER];
 	uint8_t ui8_walk_assist_feature_enabled;
 	uint8_t ui8_walk_assist_level_factor[ASSIST_LEVEL_NUMBER];
 	uint8_t ui8_startup_motor_power_boost_feature_enabled;
@@ -395,6 +395,8 @@ typedef struct ui_vars_struct {
   uint8_t ui8_torque_sensor_filter;
   uint8_t ui8_torque_sensor_adc_threshold;
   uint8_t ui8_coast_brake_enable;
+
+  uint8_t ui8_ant_device_id;
 } ui_vars_t;
 
 ui_vars_t* get_ui_vars(void);

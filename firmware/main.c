@@ -27,7 +27,7 @@
 #include "nrf_sdh_ble.h"
 #include "nrf_ble_gatt.h"
 #include "nrf_ble_qwr.h"
-#include "ble_service_ant_id.h"
+#include "ble_services.h"
 #include "nrf_sdh_ant.h"
 #include "ant_key_manager.h"
 #include "ant_lev.h"
@@ -38,6 +38,8 @@
 #include "app_uart.h"
 #include "eeprom.h"
 #include "state.h"
+#include "ant_interface.h"
+#include "nrf_delay.h"
 
 ui_vars_t *mp_ui_vars;
 
@@ -128,11 +130,15 @@ static ble_gap_adv_data_t m_adv_data =
   }
 };
 
+// volatile bool m_change_ant_id_flag = false;
+volatile bool g_change_ant_id_flag = false;
+volatile uint8_t m_change_ant_id_value;
+
 /**@brief Function for starting advertising.
  */
 static void advertising_start(void)
 {
-  ret_code_t           err_code;
+  ret_code_t err_code;
 
   err_code = sd_ble_gap_adv_start(m_adv_handle, APP_BLE_CONN_CFG_TAG);
   APP_ERROR_CHECK(err_code);
@@ -326,9 +332,11 @@ static void ant_setup(void)
   err_code = ant_plus_key_set(ANTPLUS_NETWORK_NUM);
   APP_ERROR_CHECK(err_code);
 
-  // ANT+ profile setup
+  ui_vars_t *p_ui_vars = get_ui_vars();
+  m_ant_lev_channel_lev_sens_config.device_number = p_ui_vars->ui8_ant_device_id;
+
   err_code = ant_lev_sens_init(&m_ant_lev,
-                                LEV_SENS_CHANNEL_CONFIG(m_ant_lev),
+                                &m_ant_lev_channel_lev_sens_config,
                                 LEV_SENS_PROFILE_CONFIG(m_ant_lev));
   APP_ERROR_CHECK(err_code);
 
@@ -464,6 +472,12 @@ static void nrf_qwr_error_handler(uint32_t nrf_error)
     APP_ERROR_HANDLER(nrf_error);
 }
 
+static void ant_id_write_handler(uint16_t conn_handle, ble_ant_id_t * p_ant_id, uint8_t value)
+{
+  g_change_ant_id_flag = true;
+  m_change_ant_id_value = value;
+}
+
 /**@brief Function for initializing services that will be used by the application.
  */
 static void services_init(void)
@@ -478,7 +492,9 @@ static void services_init(void)
   err_code = nrf_ble_qwr_init(&m_qwr, &qwr_init);
   APP_ERROR_CHECK(err_code);
 
-  err_code = ble_ant_id_init(&m_ble_ant_id_service, &init);
+  init.ant_id_write_handler = ant_id_write_handler;
+
+  err_code = ble_service_ant_id_init(&m_ble_ant_id_service, &init);
   APP_ERROR_CHECK(err_code);
 }
 
@@ -599,10 +615,10 @@ int main(void)
   motor_power_enable(true);
   lfclk_config(); // needed by the APP_TIMER
   init_app_timers();
+  eeprom_init();
   ble_init();
   ant_setup();
   uart_init();
-  eeprom_init(); // must be after BLE init
 
   mp_ui_vars = get_ui_vars();
 
@@ -617,5 +633,39 @@ int main(void)
       copy_rt_ui_vars();
       rt_processing_start();
     }
+
+    // see if we need to change the ANT ID
+    if (g_change_ant_id_flag) 
+    {
+      g_change_ant_id_flag = false;
+
+      // save the new ANT ID on EEPROM
+      ui_vars_t *p_ui_vars = get_ui_vars();
+      p_ui_vars->ui8_ant_device_id = m_change_ant_id_value;
+
+      // first disable Bluetooth or ANT otherwise the flash EEPROM would fail
+      ret_code_t err_code;
+      err_code = sd_ble_gap_adv_stop(m_adv_handle);
+      nrf_delay_ms(500);
+	    //APP_ERROR_CHECK(err_code);
+
+      if (m_conn_handle != BLE_CONN_HANDLE_INVALID)
+      {
+        err_code = sd_ble_gap_disconnect(m_conn_handle,  BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+        APP_ERROR_CHECK(err_code);
+      }
+
+      err_code = sd_ant_channel_close(m_ant_lev.channel_number);
+      APP_ERROR_CHECK(err_code);
+
+      //NRF_RADIO->TASKS_DISABLE = 1;
+
+      nrf_delay_ms(500);
+      eeprom_write_variables();
+
+      // finally reset so the new ANT ID will take effect
+      NVIC_SystemReset();
+    }
   }
 }
+

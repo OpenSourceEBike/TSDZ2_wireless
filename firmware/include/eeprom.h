@@ -13,8 +13,8 @@
 
 // For compatible changes, just add new fields at the end of the table (they will be inited to 0xff for old eeprom images).  For incompatible
 // changes bump up EEPROM_MIN_COMPAT_VERSION and the user's EEPROM settings will be discarded.
-#define EEPROM_MIN_COMPAT_VERSION 0x3B
-#define EEPROM_VERSION 0x3B
+#define EEPROM_MIN_COMPAT_VERSION 0x3C
+#define EEPROM_VERSION 0x3C
 
 typedef struct eeprom_data {
 	uint8_t eeprom_version; // Used to detect changes in eeprom encoding, if != EEPROM_VERSION we will not use it
@@ -84,6 +84,8 @@ typedef struct eeprom_data {
   uint8_t ui8_torque_sensor_filter;
   uint8_t ui8_torque_sensor_adc_threshold;
   uint8_t ui8_coast_brake_enable;
+
+  uint8_t ui8_ant_device_id;
 
 // FIXME align to 32 bit value by end of structure and pack other fields
 } eeprom_data_t;

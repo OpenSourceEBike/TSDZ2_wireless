@@ -98,7 +98,7 @@ SRC_FILES += \
 	$(PROJ_DIR)/state.c \
 	$(PROJ_DIR)/uart.c \
 	$(PROJ_DIR)/utils.c \
-	$(PROJ_DIR)/ble_service_ant_id.c \
+	$(PROJ_DIR)/ble_services.c \
   $(PROJ_DIR)/main.c \
 
 # Include folders common to all targets

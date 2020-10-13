@@ -26,7 +26,7 @@ NRF_SDH_BLE_OBSERVER(_name ## _obs,                                             
 
 typedef struct ble_ant_id_s ble_ant_id_t;
 
-typedef void (*ble_ant_id_write_handler_t) (uint16_t conn_handle, ble_ant_id_t * p_ant_id, uint8_t new_state);
+typedef void (*ble_ant_id_write_handler_t) (uint16_t conn_handle, ble_ant_id_t * p_ant_id, uint8_t value);
 
 typedef struct
 {
@@ -38,11 +38,12 @@ struct ble_ant_id_s
     uint16_t                    service_handle;      
     ble_gatts_char_handles_t    ant_id_char_handles;
     uint8_t                     uuid_type;
-    ble_ant_id_write_handler_t ant_id_write_handler;
+    ble_ant_id_write_handler_t  ant_id_write_handler;
 };
 
-uint32_t ble_ant_id_init(ble_ant_id_t * p_ant_id, const ble_ant_id_init_t * p_ant_id_init);
+uint32_t ble_service_ant_id_init(ble_ant_id_t * p_ant_id, const ble_ant_id_init_t * p_ant_id_init);
 void ble_ant_id_on_ble_evt(ble_evt_t const * p_ble_evt, void * p_context);
+uint32_t ble_ant_id_on_change(uint16_t conn_handle, ble_ant_id_t * p_ant_id_t, uint8_t value);
 
 #ifdef __cplusplus
 }
