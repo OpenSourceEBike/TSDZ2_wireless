@@ -7,7 +7,7 @@ MEMORY
 {
   /* values taken from examples/multiprotocol/ble_ant_app_hrm/pca10056/s340/armgcc */
   FLASH (rx) : ORIGIN = 0x31000, LENGTH = 0xcf000 /* 828 kbytes */
-  RAM (rwx) :  ORIGIN = 0x20002798, LENGTH = 0x3d868 /* about 246 kbytes */
+  RAM (rwx) :  ORIGIN = 0x200027F8, LENGTH = 0x3d808 /* about 246 kbytes */
 }
 
 SECTIONS
