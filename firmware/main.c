@@ -615,9 +615,9 @@ int main(void)
   motor_power_enable(true);
   lfclk_config(); // needed by the APP_TIMER
   init_app_timers();
-  eeprom_init();
   ble_init();
   ant_setup();
+  eeprom_init(); // depends on the softdevice so it must be called after Bluetooth and ANT init
   uart_init();
 
   mp_ui_vars = get_ui_vars();
@@ -643,24 +643,6 @@ int main(void)
       ui_vars_t *p_ui_vars = get_ui_vars();
       p_ui_vars->ui8_ant_device_id = m_change_ant_id_value;
 
-      // first disable Bluetooth or ANT otherwise the flash EEPROM would fail
-      ret_code_t err_code;
-      err_code = sd_ble_gap_adv_stop(m_adv_handle);
-      nrf_delay_ms(500);
-	    //APP_ERROR_CHECK(err_code);
-
-      if (m_conn_handle != BLE_CONN_HANDLE_INVALID)
-      {
-        err_code = sd_ble_gap_disconnect(m_conn_handle,  BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-        APP_ERROR_CHECK(err_code);
-      }
-
-      err_code = sd_ant_channel_close(m_ant_lev.channel_number);
-      APP_ERROR_CHECK(err_code);
-
-      //NRF_RADIO->TASKS_DISABLE = 1;
-
-      nrf_delay_ms(500);
       eeprom_write_variables();
 
       // finally reset so the new ANT ID will take effect

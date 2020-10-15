@@ -444,6 +444,22 @@ static ret_code_t read(nrf_fstorage_t const * p_fs, uint32_t src, void * p_dest,
 {
     memcpy(p_dest, (uint32_t*)src, len);
 
+    // uint32_t *p_src = (uint32_t *) src;
+    // uint32_t *p_d = (uint32_t *) p_dest;
+
+    // for (uint32_t i = 0; i < len; i++)
+    // {
+    //   *p_d = *p_src;
+    //   p_d++;
+    //   p_src++;
+
+    //   if (i == 22)
+    //   {
+    //     i++; 
+    //     i--;
+    //   }
+    // }
+
     return NRF_SUCCESS;
 }
 

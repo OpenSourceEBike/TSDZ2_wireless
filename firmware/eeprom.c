@@ -8,11 +8,66 @@
 
 #include "stdio.h"
 #include <string.h>
-#include "eeprom_hw.h"
 #include "eeprom.h"
 #include "main_screen.h"
 #include "state.h"
-//#include "lcd_configurations.h"
+#include "nrf_fstorage.h"
+#include "nrf_sdh.h"
+#include "nrf_sdh_ble.h"
+#include "nrf_fstorage_sd.h"
+#include "nrf_log.h"
+#include "nrf_log_ctrl.h"
+#include "nrf_log_default_backends.h"
+#include "app_error.h"
+
+void wait_for_flash_ready(nrf_fstorage_t const * p_fstorage)
+{
+  /* While fstorage is busy, sleep and wait for an event. */
+  while (nrf_fstorage_is_busy(p_fstorage))
+  {
+    //power_manage();
+  }
+}
+
+static void fstorage_evt_handler(nrf_fstorage_evt_t * p_evt)
+{
+  if (p_evt->result != NRF_SUCCESS)
+  {
+    NRF_LOG_INFO("--> Event received: ERROR while executing an fstorage operation.");
+    return;
+  }
+
+  switch (p_evt->id)
+  {
+    case NRF_FSTORAGE_EVT_WRITE_RESULT:
+    {
+      NRF_LOG_INFO("--> Event received: wrote %d bytes at address 0x%x.",
+                      p_evt->len, p_evt->addr);
+    } break;
+
+    case NRF_FSTORAGE_EVT_ERASE_RESULT:
+    {
+      NRF_LOG_INFO("--> Event received: erased %d page from address 0x%x.",
+                      p_evt->len, p_evt->addr);
+    } break;
+
+    default:
+      break;
+  }
+}
+
+NRF_FSTORAGE_DEF(nrf_fstorage_t fstorage) =
+{
+    /* Set a handler for fstorage events. */
+    .evt_handler = fstorage_evt_handler,
+
+    /* These below are the boundaries of the flash space assigned to this instance of fstorage.
+     * You must set these manually, even at runtime, before nrf_fstorage_init() is called.
+     * The function nrf5_flash_end_addr_get() can be used to retrieve the last address on the
+     * last page of flash available to write data. */
+    .start_addr = 0xfd000,
+    .end_addr   = 0xfffff,
+};
 
 static eeprom_data_t m_eeprom_data;
 
@@ -149,24 +204,63 @@ const eeprom_data_t m_eeprom_data_defaults = {
   .ui8_ant_device_id = 1,
 };
 
+ret_code_t eeprom_read(uint32_t addr, void *dest, uint16_t length)
+{
+  ret_code_t err_code;
+
+  err_code = nrf_fstorage_read(&fstorage,
+    addr,
+    &dest,
+    length);
+
+  if (err_code != NRF_SUCCESS)
+    return err_code;
+
+  wait_for_flash_ready(&fstorage);
+
+  return NRF_SUCCESS;
+}
+
+ret_code_t eeprom_write(uint32_t addr, void *src, uint16_t length)
+{
+  ret_code_t err_code;
+  err_code = nrf_fstorage_write(&fstorage,
+    addr,
+    &src,
+    length,
+    NULL);
+
+  if (err_code != NRF_SUCCESS)
+    return err_code;
+
+  wait_for_flash_ready(&fstorage);
+
+  return NRF_SUCCESS;
+}
+
 void eeprom_init() {
-	eeprom_hw_init();
+  ret_code_t err_code;
+  nrf_fstorage_api_t *p_fs_api;
+  p_fs_api = &nrf_fstorage_sd;
+
+  err_code = nrf_fstorage_init(&fstorage, p_fs_api, NULL);
+  APP_ERROR_CHECK(err_code);
 
 	// read the values from EEPROM to array
 	memset(&m_eeprom_data, 0, sizeof(m_eeprom_data));
 
-	// if eeprom is blank use defaults
-	// if eeprom version is less than the min required version, wipe and use defaults
-	// if eeprom version is greater than the current app version, user must have downgraded - wipe and use defaults
-	if (!flash_read_words(&m_eeprom_data,
-			sizeof(m_eeprom_data)
-					/ sizeof(uint32_t))
-	    || m_eeprom_data.eeprom_version < EEPROM_MIN_COMPAT_VERSION
-	    || m_eeprom_data.eeprom_version > EEPROM_VERSION
-	    )
-		// If we are using default data it doesn't get written to flash until someone calls write
-		memcpy(&m_eeprom_data, &m_eeprom_data_defaults,
-				sizeof(m_eeprom_data_defaults));
+	// // if eeprom is blank use defaults
+	// // if eeprom version is less than the min required version, wipe and use defaults
+	// // if eeprom version is greater than the current app version, user must have downgraded - wipe and use defaults
+	// if (!flash_read_words(&m_eeprom_data,
+	// 		sizeof(m_eeprom_data)
+	// 				/ sizeof(uint32_t))
+	//     || m_eeprom_data.eeprom_version < EEPROM_MIN_COMPAT_VERSION
+	//     || m_eeprom_data.eeprom_version > EEPROM_VERSION
+	//     )
+	// 	// If we are using default data it doesn't get written to flash until someone calls write
+	// 	memcpy(&m_eeprom_data, &m_eeprom_data_defaults,
+	// 			sizeof(m_eeprom_data_defaults));
 
 	eeprom_init_variables();
 	set_conversions();
@@ -176,8 +270,22 @@ void eeprom_init() {
 }
 
 void eeprom_init_variables(void) {
+  ret_code_t err_code;
+  rt_vars_t *rt_vars = get_rt_vars();
 	ui_vars_t *ui_vars = get_ui_vars();
-	rt_vars_t *rt_vars = get_rt_vars();
+
+  // err_code = eeprom_read(EEPROM_ADDR_DATA_START, &m_eeprom_data, sizeof(m_eeprom_data));
+  err_code = eeprom_read(EEPROM_ADDR_KEY, &m_eeprom_data, sizeof(m_eeprom_data));
+  APP_ERROR_CHECK(err_code);
+  wait_for_flash_ready(&fstorage);
+
+  // ret_code_t err_code;
+  // err_code = nrf_fstorage_read(&fstorage,
+  //   EEPROM_ADDR_DATA_START,
+  //   &m_eeprom_data,
+  //   sizeof(m_eeprom_data));
+  // APP_ERROR_CHECK(err_code);
+  // wait_for_flash_ready(&fstorage);
 
 	// copy data final variables
 	ui_vars->ui8_assist_level = m_eeprom_data.ui8_assist_level;
@@ -420,20 +528,56 @@ void eeprom_write_variables(void) {
   m_eeprom_data.ui8_ant_device_id =
     ui_vars->ui8_ant_device_id;
 
-	flash_write_words(&m_eeprom_data, sizeof(m_eeprom_data) / sizeof(uint32_t));
+  ret_code_t err_code;
+  err_code = eeprom_write(EEPROM_ADDR_DATA_START, &m_eeprom_data, sizeof(m_eeprom_data));
+  APP_ERROR_CHECK(err_code);
+  wait_for_flash_ready(&fstorage);
+
+  // ret_code_t err_code;
+  // err_code = nrf_fstorage_write(&fstorage,
+  //   EEPROM_ADDR_DATA_START,
+  //   &m_eeprom_data,
+  //   sizeof(m_eeprom_data),
+  //   NULL);
+  // //APP_ERROR_CHECK(err_code);
+
+  // wait_for_flash_ready(&fstorage);
 }
 
 void eeprom_init_defaults(void)
 {
-  memset(&m_eeprom_data, 0, sizeof(m_eeprom_data));
-  memcpy(&m_eeprom_data,
-      &m_eeprom_data_defaults,
-      sizeof(m_eeprom_data_defaults));
+  // memset(&m_eeprom_data, 0, sizeof(m_eeprom_data));
+  // memcpy(&m_eeprom_data,
+  //     &m_eeprom_data_defaults,
+  //     sizeof(m_eeprom_data_defaults));
 
-  eeprom_init_variables();
-  set_conversions();
-  // prepare torque_sensor_calibration_table as it will be used at begin to init the motor
-  prepare_torque_sensor_calibration_table();
+  // eeprom_init_variables();
+  // set_conversions();
+  // // prepare torque_sensor_calibration_table as it will be used at begin to init the motor
+  // prepare_torque_sensor_calibration_table();
 
-  flash_write_words(&m_eeprom_data, sizeof(m_eeprom_data) / sizeof(uint32_t));
+  // flash_write_words(&m_eeprom_data, sizeof(m_eeprom_data) / sizeof(uint32_t));
 }
+
+// Read raw EEPROM data, return false if it is blank or malformatted
+// bool flash_read_words(void *dest, uint16_t length_words)
+// {
+  // uint8_t ui8_data;
+
+  // find_valid_page();
+
+  // // start by reading address 0 and see if value is different from our key,
+  // // if so mean that eeprom memory is clean (or data strucutre is invalid) and we need to populate
+  // ui8_data = eeprom_read(ADDRESS_KEY);
+  // if(ui8_data != KEY) // verify if our key exist
+	//   return false;
+
+  // // read the values from EEPROM to array
+  // for(int i = 0; i < sizeof(uint32_t) * length_words; i++)
+  // {
+  //    // we start at EEPROM address 1 as 0 is already in use by the KEY
+  //    ((uint8_t *) dest)[i] = eeprom_read(1 + i);
+  // }
+
+  // return true;
+// }

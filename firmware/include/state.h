@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include "state.h"
 
-#define ASSIST_LEVEL_NUMBER 7
+#define ASSIST_LEVEL_NUMBER 20
 
 typedef enum {
   MOTOR_INIT_GET_MOTOR_ALIVE,

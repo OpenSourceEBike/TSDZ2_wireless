@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "NRF52 Flash and Debug",
+            "name": "NRF52 Flash Debug",
             "type": "cppdbg",
             "request": "launch",
             "args": [],

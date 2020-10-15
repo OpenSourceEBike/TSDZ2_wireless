@@ -61,6 +61,8 @@ SRC_FILES += \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ant.c \
+	$(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage.c \
+	$(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage_sd.c \
 	$(SDK_ROOT)/components/libraries/fifo/app_fifo.c \
   $(SDK_ROOT)/components/libraries/uart/app_uart_fifo.c \
 	$(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_uart.c \
@@ -93,7 +95,6 @@ SRC_FILES += \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_common_data.c \
   $(PROJ_DIR)/pins.c \
 	$(PROJ_DIR)/utils.c \
-	$(PROJ_DIR)/eeprom_hw.c \
 	$(PROJ_DIR)/eeprom.c \
 	$(PROJ_DIR)/state.c \
 	$(PROJ_DIR)/uart.c \
@@ -140,6 +141,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/delay \
   $(SDK_ROOT)/components/toolchain/cmsis/include \
   $(SDK_ROOT)/components/libraries/mutex \
+	$(SDK_ROOT)/components/libraries/fstorage \
   $(SDK_ROOT)/components/libraries/pwr_mgmt \
   $(SDK_ROOT)/components/libraries/timer \
 	$(SDK_ROOT)/components/libraries/atomic_flags \
