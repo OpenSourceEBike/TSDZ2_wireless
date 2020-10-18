@@ -10,106 +10,6 @@
 #define _EEPROM_H_
 
 #include "state.h"
-#include "nrf_fstorage_sd.h"
-
-extern nrf_fstorage_t fstorage;
-
-#define EEP_ADD_START                             (0)
-#define EEP_ADD_KEY                               (1)
-#define EEP_ADD_VERSION                           (2)
-#define EEP_ADD_ASSIST_LEVEL                      (3)
-#define EEP_ADD_NUMBER_OF_ASSIST_LEVELS           (4)
-#define EEP_ADD_WHEEL_PERIMETER                   (5)
-#define EEP_ADD_WHEEL_MAX_SPEED_X10               (6)
-#define EEP_ADD_UNITS_TYPE                        (7)
-#define EEP_ADD_WH_X10_OFFSET
-#define EEP_ADD_WH_X10_100_PERCENT
-#define EEP_ADD_TARGET_MAX_POWER_DIV25
-#define EEP_ADD_BATTERY_MAX_CURRENT
-#define EEP_ADD_MOTOR_MAX_CURRENT
-#define EEP_ADD_FIELD_WEAKENING
-#define EEP_ADD_RAMP_UP_AMPS_PER_SECOND_X10
-#define EEP_ADD_BAT_LOW_VOL_CUT_OFF_X10
-#define EEP_ADD_BAT_VOLT_RES_WH_CNT_X10
-#define EEP_ADD_BAT_RESISTANCE_X1000
-#define EEP_ADD_MOT_TYPE
-#define EEP_ADD_MOT_CURRENT_CONTROL_MODE
-#define EEP_ADD_MOT_ASSISTANCE_STARTUP_WITHOUT_PEDAL_ROTATION
-#define EEP_ADD_ASSIST_LEVEL_FACTOR_1
-#define EEP_ADD_ASSIST_LEVEL_FACTOR_2
-#define EEP_ADD_ASSIST_LEVEL_FACTOR_3
-#define EEP_ADD_ASSIST_LEVEL_FACTOR_4
-#define EEP_ADD_ASSIST_LEVEL_FACTOR_5
-#define EEP_ADD_ASSIST_LEVEL_FACTOR_6
-#define EEP_ADD_ASSIST_LEVEL_FACTOR_7
-#define EEP_ADD_WALK_ASSIST_FEATURE_ENABLE
-#define EEP_ADD_WALK_ASSIST_LEVEL_FACTOR_1
-#define EEP_ADD_WALK_ASSIST_LEVEL_FACTOR_2
-#define EEP_ADD_WALK_ASSIST_LEVEL_FACTOR_3
-#define EEP_ADD_WALK_ASSIST_LEVEL_FACTOR_4
-#define EEP_ADD_WALK_ASSIST_LEVEL_FACTOR_5
-#define EEP_ADD_WALK_ASSIST_LEVEL_FACTOR_6
-#define EEP_ADD_WALK_ASSIST_LEVEL_FACTOR_7
-#define EEP_ADD_STA_MOT_POW_BOOST_FEATURE_ENABLE
-#define EEP_ADD_STA_MOT_POW_BOOST_ALWAYS
-#define EEP_ADD_STA_MOT_POW_BOOST_LIMIT_POWER
-#define EEP_ADD_STA_MOT_POW_BOOST_TIME
-#define EEP_ADD_STA_MOT_POW_BOOST_FACTOR_1
-#define EEP_ADD_STA_MOT_POW_BOOST_FACTOR_2
-#define EEP_ADD_STA_MOT_POW_BOOST_FACTOR_3
-#define EEP_ADD_STA_MOT_POW_BOOST_FACTOR_4
-#define EEP_ADD_STA_MOT_POW_BOOST_FACTOR_5
-#define EEP_ADD_STA_MOT_POW_BOOST_FACTOR_6
-#define EEP_ADD_STA_MOT_POW_BOOST_FACTOR_7
-#define EEP_ADD_MOT_TEMPERATURE_LIMIT_FEATURE_ENABLE
-#define EEP_ADD_MOT_TEMPERATURE_MAX_VALUE_TO_LIMIT
-#define EEP_ADD_MOT_TEMPERATURE_MIN_VALUE_TO_LIMIT
-#define EEP_ADD_AUTOMATIC_POWER_OFF_TIME_MINUTES
-#define EEP_ADD_OFFROAD_FEATURE_ENABLE
-#define EEP_ADD_OFFROAD_FEATURE_ENABLE_ON_START_UP
-
-	
-	
-	uint8_t ui8_offroad_speed_limit;
-	uint8_t ui8_offroad_power_limit_enabled;
-	uint8_t ui8_offroad_power_limit_div25;
-	uint32_t ui32_odometer_x10;
-
-	uint8_t ui8_lights;
-	uint8_t ui8_braking;
-	uint8_t ui8_walk_assist;
-	uint8_t ui8_offroad_mode;
-	uint8_t ui8_buttons_up_down_invert;
-
-	uint8_t ui8_torque_sensor_calibration_feature_enabled;
-	uint8_t ui8_torque_sensor_calibration_pedal_ground;
-	uint16_t ui16_torque_sensor_calibration_table_left[8][2];
-	uint16_t ui16_torque_sensor_calibration_table_right[8][2];
-
-	uint8_t field_selectors[NUM_CUSTOMIZABLE_FIELDS]; // this array is opaque to the app, but the screen layer uses it to store which field is being displayed (it is stored to EEPROM)
-	uint8_t graphs_field_selectors[3]; // 3 screen main pages
-
-	uint8_t ui8_street_mode_function_enabled;
-	uint8_t ui8_street_mode_enabled;
-	uint8_t ui8_street_mode_enabled_on_startup;
-	uint8_t ui8_street_mode_speed_limit;
-	uint8_t ui8_street_mode_power_limit_div25;
-	uint16_t ui16_street_mode_power_limit;
-	uint8_t ui8_street_mode_throttle_enabled;
-	uint8_t ui8_street_mode_hotkey_enabled;
-
-  uint8_t ui8_pedal_cadence_fast_stop;
-  uint8_t ui8_coast_brake_adc;
-  uint8_t ui8_adc_lights_current_offset;
-  uint16_t ui16_adc_battery_current;
-  uint8_t ui8_throttle_virtual;
-  uint8_t ui8_throttle_virtual_step;
-  uint8_t ui8_torque_sensor_filter;
-  uint8_t ui8_torque_sensor_adc_threshold;
-  uint8_t ui8_coast_brake_enable;
-
-  uint8_t ui8_ant_device_id;
-
 
 // For compatible changes, just add new fields at the end of the table (they will be inited to 0xff for old eeprom images).  For incompatible
 // changes bump up EEPROM_MIN_COMPAT_VERSION and the user's EEPROM settings will be discarded.
@@ -186,7 +86,9 @@ typedef struct eeprom_data {
   uint8_t ui8_coast_brake_enable;
 
   uint8_t ui8_ant_device_id;
-} __attribute__((packed, aligned(1))) eeprom_data_t;
+
+// FIXME align to 32 bit value by end of structure and pack other fields
+} eeprom_data_t;
 
 void eeprom_init(void);
 void eeprom_init_variables(void);
