@@ -16,18 +16,18 @@ static void on_write(ble_ant_id_t * p_ant_id, ble_evt_t const * p_ble_evt)
 
 void ble_ant_id_on_ble_evt(ble_evt_t const * p_ble_evt, void * p_context)
 {
-    ble_ant_id_t * p_ant_id = (ble_ant_id_t *)p_context;
+  ble_ant_id_t * p_ant_id = (ble_ant_id_t *)p_context;
 
-    switch (p_ble_evt->header.evt_id)
-    {
-        case BLE_GATTS_EVT_WRITE:
-            on_write(p_ant_id, p_ble_evt);
-            break;
+  switch (p_ble_evt->header.evt_id)
+  {
+    case BLE_GATTS_EVT_WRITE:
+      on_write(p_ant_id, p_ble_evt);
+      break;
 
-        default:
-            // No implementation needed.
-            break;
-    }
+    default:
+      // No implementation needed.
+      break;
+  }
 }
 
 uint32_t ble_service_ant_id_init(ble_ant_id_t * p_ant_id, const ble_ant_id_init_t * p_ant_id_init)
@@ -65,14 +65,14 @@ uint32_t ble_service_ant_id_init(ble_ant_id_t * p_ant_id, const ble_ant_id_init_
 
 uint32_t ble_ant_id_on_change(uint16_t conn_handle, ble_ant_id_t * p_ant_id_t, uint8_t value)
 {
-    ble_gatts_hvx_params_t params;
-    uint16_t len = sizeof(value);
+  ble_gatts_hvx_params_t params;
+  uint16_t len = sizeof(value);
 
-    memset(&params, 0, sizeof(params));
-    params.type   = BLE_GATT_HVX_NOTIFICATION;
-    params.handle = p_ant_id_t->ant_id_char_handles.value_handle;
-    params.p_data = &value;
-    params.p_len  = &len;
+  memset(&params, 0, sizeof(params));
+  params.type   = BLE_GATT_HVX_NOTIFICATION;
+  params.handle = p_ant_id_t->ant_id_char_handles.value_handle;
+  params.p_data = &value;
+  params.p_len  = &len;
 
-    return sd_ble_gatts_hvx(conn_handle, &params);
+  return sd_ble_gatts_hvx(conn_handle, &params);
 }

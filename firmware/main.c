@@ -43,6 +43,8 @@
 
 ui_vars_t *mp_ui_vars;
 
+uint8_t ui8_m_ant_device_id;
+
 #define MSEC_PER_TICK 10
 APP_TIMER_DEF(main_timer);
 #define MAIN_INTERVAL APP_TIMER_TICKS(MSEC_PER_TICK)
@@ -129,10 +131,6 @@ static ble_gap_adv_data_t m_adv_data =
     .len    = BLE_GAP_ADV_SET_DATA_SIZE_MAX
   }
 };
-
-// volatile bool m_change_ant_id_flag = false;
-volatile bool g_change_ant_id_flag = false;
-volatile uint8_t m_change_ant_id_value;
 
 /**@brief Function for starting advertising.
  */
@@ -474,8 +472,7 @@ static void nrf_qwr_error_handler(uint32_t nrf_error)
 
 static void ant_id_write_handler(uint16_t conn_handle, ble_ant_id_t * p_ant_id, uint8_t value)
 {
-  g_change_ant_id_flag = true;
-  m_change_ant_id_value = value;
+  ui8_m_ant_device_id = value;
 }
 
 /**@brief Function for initializing services that will be used by the application.
@@ -496,6 +493,8 @@ static void services_init(void)
 
   err_code = ble_service_ant_id_init(&m_ble_ant_id_service, &init);
   APP_ERROR_CHECK(err_code);
+
+  ble_ant_id_on_change(m_conn_handle, &m_ble_ant_id_service, mp_ui_vars->ui8_ant_device_id);
 }
 
 /**@brief Function for initializing the Advertising functionality.
@@ -609,8 +608,22 @@ void ble_init(void)
   advertising_start();
 }
 
+void change_ant_id_and_reset(void)
+{
+  // NOTE that flash of EEPROM does not work on an interrupt like on the ant_id_write_handler(), hence it is done here on main()
+  eeprom_write_variables();
+
+  // wait some time to make sure eeprom is written
+  nrf_delay_ms(1000);
+
+  // finally reset so the new ANT ID will take effect
+  NVIC_SystemReset();
+}
+
 int main(void)
 {
+  mp_ui_vars = get_ui_vars();
+
   pins_init();
   motor_power_enable(true);
   lfclk_config(); // needed by the APP_TIMER
@@ -620,7 +633,8 @@ int main(void)
   ant_setup();
   uart_init();
 
-  mp_ui_vars = get_ui_vars();
+  // setup this member variable ui8_m_ant_device_id
+  ui8_m_ant_device_id = mp_ui_vars->ui8_ant_device_id;
 
   while (1)
   {
@@ -634,37 +648,15 @@ int main(void)
       rt_processing_start();
     }
 
-    // see if we need to change the ANT ID
-    if (g_change_ant_id_flag) 
+    // every 1 second
+    if (main_ticks % (1000 / MSEC_PER_TICK) == 0)
     {
-      g_change_ant_id_flag = false;
-
-      // save the new ANT ID on EEPROM
-      ui_vars_t *p_ui_vars = get_ui_vars();
-      p_ui_vars->ui8_ant_device_id = m_change_ant_id_value;
-
-      // first disable Bluetooth or ANT otherwise the flash EEPROM would fail
-      ret_code_t err_code;
-      err_code = sd_ble_gap_adv_stop(m_adv_handle);
-      nrf_delay_ms(500);
-	    //APP_ERROR_CHECK(err_code);
-
-      if (m_conn_handle != BLE_CONN_HANDLE_INVALID)
+      // see if there was a change to the ANT ID
+      if (ui8_m_ant_device_id != mp_ui_vars->ui8_ant_device_id)
       {
-        err_code = sd_ble_gap_disconnect(m_conn_handle,  BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
-        APP_ERROR_CHECK(err_code);
+        mp_ui_vars->ui8_ant_device_id = ui8_m_ant_device_id;
+        change_ant_id_and_reset();
       }
-
-      err_code = sd_ant_channel_close(m_ant_lev.channel_number);
-      APP_ERROR_CHECK(err_code);
-
-      //NRF_RADIO->TASKS_DISABLE = 1;
-
-      nrf_delay_ms(500);
-      eeprom_write_variables();
-
-      // finally reset so the new ANT ID will take effect
-      NVIC_SystemReset();
     }
   }
 }

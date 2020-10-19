@@ -67,6 +67,9 @@ SRC_FILES += \
 	$(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uarte.c \
 	$(SDK_ROOT)/components/libraries/atomic_flags/nrf_atflags.c \
+	$(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage.c \
+	$(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage_sd.c \
+	$(SDK_ROOT)/components/libraries/fds/fds.c \
 	$(SDK_ROOT)/components/ble/common/ble_advdata.c \
   $(SDK_ROOT)/components/ble/common/ble_conn_params.c \
   $(SDK_ROOT)/components/ble/common/ble_conn_state.c \
@@ -93,7 +96,6 @@ SRC_FILES += \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_common_data.c \
   $(PROJ_DIR)/pins.c \
 	$(PROJ_DIR)/utils.c \
-	$(PROJ_DIR)/eeprom_hw.c \
 	$(PROJ_DIR)/eeprom.c \
 	$(PROJ_DIR)/state.c \
 	$(PROJ_DIR)/uart.c \
@@ -115,6 +117,8 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/atomic_fifo \
 	$(SDK_ROOT)/components/libraries/uart \
 	$(SDK_ROOT)/components/libraries/fifo \
+	$(SDK_ROOT)/components/libraries/fstorage \
+	$(SDK_ROOT)/components/libraries/fds \
   $(SDK_ROOT)/modules/nrfx/mdk \
   $(SDK_ROOT)/components/libraries/strerror \
   $(SDK_ROOT)/integration/nrfx/legacy \

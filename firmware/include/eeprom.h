@@ -11,91 +11,8 @@
 
 #include "state.h"
 
-// For compatible changes, just add new fields at the end of the table (they will be inited to 0xff for old eeprom images).  For incompatible
-// changes bump up EEPROM_MIN_COMPAT_VERSION and the user's EEPROM settings will be discarded.
-#define EEPROM_MIN_COMPAT_VERSION 0x3C
-#define EEPROM_VERSION 0x3C
+#define CONFIGURATIONS_VERSION 0x3E
 
-typedef struct eeprom_data {
-	uint8_t eeprom_version; // Used to detect changes in eeprom encoding, if != EEPROM_VERSION we will not use it
-
-	uint8_t ui8_assist_level;
-	uint16_t ui16_wheel_perimeter;
-	uint8_t ui8_wheel_max_speed;
-	uint8_t ui8_units_type;
-	uint32_t ui32_wh_x10_offset;
-	uint32_t ui32_wh_x10_100_percent;
-	uint8_t ui8_battery_soc_enable;
-	uint8_t ui8_time_field_enable;
-	uint8_t ui8_target_max_battery_power_div25;
-	uint8_t ui8_battery_max_current;
-	uint8_t ui8_motor_max_current;
-  uint8_t ui8_motor_current_min_adc;
-  uint8_t ui8_field_weakening;
-	uint8_t ui8_ramp_up_amps_per_second_x10;
-	uint16_t ui16_battery_low_voltage_cut_off_x10;
-	uint8_t ui8_motor_type;
-	uint8_t ui8_motor_current_control_mode;
-	uint8_t ui8_motor_assistance_startup_without_pedal_rotation;
-	uint16_t ui16_assist_level_factor[ASSIST_LEVEL_NUMBER];
-	uint8_t ui8_number_of_assist_levels;
-	uint8_t ui8_startup_motor_power_boost_feature_enabled;
-	uint8_t ui8_startup_motor_power_boost_always;
-	uint8_t ui8_startup_motor_power_boost_limit_power;
-	uint16_t ui16_startup_motor_power_boost_factor[ASSIST_LEVEL_NUMBER];
-	uint8_t ui8_startup_motor_power_boost_time;
-	uint8_t ui8_startup_motor_power_boost_fade_time;
-	uint8_t ui8_temperature_limit_feature_enabled;
-	uint8_t ui8_motor_temperature_min_value_to_limit;
-	uint8_t ui8_motor_temperature_max_value_to_limit;
-	uint16_t ui16_battery_voltage_reset_wh_counter_x10;
-	uint8_t ui8_lcd_power_off_time_minutes;
-	uint8_t ui8_lcd_backlight_on_brightness;
-	uint8_t ui8_lcd_backlight_off_brightness;
-	uint16_t ui16_battery_pack_resistance_x1000;
-	uint8_t ui8_offroad_feature_enabled;
-	uint8_t ui8_offroad_enabled_on_startup;
-	uint8_t ui8_offroad_speed_limit;
-	uint8_t ui8_offroad_power_limit_enabled;
-	uint8_t ui8_offroad_power_limit_div25;
-	uint32_t ui32_odometer_x10;
-	uint8_t ui8_walk_assist_feature_enabled;
-	uint8_t ui8_walk_assist_level_factor[ASSIST_LEVEL_NUMBER];
-
-	uint8_t ui8_battery_soc_increment_decrement;
-	uint8_t ui8_buttons_up_down_invert;
-  uint8_t ui8_torque_sensor_calibration_feature_enabled;
-  uint8_t ui8_torque_sensor_calibration_pedal_ground;
-  uint16_t ui16_torque_sensor_calibration_table_left[8][2];
-  uint16_t ui16_torque_sensor_calibration_table_right[8][2];
-
-  uint8_t ui8_street_mode_function_enabled;
-  uint8_t ui8_street_mode_enabled;
-  uint8_t ui8_street_mode_enabled_on_startup;
-  uint8_t ui8_street_mode_speed_limit;
-  uint8_t ui8_street_mode_power_limit_div25;
-  uint8_t ui8_street_mode_throttle_enabled;
-  uint8_t ui8_street_mode_hotkey_enabled;
-
-  uint8_t ui8_pedal_cadence_fast_stop;
-  uint8_t ui8_coast_brake_adc;
-  uint8_t ui8_adc_lights_current_offset;
-  uint8_t ui8_throttle_virtual_step;
-  uint8_t ui8_torque_sensor_filter;
-  uint8_t ui8_torque_sensor_adc_threshold;
-  uint8_t ui8_coast_brake_enable;
-
-  uint8_t ui8_ant_device_id;
-
-// FIXME align to 32 bit value by end of structure and pack other fields
-} eeprom_data_t;
-
-void eeprom_init(void);
-void eeprom_init_variables(void);
-void eeprom_write_variables(void);
-void eeprom_init_defaults(void);
-
-// *************************************************************************** //
 // EEPROM memory variables default values
 #define DEFAULT_VALUE_ASSIST_LEVEL                                  0
 #define DEFAULT_VALUE_NUMBER_OF_ASSIST_LEVELS                       7
@@ -140,7 +57,7 @@ void eeprom_init_defaults(void);
 #define DEFAULT_VALUE_STARTUP_MOTOR_POWER_BOOST_TIME                20 // 2.0 seconds
 #define DEFAULT_VALUE_STARTUP_MOTOR_POWER_BOOST_FADE_TIME           35 // 3.5 seconds
 #define DEFAULT_VALUE_MOTOR_TEMPERATURE_FEATURE_ENABLE              0
-#define DEFAULT_VALUE_MOTOR_TEMPERATURE_MIN_VALUE_LIMIT             75 // 75 degrees celsius
+#define DEFAULT_VALUE_MOTOR_TEMPERATURE_MIN_VALUE_LIMIT             75 // 75 degrees celsius        /* A config file is in flash. Let's update it. */
 #define DEFAULT_VALUE_MOTOR_TEMPERATURE_MAX_VALUE_LIMIT             85 // 85 degrees celsius
 #define DEFAULT_VALUE_BATTERY_VOLTAGE_RESET_WH_COUNTER_X10          584 // 52v battery, 58.4 volts at fully charged
 #define DEFAULT_VALUE_LCD_POWER_OFF_TIME                            60 // 60 minutes, each unit 1 minute
@@ -166,7 +83,6 @@ void eeprom_init_defaults(void);
 #define DEFAULT_TORQUE_SENSOR_FILTER                                20 // 20%
 #define DEFAULT_TORQUE_SENSOR_ADC_THRESHOLD                         20
 #define DEFAULT_COAST_BRAKE_ENABLE                                  0 // disable
-
 #define DEFAULT_TORQUE_SENSOR_CALIBRATION_FEATURE_ENABLE            0 // disabled
 #define DEFAULT_TORQUE_SENSOR_CALIBRATION_PEDAL_GROUND              0 // left pedal
 #define DEFAULT_TORQUE_SENSOR_CALIBRATION_LEFT_WEIGHT_1             0
@@ -202,6 +118,66 @@ void eeprom_init_defaults(void);
 #define DEFAULT_TORQUE_SENSOR_CALIBRATION_RIGHT_WEIGHT_8            105
 #define DEFAULT_TORQUE_SENSOR_CALIBRATION_RIGHT_ADC_8               300
 
-// *************************************************************************** //
+#pragma pack(4)
+typedef struct configurations {
+	uint8_t configurations_version; // used to detect changes in eeprom encoding
+	uint8_t ui8_assist_level;
+	uint16_t ui16_wheel_perimeter;
+	uint8_t ui8_wheel_max_speed;
+	uint8_t ui8_units_type;
+	uint32_t ui32_wh_x10_offset;
+	uint32_t ui32_wh_x10_100_percent;
+	uint8_t ui8_battery_soc_enable;
+	uint8_t ui8_target_max_battery_power_div25;
+	uint8_t ui8_battery_max_current;
+	uint8_t ui8_motor_max_current;
+  uint8_t ui8_motor_current_min_adc;
+  uint8_t ui8_field_weakening;
+	uint8_t ui8_ramp_up_amps_per_second_x10;
+	uint16_t ui16_battery_low_voltage_cut_off_x10;
+	uint8_t ui8_motor_type;
+	uint8_t ui8_motor_current_control_mode;
+	uint8_t ui8_motor_assistance_startup_without_pedal_rotation;
+	uint16_t ui16_assist_level_factor[ASSIST_LEVEL_NUMBER];
+	uint8_t ui8_number_of_assist_levels;
+	uint8_t ui8_startup_motor_power_boost_feature_enabled;
+	uint8_t ui8_startup_motor_power_boost_always;
+	uint8_t ui8_startup_motor_power_boost_limit_power;
+	uint16_t ui16_startup_motor_power_boost_factor[ASSIST_LEVEL_NUMBER];
+	uint8_t ui8_startup_motor_power_boost_time;
+	uint8_t ui8_startup_motor_power_boost_fade_time;
+	uint8_t ui8_temperature_limit_feature_enabled;
+	uint8_t ui8_motor_temperature_min_value_to_limit;
+	uint8_t ui8_motor_temperature_max_value_to_limit;
+	uint16_t ui16_battery_voltage_reset_wh_counter_x10;
+	uint8_t ui8_system_power_off_time_minutes;
+	uint16_t ui16_battery_pack_resistance_x1000;
+	uint32_t ui32_odometer_x10;
+	uint8_t ui8_walk_assist_feature_enabled;
+	uint8_t ui8_walk_assist_level_factor[ASSIST_LEVEL_NUMBER];
+  uint8_t ui8_torque_sensor_calibration_feature_enabled;
+  uint8_t ui8_torque_sensor_calibration_pedal_ground;
+  uint8_t ui8_torque_sensor_filter;
+  uint8_t ui8_torque_sensor_adc_threshold;
+  uint16_t ui16_torque_sensor_calibration_table_left[8][2];
+  uint16_t ui16_torque_sensor_calibration_table_right[8][2];
+  uint8_t ui8_street_mode_function_enabled;
+  uint8_t ui8_street_mode_enabled;
+  uint8_t ui8_street_mode_enabled_on_startup;
+  uint8_t ui8_street_mode_speed_limit;
+  uint8_t ui8_street_mode_power_limit_div25;
+  uint8_t ui8_street_mode_throttle_enabled;
+  uint8_t ui8_street_mode_hotkey_enabled;
+  uint8_t ui8_pedal_cadence_fast_stop;
+  uint8_t ui8_throttle_virtual_step;
+  uint8_t ui8_coast_brake_enable;
+  uint8_t ui8_coast_brake_adc;
+  uint8_t ui8_ant_device_id;
+} configurations_t;
+
+void eeprom_init(void);
+void eeprom_init_variables(void);
+void eeprom_write_variables(void);
+void eeprom_init_defaults(void);
 
 #endif /* _EEPROM_H_ */
