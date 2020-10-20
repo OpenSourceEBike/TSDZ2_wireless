@@ -22,7 +22,7 @@ NRF_SDH_BLE_OBSERVER(_name ## _obs,                                             
 #define ANT_ID_UUID_BASE        {0x5f, 0xB4, 0xCB, 0x4C, 0x6E, 0x7F, 0xAF, 0xBF, \
                                 0x2F, 0x46, 0xDD, 0xCF, 0xB0, 0xEA, 0xC2, 0xDA}
 #define ANT_ID_UUID_SERVICE     0x1400
-#define ANT_ID_UUID_LED_CHAR    0x1401
+#define ANT_ID_UUID_ANT_ID_CHAR 0x1401
 
 typedef struct ble_ant_id_s ble_ant_id_t;
 

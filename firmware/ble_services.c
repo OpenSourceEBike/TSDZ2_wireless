@@ -50,7 +50,7 @@ uint32_t ble_service_ant_id_init(ble_ant_id_t * p_ant_id, const ble_ant_id_init_
   VERIFY_SUCCESS(err_code);
 
   memset(&add_char_params, 0, sizeof(add_char_params));
-  add_char_params.uuid             = ANT_ID_UUID_LED_CHAR;
+  add_char_params.uuid             = ANT_ID_UUID_ANT_ID_CHAR;
   add_char_params.uuid_type        = p_ant_id->uuid_type;
   add_char_params.init_len         = sizeof(uint8_t);
   add_char_params.max_len          = sizeof(uint8_t);
