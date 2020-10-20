@@ -23,6 +23,7 @@
 #include "ble_srv_common.h"
 #include "ble_advdata.h"
 #include "ble_conn_params.h"
+#include "ble_conn_state.h"
 #include "peer_manager.h"
 #include "peer_manager_handler.h"
 #include "ble_advdata.h"
@@ -44,6 +45,7 @@
 #include "state.h"
 #include "ant_interface.h"
 #include "nrf_delay.h"
+#include "fds.h"
 
 ui_vars_t *mp_ui_vars;
 
@@ -117,6 +119,8 @@ NRF_SDH_ANT_OBSERVER(m_ant_observer, ANT_LEV_ANT_OBSERVER_PRIO, ant_lev_sens_evt
 #define SEC_PARAM_OOB                   0                                           /**< Out Of Band data not available. */
 #define SEC_PARAM_MIN_KEY_SIZE          7                                           /**< Minimum encryption key size. */
 #define SEC_PARAM_MAX_KEY_SIZE          16                                          /**< Maximum encryption key size. */
+
+#define APP_FEATURE_NOT_SUPPORTED       BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2        /**< Reply when unsupported features are requested. */
 
 NRF_BLE_GATT_DEF(m_gatt);                                                       /**< GATT module instance. */
 NRF_BLE_QWR_DEF(m_qwr);                                                         /**< Context for the Queued Write module.*/
@@ -214,12 +218,6 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
       break;
 
     case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
-      // Pairing not supported
-      err_code = sd_ble_gap_sec_params_reply(m_conn_handle,
-                                              BLE_GAP_SEC_STATUS_PAIRING_NOT_SUPP,
-                                              NULL,
-                                              NULL);
-      APP_ERROR_CHECK(err_code);
       break;
 
     case BLE_GAP_EVT_PHY_UPDATE_REQUEST:
@@ -255,6 +253,33 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
                                         BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
       APP_ERROR_CHECK(err_code);
       break;
+
+    case BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST:
+      {
+          ble_gatts_evt_rw_authorize_request_t  req;
+          ble_gatts_rw_authorize_reply_params_t auth_reply;
+
+          req = p_ble_evt->evt.gatts_evt.params.authorize_request;
+
+          if (req.type != BLE_GATTS_AUTHORIZE_TYPE_INVALID)
+          {
+              if ((req.request.write.op == BLE_GATTS_OP_PREP_WRITE_REQ)     ||
+                  (req.request.write.op == BLE_GATTS_OP_EXEC_WRITE_REQ_NOW) ||
+                  (req.request.write.op == BLE_GATTS_OP_EXEC_WRITE_REQ_CANCEL))
+              {
+                  if (req.type == BLE_GATTS_AUTHORIZE_TYPE_WRITE)
+                  {
+                      auth_reply.type = BLE_GATTS_AUTHORIZE_TYPE_WRITE;
+                  }
+                  else
+                  {
+                      auth_reply.type = BLE_GATTS_AUTHORIZE_TYPE_READ;
+                  }
+                  auth_reply.params.write.gatt_status = APP_FEATURE_NOT_SUPPORTED;
+                  sd_ble_gatts_rw_authorize_reply(p_ble_evt->evt.gatts_evt.conn_handle, &auth_reply);
+              }
+          }
+      } break; // BLE_GATTS_EVT_RW_AUTHORIZE_REQUEST
 
     default:
       // No implementation needed.
@@ -597,53 +622,6 @@ static void advertising_init(void)
   ble_advertising_conn_cfg_tag_set(&m_advertising, APP_BLE_CONN_CFG_TAG);
 }
 
-/**@brief Function for initializing the Advertising functionality.
- *
- * @details Encodes the required advertising data and passes it to the stack.
- *          Also builds a structure to be passed to the stack when starting advertising.
- */
-// static void advertising_init(void)
-// {
-//   ret_code_t    err_code;
-//   ble_advdata_t advdata;
-//   ble_advdata_t srdata;
-
-//   ble_uuid_t adv_uuids[] = {{ANT_ID_UUID_SERVICE, m_ble_ant_id_service.uuid_type}};
-
-//   // Build and set advertising data.
-//   memset(&advdata, 0, sizeof(advdata));
-
-//   advdata.name_type          = BLE_ADVDATA_FULL_NAME;
-//   advdata.include_appearance = true;
-//   advdata.flags              = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
-
-
-//   memset(&srdata, 0, sizeof(srdata));
-//   srdata.uuids_complete.uuid_cnt = sizeof(adv_uuids) / sizeof(adv_uuids[0]);
-//   srdata.uuids_complete.p_uuids  = adv_uuids;
-
-//   err_code = ble_advdata_encode(&advdata, m_adv_data.adv_data.p_data, &m_adv_data.adv_data.len);
-//   APP_ERROR_CHECK(err_code);
-
-//   err_code = ble_advdata_encode(&srdata, m_adv_data.scan_rsp_data.p_data, &m_adv_data.scan_rsp_data.len);
-//   APP_ERROR_CHECK(err_code);
-
-//   ble_gap_adv_params_t adv_params;
-
-//   // Set advertising parameters.
-//   memset(&adv_params, 0, sizeof(adv_params));
-
-//   adv_params.primary_phy     = BLE_GAP_PHY_1MBPS;
-//   adv_params.duration        = APP_ADV_DURATION;
-//   adv_params.properties.type = BLE_GAP_ADV_TYPE_CONNECTABLE_SCANNABLE_UNDIRECTED;
-//   adv_params.p_peer_addr     = NULL;
-//   adv_params.filter_policy   = BLE_GAP_ADV_FP_ANY;
-//   adv_params.interval        = APP_ADV_INTERVAL;
-
-//   err_code = sd_ble_gap_adv_set_configure(&m_adv_handle, &m_adv_data, &adv_params);
-//   APP_ERROR_CHECK(err_code);
-// }
-
 /**@brief Function for handling the Connection Parameters Module.
  *
  * @details This function will be called for all events in the Connection Parameters Module that
@@ -703,17 +681,59 @@ static void conn_params_init(void)
  */
 static void pm_evt_handler(pm_evt_t const * p_evt)
 {
+  ret_code_t err_code;
+
   pm_handler_on_pm_evt(p_evt);
   pm_handler_flash_clean(p_evt);
 
   switch (p_evt->evt_id)
   {
-    case PM_EVT_CONN_SEC_SUCCEEDED:
-      break;
-
     case PM_EVT_PEERS_DELETE_SUCCEEDED:
       advertising_start(false);
       break;
+
+    case PM_EVT_CONN_SEC_START:
+        break;
+
+    case PM_EVT_CONN_SEC_SUCCEEDED:
+        // Update the rank of the peer.
+        ble_conn_state_role(p_evt->conn_handle);
+        break;
+
+    case PM_EVT_CONN_SEC_FAILED:
+        // In some cases, when securing fails, it can be restarted directly. Sometimes it can be
+        // restarted, but only after changing some Security Parameters. Sometimes, it cannot be
+        // restarted until the link is disconnected and reconnected. Sometimes it is impossible
+        // to secure the link, or the peer device does not support it. How to handle this error
+        // is highly application-dependent.
+        m_conn_handle = BLE_CONN_HANDLE_INVALID;
+        err_code = sd_ble_gap_disconnect(m_conn_handle, BLE_HCI_REMOTE_USER_TERMINATED_CONNECTION);
+        // APP_ERROR_CHECK(err_code);
+        break;
+
+    case PM_EVT_CONN_SEC_CONFIG_REQ:
+    {
+        // A connected peer (central) is trying to pair, but the Peer Manager already has a bond
+        // for that peer. Setting allow_repairing to false rejects the pairing request.
+        // If this event is ignored (pm_conn_sec_config_reply is not called in the event
+        // handler), the Peer Manager assumes allow_repairing to be false.
+        pm_conn_sec_config_t conn_sec_config = {.allow_repairing = false};
+        pm_conn_sec_config_reply(p_evt->conn_handle, &conn_sec_config);
+    }
+    break;
+
+    case PM_EVT_STORAGE_FULL:
+        // Run garbage collection on the flash.
+        err_code = fds_gc();
+        if (err_code == FDS_ERR_BUSY || err_code == FDS_ERR_NO_SPACE_IN_QUEUES)
+        {
+            // Retry.
+        }
+        else
+        {
+            APP_ERROR_CHECK(err_code);
+        }
+        break;
 
     default:
       break;
