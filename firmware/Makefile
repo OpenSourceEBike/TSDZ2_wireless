@@ -76,6 +76,20 @@ SRC_FILES += \
   $(SDK_ROOT)/components/ble/common/ble_srv_common.c \
   $(SDK_ROOT)/components/ble/nrf_ble_gatt/nrf_ble_gatt.c \
   $(SDK_ROOT)/components/ble/nrf_ble_qwr/nrf_ble_qwr.c \
+  $(SDK_ROOT)/components/ble/peer_manager/gatt_cache_manager.c \
+  $(SDK_ROOT)/components/ble/peer_manager/gatts_cache_manager.c \
+  $(SDK_ROOT)/components/ble/peer_manager/id_manager.c \
+  $(SDK_ROOT)/components/ble/nrf_ble_gq/nrf_ble_gq.c \
+  $(SDK_ROOT)/components/ble/peer_manager/peer_data_storage.c \
+  $(SDK_ROOT)/components/ble/peer_manager/peer_database.c \
+  $(SDK_ROOT)/components/ble/peer_manager/peer_id.c \
+  $(SDK_ROOT)/components/ble/peer_manager/peer_manager.c \
+  $(SDK_ROOT)/components/ble/peer_manager/peer_manager_handler.c \
+  $(SDK_ROOT)/components/ble/peer_manager/pm_buffer.c \
+  $(SDK_ROOT)/components/ble/peer_manager/security_dispatcher.c \
+  $(SDK_ROOT)/components/ble/peer_manager/security_manager.c \
+	$(SDK_ROOT)/components/ble/common/ble_advdata.c \
+  $(SDK_ROOT)/components/ble/ble_advertising/ble_advertising.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c \
   $(SDK_ROOT)/components/ant/ant_profiles/ant_common/ant_request_controller/ant_request_controller.c \
@@ -174,6 +188,8 @@ INC_FOLDERS += \
 	$(SDK_ROOT)/components/ble/ble_racp \
 	$(SDK_ROOT)/components/ble/ble_services/ble_hrs \
   $(SDK_ROOT)/components/ble/ble_services/ble_rscs \
+	$(SDK_ROOT)/components/ble/peer_manager \
+	$(SDK_ROOT)/components/ble/ble_advertising \
   $(SDK_ROOT)/components/ant/ant_state_indicator \
   $(SDK_ROOT)/components/ant/ant_key_manager \
   $(SDK_ROOT)/components/ant/ant_key_manager/config \

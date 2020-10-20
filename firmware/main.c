@@ -23,6 +23,10 @@
 #include "ble_srv_common.h"
 #include "ble_advdata.h"
 #include "ble_conn_params.h"
+#include "peer_manager.h"
+#include "peer_manager_handler.h"
+#include "ble_advdata.h"
+#include "ble_advertising.h"
 #include "nrf_sdh.h"
 #include "nrf_sdh_ble.h"
 #include "nrf_ble_gatt.h"
@@ -105,10 +109,18 @@ NRF_SDH_ANT_OBSERVER(m_ant_observer, ANT_LEV_ANT_OBSERVER_PRIO, ant_lev_sens_evt
 #define NEXT_CONN_PARAMS_UPDATE_DELAY   APP_TIMER_TICKS(5000)                   /**< Time between each call to sd_ble_gap_conn_param_update after the first call (5 seconds). */
 #define MAX_CONN_PARAMS_UPDATE_COUNT    3                                       /**< Number of attempts before giving up the connection parameter negotiation. */
 
-#define DEAD_BEEF                       0xDEADBEEF                              /**< Value used as error code on stack dump, can be used to identify stack location on stack unwind. */
+#define SEC_PARAM_BOND                  1                                           /**< Perform bonding. */
+#define SEC_PARAM_MITM                  0                                           /**< Man In The Middle protection not required. */
+#define SEC_PARAM_LESC                  0                                           /**< LE Secure Connections not enabled. */
+#define SEC_PARAM_KEYPRESS              0                                           /**< Keypress notifications not enabled. */
+#define SEC_PARAM_IO_CAPABILITIES       BLE_GAP_IO_CAPS_NONE                        /**< No I/O capabilities. */
+#define SEC_PARAM_OOB                   0                                           /**< Out Of Band data not available. */
+#define SEC_PARAM_MIN_KEY_SIZE          7                                           /**< Minimum encryption key size. */
+#define SEC_PARAM_MAX_KEY_SIZE          16                                          /**< Maximum encryption key size. */
 
 NRF_BLE_GATT_DEF(m_gatt);                                                       /**< GATT module instance. */
 NRF_BLE_QWR_DEF(m_qwr);                                                         /**< Context for the Queued Write module.*/
+BLE_ADVERTISING_DEF(m_advertising);                                                 /**< Advertising module instance. */
 BLE_ANT_ID_DEF(m_ble_ant_id_service);
 
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
@@ -132,14 +144,49 @@ static ble_gap_adv_data_t m_adv_data =
   }
 };
 
-/**@brief Function for starting advertising.
+static ble_uuid_t m_adv_uuids[] =                                                   /**< Universally unique service identifiers. */
+{
+    {BLE_UUID_HEALTH_THERMOMETER_SERVICE, BLE_UUID_TYPE_BLE},
+    {BLE_UUID_BATTERY_SERVICE, BLE_UUID_TYPE_BLE},
+    {BLE_UUID_DEVICE_INFORMATION_SERVICE, BLE_UUID_TYPE_BLE}
+};
+
+// /**@brief Function for starting advertising.
+//  */
+// static void advertising_start(void)
+// {
+//   ret_code_t err_code;
+
+//   err_code = sd_ble_gap_adv_start(m_adv_handle, APP_BLE_CONN_CFG_TAG);
+//   APP_ERROR_CHECK(err_code);
+// }
+
+/**@brief Clear bond information from persistent storage.
  */
-static void advertising_start(void)
+static void delete_bonds(void)
 {
   ret_code_t err_code;
 
-  err_code = sd_ble_gap_adv_start(m_adv_handle, APP_BLE_CONN_CFG_TAG);
+  NRF_LOG_INFO("Erase bonds!");
+
+  err_code = pm_peers_delete();
   APP_ERROR_CHECK(err_code);
+}
+
+/**@brief Function for starting advertising.
+ */
+static void advertising_start(bool erase_bonds)
+{
+  if (erase_bonds == true)
+  {
+    delete_bonds();
+    // Advertising is started by PM_EVT_PEERS_DELETE_SUCCEEDED event.
+  }
+  else
+  {
+    uint32_t err_code = ble_advertising_start(&m_advertising, BLE_ADV_MODE_FAST);
+    APP_ERROR_CHECK(err_code);
+  }
 }
 
 /**@brief Function for handling BLE events.
@@ -163,7 +210,7 @@ static void ble_evt_handler(ble_evt_t const * p_ble_evt, void * p_context)
     case BLE_GAP_EVT_DISCONNECTED:
       NRF_LOG_INFO("Disconnected");
       m_conn_handle = BLE_CONN_HANDLE_INVALID;
-      advertising_start();
+      advertising_start(false);
       break;
 
     case BLE_GAP_EVT_SEC_PARAMS_REQUEST:
@@ -497,6 +544,29 @@ static void services_init(void)
   ble_ant_id_on_change(m_conn_handle, &m_ble_ant_id_service, mp_ui_vars->ui8_ant_device_id);
 }
 
+/**@brief Function for handling advertising events.
+ *
+ * @details This function will be called for advertising events which are passed to the application.
+ *
+ * @param[in] ble_adv_evt  Advertising event.
+ */
+static void on_adv_evt(ble_adv_evt_t ble_adv_evt)
+{
+  switch (ble_adv_evt)
+  {
+    case BLE_ADV_EVT_FAST:
+      NRF_LOG_INFO("Fast advertising.");
+      break;
+
+    case BLE_ADV_EVT_IDLE:
+      // sleep_mode_enter();
+      break;
+
+    default:
+      break;
+  }
+}
+
 /**@brief Function for initializing the Advertising functionality.
  *
  * @details Encodes the required advertising data and passes it to the stack.
@@ -504,45 +574,75 @@ static void services_init(void)
  */
 static void advertising_init(void)
 {
-  ret_code_t    err_code;
-  ble_advdata_t advdata;
-  ble_advdata_t srdata;
+  ret_code_t             err_code;
+  ble_advertising_init_t init;
 
-  ble_uuid_t adv_uuids[] = {{ANT_ID_UUID_SERVICE, m_ble_ant_id_service.uuid_type}};
+  memset(&init, 0, sizeof(init));
 
-  // Build and set advertising data.
-  memset(&advdata, 0, sizeof(advdata));
+  init.advdata.name_type               = BLE_ADVDATA_FULL_NAME;
+  init.advdata.include_appearance      = true;
+  init.advdata.flags                   = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
+  init.advdata.uuids_complete.uuid_cnt = sizeof(m_adv_uuids) / sizeof(m_adv_uuids[0]);
+  init.advdata.uuids_complete.p_uuids  = m_adv_uuids;
 
-  advdata.name_type          = BLE_ADVDATA_FULL_NAME;
-  advdata.include_appearance = true;
-  advdata.flags              = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
+  init.config.ble_adv_fast_enabled  = true;
+  init.config.ble_adv_fast_interval = APP_ADV_INTERVAL;
+  init.config.ble_adv_fast_timeout  = APP_ADV_DURATION;
 
+  init.evt_handler = on_adv_evt;
 
-  memset(&srdata, 0, sizeof(srdata));
-  srdata.uuids_complete.uuid_cnt = sizeof(adv_uuids) / sizeof(adv_uuids[0]);
-  srdata.uuids_complete.p_uuids  = adv_uuids;
-
-  err_code = ble_advdata_encode(&advdata, m_adv_data.adv_data.p_data, &m_adv_data.adv_data.len);
+  err_code = ble_advertising_init(&m_advertising, &init);
   APP_ERROR_CHECK(err_code);
 
-  err_code = ble_advdata_encode(&srdata, m_adv_data.scan_rsp_data.p_data, &m_adv_data.scan_rsp_data.len);
-  APP_ERROR_CHECK(err_code);
-
-  ble_gap_adv_params_t adv_params;
-
-  // Set advertising parameters.
-  memset(&adv_params, 0, sizeof(adv_params));
-
-  adv_params.primary_phy     = BLE_GAP_PHY_1MBPS;
-  adv_params.duration        = APP_ADV_DURATION;
-  adv_params.properties.type = BLE_GAP_ADV_TYPE_CONNECTABLE_SCANNABLE_UNDIRECTED;
-  adv_params.p_peer_addr     = NULL;
-  adv_params.filter_policy   = BLE_GAP_ADV_FP_ANY;
-  adv_params.interval        = APP_ADV_INTERVAL;
-
-  err_code = sd_ble_gap_adv_set_configure(&m_adv_handle, &m_adv_data, &adv_params);
-  APP_ERROR_CHECK(err_code);
+  ble_advertising_conn_cfg_tag_set(&m_advertising, APP_BLE_CONN_CFG_TAG);
 }
+
+/**@brief Function for initializing the Advertising functionality.
+ *
+ * @details Encodes the required advertising data and passes it to the stack.
+ *          Also builds a structure to be passed to the stack when starting advertising.
+ */
+// static void advertising_init(void)
+// {
+//   ret_code_t    err_code;
+//   ble_advdata_t advdata;
+//   ble_advdata_t srdata;
+
+//   ble_uuid_t adv_uuids[] = {{ANT_ID_UUID_SERVICE, m_ble_ant_id_service.uuid_type}};
+
+//   // Build and set advertising data.
+//   memset(&advdata, 0, sizeof(advdata));
+
+//   advdata.name_type          = BLE_ADVDATA_FULL_NAME;
+//   advdata.include_appearance = true;
+//   advdata.flags              = BLE_GAP_ADV_FLAGS_LE_ONLY_GENERAL_DISC_MODE;
+
+
+//   memset(&srdata, 0, sizeof(srdata));
+//   srdata.uuids_complete.uuid_cnt = sizeof(adv_uuids) / sizeof(adv_uuids[0]);
+//   srdata.uuids_complete.p_uuids  = adv_uuids;
+
+//   err_code = ble_advdata_encode(&advdata, m_adv_data.adv_data.p_data, &m_adv_data.adv_data.len);
+//   APP_ERROR_CHECK(err_code);
+
+//   err_code = ble_advdata_encode(&srdata, m_adv_data.scan_rsp_data.p_data, &m_adv_data.scan_rsp_data.len);
+//   APP_ERROR_CHECK(err_code);
+
+//   ble_gap_adv_params_t adv_params;
+
+//   // Set advertising parameters.
+//   memset(&adv_params, 0, sizeof(adv_params));
+
+//   adv_params.primary_phy     = BLE_GAP_PHY_1MBPS;
+//   adv_params.duration        = APP_ADV_DURATION;
+//   adv_params.properties.type = BLE_GAP_ADV_TYPE_CONNECTABLE_SCANNABLE_UNDIRECTED;
+//   adv_params.p_peer_addr     = NULL;
+//   adv_params.filter_policy   = BLE_GAP_ADV_FP_ANY;
+//   adv_params.interval        = APP_ADV_INTERVAL;
+
+//   err_code = sd_ble_gap_adv_set_configure(&m_adv_handle, &m_adv_data, &adv_params);
+//   APP_ERROR_CHECK(err_code);
+// }
 
 /**@brief Function for handling the Connection Parameters Module.
  *
@@ -597,6 +697,62 @@ static void conn_params_init(void)
   APP_ERROR_CHECK(err_code);
 }
 
+/**@brief Function for handling Peer Manager events.
+ *
+ * @param[in] p_evt  Peer Manager event.
+ */
+static void pm_evt_handler(pm_evt_t const * p_evt)
+{
+  pm_handler_on_pm_evt(p_evt);
+  pm_handler_flash_clean(p_evt);
+
+  switch (p_evt->evt_id)
+  {
+    case PM_EVT_CONN_SEC_SUCCEEDED:
+      break;
+
+    case PM_EVT_PEERS_DELETE_SUCCEEDED:
+      advertising_start(false);
+      break;
+
+    default:
+      break;
+  }
+}
+
+/**@brief Function for the Peer Manager initialization.
+ */
+static void peer_manager_init(void)
+{
+  ble_gap_sec_params_t sec_param;
+  ret_code_t           err_code;
+
+  err_code = pm_init();
+  APP_ERROR_CHECK(err_code);
+
+  memset(&sec_param, 0, sizeof(ble_gap_sec_params_t));
+
+  // Security parameters to be used for all security procedures.
+  sec_param.bond           = SEC_PARAM_BOND;
+  sec_param.mitm           = SEC_PARAM_MITM;
+  sec_param.lesc           = SEC_PARAM_LESC;
+  sec_param.keypress       = SEC_PARAM_KEYPRESS;
+  sec_param.io_caps        = SEC_PARAM_IO_CAPABILITIES;
+  sec_param.oob            = SEC_PARAM_OOB;
+  sec_param.min_key_size   = SEC_PARAM_MIN_KEY_SIZE;
+  sec_param.max_key_size   = SEC_PARAM_MAX_KEY_SIZE;
+  sec_param.kdist_own.enc  = 1;
+  sec_param.kdist_own.id   = 1;
+  sec_param.kdist_peer.enc = 1;
+  sec_param.kdist_peer.id  = 1;
+
+  err_code = pm_sec_params_set(&sec_param);
+  APP_ERROR_CHECK(err_code);
+
+  err_code = pm_register(pm_evt_handler);
+  APP_ERROR_CHECK(err_code);
+}
+
 void ble_init(void)
 {
   ble_stack_init();
@@ -605,7 +761,8 @@ void ble_init(void)
   services_init();
   advertising_init();
   conn_params_init();
-  advertising_start();
+  peer_manager_init();
+  advertising_start(true);
 }
 
 void change_ant_id_and_reset(void)
