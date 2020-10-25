@@ -126,6 +126,7 @@ NRF_BLE_GATT_DEF(m_gatt);                                                       
 NRF_BLE_QWR_DEF(m_qwr);                                                         /**< Context for the Queued Write module.*/
 BLE_ADVERTISING_DEF(m_advertising);                                                 /**< Advertising module instance. */
 BLE_ANT_ID_DEF(m_ble_ant_id_service);
+BLE_TSDZ2_DEF(m_ble_tsdz2_service);
 
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
 
@@ -547,13 +548,19 @@ static void ant_id_write_handler(uint16_t conn_handle, ble_ant_id_t * p_ant_id, 
   ui8_m_ant_device_id = value;
 }
 
+static void tsdz2_write_handler(uint16_t conn_handle, ble_tsdz2_t * p_tsdz2, uint8_t value)
+{
+  
+}
+
 /**@brief Function for initializing services that will be used by the application.
  */
 static void services_init(void)
 {
   ret_code_t         err_code;
-  ble_ant_id_init_t  init     = {0};
   nrf_ble_qwr_init_t qwr_init = {0};
+  ble_ant_id_init_t  init_ant_id     = {0};
+  ble_tsdz2_init_t  init_tsdz2     = {0};
 
   // Initialize Queued Write Module.
   qwr_init.error_handler = nrf_qwr_error_handler;
@@ -561,9 +568,18 @@ static void services_init(void)
   err_code = nrf_ble_qwr_init(&m_qwr, &qwr_init);
   APP_ERROR_CHECK(err_code);
 
-  init.ant_id_write_handler = ant_id_write_handler;
+  // ANT ID
+  init_ant_id.ant_id_write_handler = ant_id_write_handler;
 
-  err_code = ble_service_ant_id_init(&m_ble_ant_id_service, &init);
+  err_code = ble_service_ant_id_init(&m_ble_ant_id_service, &init_ant_id);
+  APP_ERROR_CHECK(err_code);
+
+  ble_ant_id_on_change(m_conn_handle, &m_ble_ant_id_service, mp_ui_vars->ui8_ant_device_id);
+
+  // TSDZ2
+  init_tsdz2.tsdz2_write_handler = tsdz2_write_handler;
+
+  err_code = ble_service_tsdz2_init(&m_ble_tsdz2_service, &init_tsdz2);
   APP_ERROR_CHECK(err_code);
 
   ble_ant_id_on_change(m_conn_handle, &m_ble_ant_id_service, mp_ui_vars->ui8_ant_device_id);
