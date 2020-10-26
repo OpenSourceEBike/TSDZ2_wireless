@@ -6,7 +6,14 @@ static void on_write_tsdz2(ble_tsdz2_t * p_tsdz2, ble_evt_t const * p_ble_evt)
 {
   ble_gatts_evt_write_t const * p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
 
-  if ((p_evt_write->handle == p_tsdz2->tsdz2_char_handles.value_handle)
+  if ((p_evt_write->handle == p_tsdz2->tsdz2_periodic_char_handles.value_handle)
+    && (p_evt_write->len == 1)
+    && (p_tsdz2->tsdz2_write_handler != NULL))
+  {
+    p_tsdz2->tsdz2_write_handler(p_ble_evt->evt.gap_evt.conn_handle, p_tsdz2, p_evt_write->data[0]);
+  }
+
+  if ((p_evt_write->handle == p_tsdz2->tsdz2_configurations_char_handles.value_handle)
     && (p_evt_write->len == 1)
     && (p_tsdz2->tsdz2_write_handler != NULL))
   {
@@ -113,40 +120,60 @@ uint32_t ble_service_tsdz2_init(ble_tsdz2_t * p_tsdz2, const ble_tsdz2_init_t * 
   memset(&add_char_params, 0, sizeof(add_char_params));
   add_char_params.uuid             = TSDZ2_PERIODIC_UUID_CHAR;
   add_char_params.uuid_type        = p_tsdz2->uuid_type;
-  add_char_params.init_len         = sizeof(uint8_t);
-  add_char_params.max_len          = sizeof(uint8_t);
+  add_char_params.init_len         = BLE_TSDZ2_PERIODIC_LEN;
+  add_char_params.max_len          = BLE_TSDZ2_PERIODIC_LEN;
   add_char_params.char_props.read  = 1;
   add_char_params.char_props.write = 1;
 
   add_char_params.read_access  = SEC_OPEN;
   add_char_params.write_access = SEC_OPEN;
 
-  err_code = characteristic_add(p_tsdz2->service_handle, &add_char_params, &p_tsdz2->tsdz2_char_handles);
+  err_code = characteristic_add(p_tsdz2->service_handle, &add_char_params, &p_tsdz2->tsdz2_periodic_char_handles);
   VERIFY_SUCCESS(err_code);
 
   memset(&add_char_params, 0, sizeof(add_char_params));
   add_char_params.uuid             = TSDZ2_CONFIGURATIONS_UUID_CHAR;
   add_char_params.uuid_type        = p_tsdz2->uuid_type;
-  add_char_params.init_len         = 3;
-  add_char_params.max_len          = 3;
+  add_char_params.init_len         = BLE_TSDZ2_CONFIGURATIONS_LEN;
+  add_char_params.max_len          = BLE_TSDZ2_CONFIGURATIONS_LEN;
   add_char_params.char_props.read  = 1;
   add_char_params.char_props.write = 1;
 
   add_char_params.read_access  = SEC_OPEN;
   add_char_params.write_access = SEC_OPEN;
 
-  return characteristic_add(p_tsdz2->service_handle, &add_char_params, &p_tsdz2->tsdz2_char_handles);
+  return characteristic_add(p_tsdz2->service_handle, &add_char_params, &p_tsdz2->tsdz2_configurations_char_handles);
 }
 
 uint32_t ble_ant_id_on_change(uint16_t conn_handle, ble_ant_id_t * p_ant_id_t, uint8_t value)
 {
   ble_gatts_hvx_params_t params;
-  uint16_t len = sizeof(value);
+  uint16_t len = 1;
 
   memset(&params, 0, sizeof(params));
   params.type   = BLE_GATT_HVX_NOTIFICATION;
   params.handle = p_ant_id_t->ant_id_char_handles.value_handle;
   params.p_data = &value;
+  params.p_len  = &len;
+
+  return sd_ble_gatts_hvx(conn_handle, &params);
+}
+
+uint32_t ble_tsdz2_periodic_on_change(uint16_t conn_handle, ble_tsdz2_t * p_ble_tsdz2_t, uint8_t *p_value)
+{
+  ble_gatts_hvx_params_t params;
+  uint16_t len = BLE_TSDZ2_PERIODIC_LEN;
+
+// send periodic to mobile app
+static uint8_t ble_periodic_tx[BLE_TSDZ2_PERIODIC_LEN];
+ble_periodic_tx[0] = 48;
+ble_periodic_tx[1] = 49;
+ble_periodic_tx[3] = 50;
+
+  memset(&params, 0, sizeof(params));
+  params.type   = BLE_GATT_HVX_NOTIFICATION;
+  params.handle = p_ble_tsdz2_t->tsdz2_periodic_char_handles.value_handle;
+  params.p_data = ble_periodic_tx;
   params.p_len  = &len;
 
   return sd_ble_gatts_hvx(conn_handle, &params);

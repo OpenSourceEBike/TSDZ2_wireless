@@ -10,6 +10,9 @@
 extern "C" {
 #endif
 
+#define BLE_TSDZ2_PERIODIC_LEN 3
+#define BLE_TSDZ2_CONFIGURATIONS_LEN 10
+
 #define BLE_ANT_ID_BLE_OBSERVER_PRIO 2
 #define BLE_TSDZ2_BLE_OBSERVER_PRIO 2
 
@@ -62,10 +65,11 @@ typedef struct
 
 struct ble_tsdz2_s
 {
-    uint16_t                    service_handle;      
-    ble_gatts_char_handles_t    tsdz2_char_handles;
-    uint8_t                     uuid_type;
-    ble_tsdz2_write_handler_t  tsdz2_write_handler;
+  uint16_t                    service_handle;      
+  ble_gatts_char_handles_t    tsdz2_periodic_char_handles;
+  ble_gatts_char_handles_t    tsdz2_configurations_char_handles;
+  uint8_t                     uuid_type;
+  ble_tsdz2_write_handler_t   tsdz2_write_handler;
 };
 
 uint32_t ble_service_ant_id_init(ble_ant_id_t * p_ant_id, const ble_ant_id_init_t * p_ant_id_init);
@@ -73,6 +77,7 @@ uint32_t ble_service_tsdz2_init(ble_tsdz2_t * p_tsdz2, const ble_tsdz2_init_t * 
 void ble_ant_id_on_ble_evt(ble_evt_t const * p_ble_evt, void * p_context);
 void ble_tsdz2_on_ble_evt(ble_evt_t const * p_ble_evt, void * p_context);
 uint32_t ble_ant_id_on_change(uint16_t conn_handle, ble_ant_id_t * p_ant_id_t, uint8_t value);
+uint32_t ble_tsdz2_periodic_on_change(uint16_t conn_handle, ble_tsdz2_t * p_ble_tsdz2_t, uint8_t *p_value);
 
 #ifdef __cplusplus
 }
