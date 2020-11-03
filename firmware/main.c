@@ -149,11 +149,10 @@ static ble_gap_adv_data_t m_adv_data =
   }
 };
 
-static ble_uuid_t m_adv_uuids[] =                                                   /**< Universally unique service identifiers. */
+/**< Universally unique service identifiers. */
+static ble_uuid_t m_adv_uuids[] = 
 {
-  {BLE_UUID_HEALTH_THERMOMETER_SERVICE, BLE_UUID_TYPE_BLE},
-  {BLE_UUID_BATTERY_SERVICE, BLE_UUID_TYPE_BLE},
-  {BLE_UUID_DEVICE_INFORMATION_SERVICE, BLE_UUID_TYPE_BLE}
+  {TSDZ2_PERIODIC_UUID_CHAR,        BLE_UUID_TYPE_VENDOR_BEGIN},
 };
 
 /**@brief Clear bond information from persistent storage.
@@ -519,6 +518,9 @@ static void gatt_init(void)
 {
   ret_code_t err_code = nrf_ble_gatt_init(&m_gatt, NULL);
   APP_ERROR_CHECK(err_code);
+
+  //err_code = nrf_ble_gatt_att_mtu_periph_set(&m_gatt, NRF_SDH_BLE_GATT_MAX_MTU_SIZE);
+  //APP_ERROR_CHECK(err_code);
 }
 
 /**@brief Function for handling Queued Write Module errors.
@@ -559,15 +561,17 @@ static void services_init(void)
   APP_ERROR_CHECK(err_code);
 
   // ANT ID
-  init_ant_id.ant_id_write_handler = ant_id_write_handler;
+  // init_ant_id.ant_id_write_handler = ant_id_write_handler;
 
-  err_code = ble_service_ant_id_init(&m_ble_ant_id_service, &init_ant_id);
-  APP_ERROR_CHECK(err_code);
+  // err_code = ble_service_ant_id_init(&m_ble_ant_id_service, &init_ant_id);
+  // APP_ERROR_CHECK(err_code);
 
-  // set actual ANT ID on the BLE service characteristic
-  ble_ant_id_on_change(m_conn_handle, &m_ble_ant_id_service, mp_ui_vars->ui8_ant_device_id);
+  // // set actual ANT ID on the BLE service characteristic
+  // ble_ant_id_on_change(m_conn_handle, &m_ble_ant_id_service, mp_ui_vars->ui8_ant_device_id);
 
   // TSDZ2
+  memset(&init_tsdz2, 0, sizeof(init_tsdz2));
+
   init_tsdz2.tsdz2_write_handler = tsdz2_write_handler;
 
   err_code = ble_service_tsdz2_init(&m_ble_tsdz2_service, &init_tsdz2);
@@ -618,7 +622,6 @@ static void advertising_init(void)
   init.config.ble_adv_fast_enabled  = true;
   init.config.ble_adv_fast_interval = APP_ADV_INTERVAL;
   init.config.ble_adv_fast_timeout  = APP_ADV_DURATION;
-
   init.evt_handler = on_adv_evt;
 
   err_code = ble_advertising_init(&m_advertising, &init);
@@ -802,6 +805,26 @@ void change_ant_id_and_reset(void)
   NVIC_SystemReset();
 }
 
+void ble_send_periodic(void)
+{
+  // send periodic to mobile app
+  static uint8_t ble_periodic_tx[BLE_TSDZ2_PERIODIC_LEN];
+  // ble_periodic_tx[0] = (uint8_t) (ui_vars.ui16_adc_battery_voltage & 0xff);
+  ble_periodic_tx[0]++;
+  ble_periodic_tx[1] = (uint8_t) (ui_vars.ui16_adc_battery_voltage >> 8);
+  ble_periodic_tx[3] = ui_vars.ui8_battery_current_x5;
+
+  if (m_conn_handle != BLE_CONN_HANDLE_INVALID) 
+  {
+    ret_code_t err_code;
+    err_code = ble_tsdz2_periodic_on_change(m_conn_handle, &m_ble_tsdz2_service, ble_periodic_tx);
+    if (err_code == NRF_SUCCESS)
+    {
+      // asm("nop");
+    }
+  }
+}
+
 int main(void)
 {
   mp_ui_vars = get_ui_vars();
@@ -821,7 +844,7 @@ int main(void)
   while (1)
   {
     // every 50 ms
-    if (main_ticks % (50 / MSEC_PER_TICK) == 0) {
+    if (main_ticks % (500 / MSEC_PER_TICK) == 0) {
       // exchange data from realtime layer to UI layer
       // do this in atomic way, disabling the real time layer (should be no problem as
       // copy_rt_to_ui_vars() should be fast and take a small piece of the 100ms periodic realtime layer processing
@@ -829,74 +852,7 @@ int main(void)
       copy_rt_ui_vars();
       rt_processing_start();
 
-      // send periodic to mobile app
-      static uint8_t ble_periodic_tx[BLE_TSDZ2_PERIODIC_LEN];
-      ble_periodic_tx[0] = (uint8_t) (ui_vars.ui16_adc_battery_voltage & 0xff);
-      ble_periodic_tx[1] = (uint8_t) (ui_vars.ui16_adc_battery_voltage >> 8);
-      ble_periodic_tx[3] = ui_vars.ui8_battery_current_x5;
-
-      ble_periodic_tx[0] = 1;
-      ble_periodic_tx[1] = 4;
-      ble_periodic_tx[3] = 8;
-
-
-	// ui_vars.ui16_battery_power_loss = rt_vars.ui16_battery_power_loss;
-	// ui_vars.ui8_motor_current_x5 = rt_vars.ui8_motor_current_x5;
-	// ui_vars.ui8_throttle = rt_vars.ui8_throttle;
-	// ui_vars.ui16_adc_pedal_torque_sensor = rt_vars.ui16_adc_pedal_torque_sensor;
-	// ui_vars.ui8_pedal_weight_with_offset = rt_vars.ui8_pedal_weight_with_offset;
-	// ui_vars.ui8_pedal_weight = rt_vars.ui8_pedal_weight;
-	// ui_vars.ui8_duty_cycle = rt_vars.ui8_duty_cycle;
-	// ui_vars.ui8_error_states = rt_vars.ui8_error_states;
-	// ui_vars.ui16_wheel_speed_x10 = rt_vars.ui16_wheel_speed_x10;
-	// ui_vars.ui8_pedal_cadence = rt_vars.ui8_pedal_cadence;
-	// ui_vars.ui8_pedal_cadence_filtered = rt_vars.ui8_pedal_cadence_filtered;
-	// ui_vars.ui16_motor_speed_erps = rt_vars.ui16_motor_speed_erps;
-	// ui_vars.ui8_motor_hall_sensors = rt_vars.ui8_motor_hall_sensors;
-	// ui_vars.ui8_pas_pedal_right = rt_vars.ui8_pas_pedal_right;
-	// ui_vars.ui8_motor_temperature = rt_vars.ui8_motor_temperature;
-	// ui_vars.ui32_wheel_speed_sensor_tick_counter =
-	// 		rt_vars.ui32_wheel_speed_sensor_tick_counter;
-	// ui_vars.ui16_battery_voltage_filtered_x10 =
-	// 		rt_vars.ui16_battery_voltage_filtered_x10;
-	// ui_vars.ui16_battery_current_filtered_x5 =
-	// 		rt_vars.ui16_battery_current_filtered_x5;
-  // ui_vars.ui16_motor_current_filtered_x5 =
-  //     rt_vars.ui16_motor_current_filtered_x5;
-	// ui_vars.ui16_full_battery_power_filtered_x50 =
-	// 		rt_vars.ui16_full_battery_power_filtered_x50;
-	// ui_vars.ui16_battery_power = rt_vars.ui16_battery_power_filtered;
-	// ui_vars.ui16_pedal_power = rt_vars.ui16_pedal_power_filtered;
-	// ui_vars.ui16_battery_voltage_soc_x10 = rt_vars.ui16_battery_voltage_soc_x10;
-	// ui_vars.ui32_wh_sum_x5 = rt_vars.ui32_wh_sum_x5;
-	// ui_vars.ui32_wh_sum_counter = rt_vars.ui32_wh_sum_counter;
-	// ui_vars.ui32_wh_x10 = rt_vars.ui32_wh_x10;
-	// ui_vars.ui8_braking = rt_vars.ui8_braking;
-	// ui_vars.ui8_foc_angle = (((uint16_t) rt_vars.ui8_foc_angle) * 14) / 10; // each units is equal to 1.4 degrees ((360 degrees / 256) = 1.4)
-
-  // ui_vars.ui32_trip_a_last_update_time = rt_vars.ui32_trip_a_last_update_time;
-  // ui_vars.ui32_trip_b_last_update_time = rt_vars.ui32_trip_b_last_update_time;
-
-	// ui_vars.ui32_trip_a_distance_x1000 = rt_vars.ui32_trip_a_distance_x1000;
-  // ui_vars.ui32_trip_a_distance_x100 = rt_vars.ui32_trip_a_distance_x1000 / 10;  
-  // ui_vars.ui32_trip_a_time = rt_vars.ui32_trip_a_time;
-  // ui_vars.ui16_trip_a_avg_speed_x10 = rt_vars.ui16_trip_a_avg_speed_x10;
-  // ui_vars.ui16_trip_a_max_speed_x10 = rt_vars.ui16_trip_a_max_speed_x10;
-
-  // ui_vars.ui32_trip_b_distance_x1000 = rt_vars.ui32_trip_b_distance_x1000;
-  // ui_vars.ui32_trip_b_distance_x100 = rt_vars.ui32_trip_b_distance_x1000 / 10;
-  // ui_vars.ui32_trip_b_time = rt_vars.ui32_trip_b_time;
-  // ui_vars.ui16_trip_b_avg_speed_x10 = rt_vars.ui16_trip_b_avg_speed_x10;
-  // ui_vars.ui16_trip_b_max_speed_x10 = rt_vars.ui16_trip_b_max_speed_x10;
-
-	// ui_vars.ui32_odometer_x10 = rt_vars.ui32_odometer_x10;
-	// ui_vars.battery_energy_km_value_x100 = rt_vars.battery_energy_h_km.ui32_value_x100;
-  // ui_vars.ui16_adc_battery_current = rt_vars.ui16_adc_battery_current;
-
-      ble_tsdz2_periodic_on_change(m_conn_handle, &m_ble_tsdz2_service, ble_periodic_tx);
-
-
-ble_ant_id_on_change(m_conn_handle, &m_ble_ant_id_service, 69);
+      ble_send_periodic();
     }
 
     // every 1 second
