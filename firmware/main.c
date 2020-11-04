@@ -130,29 +130,10 @@ BLE_TSDZ2_DEF(m_ble_tsdz2_service);
 
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID;                        /**< Handle of the current connection. */
 
-static uint8_t m_adv_handle = BLE_GAP_ADV_SET_HANDLE_NOT_SET;                   /**< Advertising handle used to identify an advertising set. */
-static uint8_t m_enc_advdata[BLE_GAP_ADV_SET_DATA_SIZE_MAX];                    /**< Buffer for storing an encoded advertising set. */
-static uint8_t m_enc_scan_response_data[BLE_GAP_ADV_SET_DATA_SIZE_MAX];         /**< Buffer for storing an encoded scan data. */
-
-/**@brief Struct that contains pointers to the encoded advertising data. */
-static ble_gap_adv_data_t m_adv_data =
-{
-  .adv_data =
-  {
-    .p_data = m_enc_advdata,
-    .len    = BLE_GAP_ADV_SET_DATA_SIZE_MAX
-  },
-  .scan_rsp_data =
-  {
-    .p_data = m_enc_scan_response_data,
-    .len    = BLE_GAP_ADV_SET_DATA_SIZE_MAX
-  }
-};
-
 /**< Universally unique service identifiers. */
 static ble_uuid_t m_adv_uuids[] = 
 {
-  {TSDZ2_PERIODIC_UUID_CHAR,        BLE_UUID_TYPE_VENDOR_BEGIN},
+  {ANT_ID_UUID_SERVICE,        BLE_UUID_TYPE_VENDOR_BEGIN},
 };
 
 /**@brief Clear bond information from persistent storage.
@@ -561,13 +542,13 @@ static void services_init(void)
   APP_ERROR_CHECK(err_code);
 
   // ANT ID
-  // init_ant_id.ant_id_write_handler = ant_id_write_handler;
+  init_ant_id.ant_id_write_handler = ant_id_write_handler;
 
-  // err_code = ble_service_ant_id_init(&m_ble_ant_id_service, &init_ant_id);
-  // APP_ERROR_CHECK(err_code);
+  err_code = ble_service_ant_id_init(&m_ble_ant_id_service, &init_ant_id);
+  APP_ERROR_CHECK(err_code);
 
-  // // set actual ANT ID on the BLE service characteristic
-  // ble_ant_id_on_change(m_conn_handle, &m_ble_ant_id_service, mp_ui_vars->ui8_ant_device_id);
+  // set actual ANT ID on the BLE service characteristic
+  ble_ant_id_on_change(m_conn_handle, &m_ble_ant_id_service, mp_ui_vars->ui8_ant_device_id);
 
   // TSDZ2
   memset(&init_tsdz2, 0, sizeof(init_tsdz2));

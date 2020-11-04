@@ -126,26 +126,26 @@ uint32_t ble_service_tsdz2_init(ble_tsdz2_t * p_tsdz2, const ble_tsdz2_init_t * 
   add_char_params.char_props.write = 1;
   add_char_params.char_props.notify = 1;
 
-  add_char_params.read_access  = SEC_OPEN;
-  add_char_params.write_access = SEC_OPEN;
+  add_char_params.read_access       = SEC_OPEN;
+  add_char_params.write_access      = SEC_OPEN;
   add_char_params.cccd_write_access = SEC_OPEN;
 
   err_code = characteristic_add(p_tsdz2->service_handle, &add_char_params, &p_tsdz2->tsdz2_periodic_char_handles);
   VERIFY_SUCCESS(err_code);
 
-  // memset(&add_char_params, 0, sizeof(add_char_params));
-  // add_char_params.uuid             = TSDZ2_CONFIGURATIONS_UUID_CHAR;
-  // add_char_params.uuid_type        = p_tsdz2->uuid_type;
-  // add_char_params.init_len         = BLE_TSDZ2_CONFIGURATIONS_LEN;
-  // add_char_params.max_len          = BLE_TSDZ2_CONFIGURATIONS_LEN;
-  // add_char_params.char_props.read  = 1;
-  // add_char_params.char_props.write = 1;
+  memset(&add_char_params, 0, sizeof(add_char_params));
+  add_char_params.uuid             = TSDZ2_CONFIGURATIONS_UUID_CHAR;
+  add_char_params.uuid_type        = p_tsdz2->uuid_type;
+  add_char_params.init_len         = BLE_TSDZ2_CONFIGURATIONS_LEN;
+  add_char_params.max_len          = BLE_TSDZ2_CONFIGURATIONS_LEN;
+  add_char_params.char_props.read  = 1;
+  add_char_params.char_props.write = 1;
 
-  // add_char_params.read_access       = SEC_OPEN;
-  // add_char_params.write_access      = SEC_OPEN;
-  // add_char_params.cccd_write_access = SEC_OPEN;
+  add_char_params.read_access       = SEC_OPEN;
+  add_char_params.write_access      = SEC_OPEN;
 
-  // err_code = characteristic_add(p_tsdz2->service_handle, &add_char_params, &p_tsdz2->tsdz2_configurations_char_handles);
+  err_code = characteristic_add(p_tsdz2->service_handle, &add_char_params, &p_tsdz2->tsdz2_configurations_char_handles);
+  VERIFY_SUCCESS(err_code);
 
   return err_code;
 }
