@@ -521,9 +521,14 @@ static void ant_id_write_handler(uint16_t conn_handle, ble_ant_id_t * p_ant_id, 
   ui8_m_ant_device_id = value;
 }
 
-static void tsdz2_write_handler(uint16_t conn_handle, ble_tsdz2_t * p_tsdz2, uint8_t value)
+static void tsdz2_write_handler_periodic(void *p_data, uint16_t len)
 {
-  
+
+}
+
+static void tsdz2_write_handler_configurations(void *p_data, uint16_t len)
+{
+
 }
 
 /**@brief Function for initializing services that will be used by the application.
@@ -553,7 +558,8 @@ static void services_init(void)
   // TSDZ2
   memset(&init_tsdz2, 0, sizeof(init_tsdz2));
 
-  init_tsdz2.tsdz2_write_handler = tsdz2_write_handler;
+  init_tsdz2.tsdz2_write_handler_periodic = tsdz2_write_handler_periodic;
+  init_tsdz2.tsdz2_write_handler_configurations = tsdz2_write_handler_configurations;
 
   err_code = ble_service_tsdz2_init(&m_ble_tsdz2_service, &init_tsdz2);
   APP_ERROR_CHECK(err_code);
@@ -786,14 +792,21 @@ void change_ant_id_and_reset(void)
   NVIC_SystemReset();
 }
 
-void ble_send_periodic(void)
+void ble_send_periodic_data(void)
 {
+  static uint8_t periodic_counter = 0;
+  
   // send periodic to mobile app
-  static uint8_t ble_periodic_tx[BLE_TSDZ2_PERIODIC_LEN];
-  // ble_periodic_tx[0] = (uint8_t) (ui_vars.ui16_adc_battery_voltage & 0xff);
-  ble_periodic_tx[0]++;
-  ble_periodic_tx[1] = (uint8_t) (ui_vars.ui16_adc_battery_voltage >> 8);
+  uint8_t ble_periodic_tx[BLE_TSDZ2_PERIODIC_LEN] = {0};
+  periodic_counter++; // keep increasing each time
+  ble_periodic_tx[0] = periodic_counter;
+  ble_periodic_tx[1] = (uint8_t) (ui_vars.ui16_adc_battery_voltage & 0xff);
+  ble_periodic_tx[2] = (uint8_t) (ui_vars.ui16_adc_battery_voltage >> 8);
   ble_periodic_tx[3] = ui_vars.ui8_battery_current_x5;
+  ble_periodic_tx[4] = (uint8_t) (ui_vars.ui16_wheel_speed_x10 & 0xff);
+  ble_periodic_tx[5] = ((uint8_t) (ui_vars.ui16_wheel_speed_x10 >> 8)) & 0x07;
+  // last 2 bits of adc_motor_current
+  ble_periodic_tx[5] = ((uint8_t) ((ui_vars.ui16_adc_battery_current & 0x300) >> 5));
 
   if (m_conn_handle != BLE_CONN_HANDLE_INVALID) 
   {
@@ -801,7 +814,7 @@ void ble_send_periodic(void)
     err_code = ble_tsdz2_periodic_on_change(m_conn_handle, &m_ble_tsdz2_service, ble_periodic_tx);
     if (err_code == NRF_SUCCESS)
     {
-      // asm("nop");
+
     }
   }
 }
@@ -833,7 +846,7 @@ int main(void)
       copy_rt_ui_vars();
       rt_processing_start();
 
-      ble_send_periodic();
+      ble_send_periodic_data();
     }
 
     // every 1 second

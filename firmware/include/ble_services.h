@@ -10,7 +10,7 @@
 extern "C" {
 #endif
 
-#define BLE_TSDZ2_PERIODIC_LEN 3
+#define BLE_TSDZ2_PERIODIC_LEN 20
 #define BLE_TSDZ2_CONFIGURATIONS_LEN 10
 
 #define BLE_ANT_ID_BLE_OBSERVER_PRIO 2
@@ -43,7 +43,7 @@ typedef struct ble_ant_id_s ble_ant_id_t;
 typedef struct ble_tsdz2_s ble_tsdz2_t;
 
 typedef void (*ble_ant_id_write_handler_t) (uint16_t conn_handle, ble_ant_id_t * p_ant_id, uint8_t value);
-typedef void (*ble_tsdz2_write_handler_t) (uint16_t conn_handle, ble_tsdz2_t * p_tsdz2, uint8_t value);
+typedef void (*ble_tsdz2_write_handler_t) (void *p_data, uint16_t len);
 
 typedef struct
 {
@@ -60,7 +60,8 @@ struct ble_ant_id_s
 
 typedef struct
 {
-  ble_tsdz2_write_handler_t tsdz2_write_handler;
+  ble_tsdz2_write_handler_t tsdz2_write_handler_periodic;
+  ble_tsdz2_write_handler_t tsdz2_write_handler_configurations;
 } ble_tsdz2_init_t;
 
 struct ble_tsdz2_s
@@ -69,7 +70,8 @@ struct ble_tsdz2_s
   ble_gatts_char_handles_t    tsdz2_periodic_char_handles;
   ble_gatts_char_handles_t    tsdz2_configurations_char_handles;
   uint8_t                     uuid_type;
-  ble_tsdz2_write_handler_t   tsdz2_write_handler;
+  ble_tsdz2_write_handler_t   tsdz2_write_handler_periodic;
+  ble_tsdz2_write_handler_t   tsdz2_write_handler_configurations;
 };
 
 uint32_t ble_service_ant_id_init(ble_ant_id_t * p_ant_id, const ble_ant_id_init_t * p_ant_id_init);

@@ -7,17 +7,17 @@ static void on_write_tsdz2(ble_tsdz2_t * p_tsdz2, ble_evt_t const * p_ble_evt)
   ble_gatts_evt_write_t const * p_evt_write = &p_ble_evt->evt.gatts_evt.params.write;
 
   if ((p_evt_write->handle == p_tsdz2->tsdz2_periodic_char_handles.value_handle)
-    && (p_evt_write->len == 1)
-    && (p_tsdz2->tsdz2_write_handler != NULL))
+    && (p_evt_write->len == BLE_TSDZ2_PERIODIC_LEN)
+    && (p_tsdz2->tsdz2_write_handler_periodic != NULL))
   {
-    p_tsdz2->tsdz2_write_handler(p_ble_evt->evt.gap_evt.conn_handle, p_tsdz2, p_evt_write->data[0]);
+    p_tsdz2->tsdz2_write_handler_periodic(p_evt_write->data, p_evt_write->len);
   }
 
   if ((p_evt_write->handle == p_tsdz2->tsdz2_configurations_char_handles.value_handle)
-    && (p_evt_write->len == 1)
-    && (p_tsdz2->tsdz2_write_handler != NULL))
+    && (p_evt_write->len == BLE_TSDZ2_CONFIGURATIONS_LEN)
+    && (p_tsdz2->tsdz2_write_handler_configurations != NULL))
   {
-    p_tsdz2->tsdz2_write_handler(p_ble_evt->evt.gap_evt.conn_handle, p_tsdz2, p_evt_write->data[0]);
+    p_tsdz2->tsdz2_write_handler_configurations(p_evt_write->data, p_evt_write->len);
   }
 }
 
@@ -104,7 +104,8 @@ uint32_t ble_service_tsdz2_init(ble_tsdz2_t * p_tsdz2, const ble_tsdz2_init_t * 
   ble_uuid_t            ble_uuid;
   ble_add_char_params_t add_char_params;
 
-  p_tsdz2->tsdz2_write_handler = p_tsdz2_init->tsdz2_write_handler;
+  p_tsdz2->tsdz2_write_handler_periodic = p_tsdz2_init->tsdz2_write_handler_periodic;
+  p_tsdz2->tsdz2_write_handler_configurations = p_tsdz2_init->tsdz2_write_handler_configurations;
 
   // Add service.
   ble_uuid128_t base_uuid = {TSDZ2_UUID_BASE};
