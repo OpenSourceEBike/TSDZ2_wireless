@@ -273,8 +273,7 @@ void eeprom_init_variables(void) {
 
 	ui_vars->ui8_assist_level = m_configurations.ui8_assist_level;
 	ui_vars->ui16_wheel_perimeter = m_configurations.ui16_wheel_perimeter;
-	ui_vars->wheel_max_speed_x10 =
-			m_configurations.ui8_wheel_max_speed * 10;
+	ui_vars->ui8_wheel_max_speed = m_configurations.ui8_wheel_max_speed;
 	ui_vars->ui8_units_type = m_configurations.ui8_units_type;
 	ui_vars->ui32_wh_x10_offset = m_configurations.ui32_wh_x10_offset;
 	ui_vars->ui32_wh_x10_100_percent =
@@ -377,8 +376,7 @@ void eeprom_write_variables(void) {
 	ui_vars_t *ui_vars = get_ui_vars();
 	m_configurations.ui8_assist_level = ui_vars->ui8_assist_level;
 	m_configurations.ui16_wheel_perimeter = ui_vars->ui16_wheel_perimeter;
-	m_configurations.ui8_wheel_max_speed =
-			ui_vars->wheel_max_speed_x10 / 10;
+	m_configurations.ui8_wheel_max_speed = ui_vars->ui8_wheel_max_speed;
 	m_configurations.ui8_units_type = ui_vars->ui8_units_type;
 	m_configurations.ui32_wh_x10_offset = ui_vars->ui32_wh_x10_offset;
 	m_configurations.ui32_wh_x10_100_percent =

@@ -308,7 +308,7 @@ void copy_rt_ui_vars(void) {
 	rt_vars.ui16_battery_low_voltage_cut_off_x10 =
 			ui_vars.ui16_battery_low_voltage_cut_off_x10;
 	rt_vars.ui16_wheel_perimeter = ui_vars.ui16_wheel_perimeter;
-	rt_vars.ui8_wheel_max_speed = ui_vars.wheel_max_speed_x10 / 10;
+	rt_vars.ui8_wheel_max_speed = ui_vars.ui8_wheel_max_speed;
 	rt_vars.ui8_motor_type = ui_vars.ui8_motor_type;
 	rt_vars.ui8_motor_current_control_mode = ui_vars.ui8_motor_current_control_mode;
 	rt_vars.ui8_motor_assistance_startup_without_pedal_rotation =
