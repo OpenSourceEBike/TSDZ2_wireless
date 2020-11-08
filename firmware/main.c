@@ -797,21 +797,47 @@ void ble_send_periodic_data(void)
   static uint8_t periodic_counter = 0;
   
   // send periodic to mobile app
-  uint8_t ble_periodic_tx[BLE_TSDZ2_PERIODIC_LEN] = {0};
+  uint8_t tx_data[BLE_TSDZ2_PERIODIC_LEN] = {0};
   periodic_counter++; // keep increasing each time
-  ble_periodic_tx[0] = periodic_counter;
-  ble_periodic_tx[1] = (uint8_t) (ui_vars.ui16_adc_battery_voltage & 0xff);
-  ble_periodic_tx[2] = (uint8_t) (ui_vars.ui16_adc_battery_voltage >> 8);
-  ble_periodic_tx[3] = ui_vars.ui8_battery_current_x5;
-  ble_periodic_tx[4] = (uint8_t) (ui_vars.ui16_wheel_speed_x10 & 0xff);
-  ble_periodic_tx[5] = ((uint8_t) (ui_vars.ui16_wheel_speed_x10 >> 8)) & 0x07;
+  tx_data[0] = periodic_counter;
+  tx_data[1] = (uint8_t) (ui_vars.ui16_adc_battery_voltage & 0xff);
+  tx_data[2] = (uint8_t) (ui_vars.ui16_adc_battery_voltage >> 8);
+  tx_data[3] = ui_vars.ui8_battery_current_x5;
+  tx_data[4] = (uint8_t) (ui_vars.ui16_wheel_speed_x10 & 0xff);
+  tx_data[5] = ((uint8_t) (ui_vars.ui16_wheel_speed_x10 >> 8)) & 0x07;
   // last 2 bits of adc_motor_current
-  ble_periodic_tx[5] = ((uint8_t) ((ui_vars.ui16_adc_battery_current & 0x300) >> 5));
+  tx_data[5] = ((uint8_t) ((ui_vars.ui16_adc_battery_current & 0x300) >> 5));
 
   if (m_conn_handle != BLE_CONN_HANDLE_INVALID) 
   {
     ret_code_t err_code;
-    err_code = ble_tsdz2_periodic_on_change(m_conn_handle, &m_ble_tsdz2_service, ble_periodic_tx);
+    err_code = ble_tsdz2_periodic_on_change(m_conn_handle, &m_ble_tsdz2_service, tx_data);
+    if (err_code == NRF_SUCCESS)
+    {
+
+    }
+  }
+}
+
+void ble_update_configurations_data(void)
+{
+  static uint8_t configurations_counter = 0;
+  
+  // send configurations to mobile app
+  uint8_t tx_data[BLE_TSDZ2_CONFIGURATIONS_LEN] = {0};
+  configurations_counter++; // keep increasing each time
+  // tx_data[0] = configurations_counter;
+  tx_data[0] = 1;
+  tx_data[1] = 2;
+  tx_data[2] = 3;
+  tx_data[3] = 4;
+  tx_data[4] = 5;
+  tx_data[5] = 6;
+
+  if (m_conn_handle != BLE_CONN_HANDLE_INVALID) 
+  {
+    ret_code_t err_code;
+    err_code = ble_tsdz2_configurations_on_change(m_conn_handle, &m_ble_tsdz2_service, tx_data);
     if (err_code == NRF_SUCCESS)
     {
 
@@ -847,6 +873,8 @@ int main(void)
       rt_processing_start();
 
       ble_send_periodic_data();
+
+      ble_update_configurations_data();
     }
 
     // every 1 second

@@ -167,6 +167,7 @@ uint32_t ble_ant_id_on_change(uint16_t conn_handle, ble_ant_id_t * p_ant_id_t, u
 
 uint32_t ble_tsdz2_periodic_on_change(uint16_t conn_handle, ble_tsdz2_t * p_ble_tsdz2_t, uint8_t *p_value)
 {
+  ret_code_t err_code;
   ble_gatts_hvx_params_t params;
   uint16_t len = BLE_TSDZ2_PERIODIC_LEN;
 
@@ -176,5 +177,27 @@ uint32_t ble_tsdz2_periodic_on_change(uint16_t conn_handle, ble_tsdz2_t * p_ble_
   params.p_data = p_value;
   params.p_len  = &len;
 
-  return sd_ble_gatts_hvx(conn_handle, &params);
+  err_code = sd_ble_gatts_hvx(conn_handle, &params);
+
+  return err_code;
+}
+
+uint32_t ble_tsdz2_configurations_on_change(uint16_t conn_handle, ble_tsdz2_t * p_ble_tsdz2_t, uint8_t *p_value)
+{
+  ret_code_t         err_code = NRF_SUCCESS;
+  ble_gatts_value_t  gatts_value;
+
+  // Initialize value struct.
+  memset(&gatts_value, 0, sizeof(gatts_value));
+
+  gatts_value.len     = BLE_TSDZ2_CONFIGURATIONS_LEN;
+  gatts_value.offset  = 0;
+  gatts_value.p_value = p_value;
+
+  // Update database.
+  err_code = sd_ble_gatts_value_set(conn_handle,
+                                    p_ble_tsdz2_t->tsdz2_configurations_char_handles.value_handle,
+                                    &gatts_value);
+
+  return err_code;
 }
