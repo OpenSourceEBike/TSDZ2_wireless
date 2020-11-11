@@ -539,6 +539,7 @@ static void tsdz2_write_handler_configurations(uint8_t *p_data, uint16_t len)
   data[6] = *p_data++;
   data[7] = *p_data++;
   data[8] = *p_data++;
+  data[8] = *p_data++;
 }
 
 /**@brief Function for initializing services that will be used by the application.
@@ -846,18 +847,18 @@ void ble_update_configurations_data(void)
   tx_data[7] = ui_vars.ui8_units_type;
   tx_data[8] = (uint8_t) (ui_vars.ui32_wh_x10_offset & 0xff);
   tx_data[9] = (uint8_t) (ui_vars.ui32_wh_x10_offset >> 8);
-  tx_data[10] = (uint8_t) (ui_vars.ui32_wh_x10_100_percent & 0xff);
-  tx_data[11] = (uint8_t) ((ui_vars.ui32_wh_x10_100_percent >> 8) & 0xff);
-  tx_data[12] = (uint8_t) ((ui_vars.ui32_wh_x10_100_percent >> 16) & 0xff);
-  tx_data[13] = (uint8_t) ((ui_vars.ui32_wh_x10_100_percent >> 24) & 0xff);
-  tx_data[14] = ui_vars.ui8_battery_soc_enable;
-  tx_data[14] = ui_vars.ui8_target_max_battery_power_div25;
-  tx_data[14] = ui_vars.ui8_battery_max_current;
-  tx_data[14] = ui_vars.ui8_motor_max_current;
-  tx_data[14] = ui_vars.ui8_motor_current_min_adc;
-  tx_data[14] = ui_vars.ui8_field_weakening;
-  tx_data[14] = ui_vars.ui8_ramp_up_amps_per_second_x10;
-  tx_data[14] = ui_vars.ui16_battery_low_voltage_cut_off_x10;
+  // tx_data[10] = (uint8_t) (ui_vars.ui32_wh_x10_100_percent & 0xff);
+  // tx_data[11] = (uint8_t) ((ui_vars.ui32_wh_x10_100_percent >> 8) & 0xff);
+  // tx_data[12] = (uint8_t) ((ui_vars.ui32_wh_x10_100_percent >> 16) & 0xff);
+  // tx_data[13] = (uint8_t) ((ui_vars.ui32_wh_x10_100_percent >> 24) & 0xff);
+  // tx_data[14] = ui_vars.ui8_battery_soc_enable;
+  // tx_data[14] = ui_vars.ui8_target_max_battery_power_div25;
+  // tx_data[14] = ui_vars.ui8_battery_max_current;
+  // tx_data[14] = ui_vars.ui8_motor_max_current;
+  // tx_data[14] = ui_vars.ui8_motor_current_min_adc;
+  // tx_data[14] = ui_vars.ui8_field_weakening;
+  // tx_data[14] = ui_vars.ui8_ramp_up_amps_per_second_x10;
+  // tx_data[14] = ui_vars.ui16_battery_low_voltage_cut_off_x10;
 
 
 	// ui_vars->ui8_motor_type = m_configurations.ui8_motor_type;

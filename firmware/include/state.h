@@ -206,7 +206,7 @@ typedef struct ui_vars_struct {
 	uint8_t ui8_assist_level;
 	uint8_t ui8_number_of_assist_levels;
 	uint16_t ui16_wheel_perimeter;
-	uint16_t wheel_max_speed_x10;
+	uint8_t ui8_wheel_max_speed;
 	uint8_t ui8_units_type;
 	uint32_t ui32_wh_x10_offset;
 	uint32_t ui32_wh_x10_100_percent;
