@@ -31,7 +31,7 @@ static configurations_t m_configurations;
 #define COPY_ARRAY(dest, src, field) memcpy((dest)->field, (src)->field, sizeof((dest)->field))
 
 const configurations_t m_configurations_defaults = {
-  .configurations_version = CONFIGURATIONS_VERSION,
+  .ui8_configurations_version = CONFIGURATIONS_VERSION,
   .ui8_assist_level = DEFAULT_VALUE_ASSIST_LEVEL,
   .ui16_wheel_perimeter = DEFAULT_VALUE_WHEEL_PERIMETER,
   .ui8_wheel_max_speed = DEFAULT_VALUE_WHEEL_MAX_SPEED,
@@ -245,7 +245,7 @@ void eeprom_init() {
     APP_ERROR_CHECK(err_code);
 
     // if eeprom is blank or configurations version is incorrect, RESET to default values
-    if (m_configurations.configurations_version != CONFIGURATIONS_VERSION)
+    if (m_configurations.ui8_configurations_version != CONFIGURATIONS_VERSION)
     {
       memcpy(&m_configurations, &m_configurations_defaults,
           sizeof(m_configurations_defaults));

@@ -170,6 +170,7 @@ typedef struct rt_vars_struct {
 #endif
 
 typedef struct ui_vars_struct {
+  uint8_t ui8_configurations_version;
 	uint16_t ui16_adc_battery_voltage;
 	uint8_t ui8_battery_current_x5;
   uint16_t ui16_battery_power_loss;

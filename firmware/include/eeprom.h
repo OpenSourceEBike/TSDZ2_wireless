@@ -11,7 +11,7 @@
 
 #include "state.h"
 
-#define CONFIGURATIONS_VERSION 0x3E
+#define CONFIGURATIONS_VERSION 0xA1
 
 // EEPROM memory variables default values
 #define DEFAULT_VALUE_ASSIST_LEVEL                                  0
@@ -120,7 +120,6 @@
 
 #pragma pack(4)
 typedef struct configurations {
-	uint8_t configurations_version; // used to detect changes in eeprom encoding
 	uint8_t ui8_assist_level;
 	uint16_t ui16_wheel_perimeter;
 	uint8_t ui8_wheel_max_speed;
@@ -173,6 +172,7 @@ typedef struct configurations {
   uint8_t ui8_coast_brake_enable;
   uint8_t ui8_coast_brake_adc;
   uint8_t ui8_ant_device_id;
+  uint8_t ui8_configurations_version;
 } configurations_t;
 
 void eeprom_init(void);
