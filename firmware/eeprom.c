@@ -271,6 +271,7 @@ void eeprom_init_variables(void) {
   rt_vars_t *rt_vars = get_rt_vars();
 	ui_vars_t *ui_vars = get_ui_vars();
 
+  ui_vars->ui8_configurations_version = m_configurations.ui8_configurations_version;
 	ui_vars->ui8_assist_level = m_configurations.ui8_assist_level;
 	ui_vars->ui16_wheel_perimeter = m_configurations.ui16_wheel_perimeter;
 	ui_vars->ui8_wheel_max_speed = m_configurations.ui8_wheel_max_speed;

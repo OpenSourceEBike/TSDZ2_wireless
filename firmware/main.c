@@ -49,7 +49,8 @@
 
 ui_vars_t *mp_ui_vars;
 
-uint8_t ui8_m_ant_device_id;
+volatile uint8_t ui8_m_ant_device_id;
+volatile uint8_t ui8_m_flash_configurations = 0;
 
 #define MSEC_PER_TICK 10
 APP_TIMER_DEF(main_timer);
@@ -532,9 +533,9 @@ static void tsdz2_write_handler_configurations(uint8_t *p_data, uint16_t len)
 
   memcpy(&data, p_data, BLE_TSDZ2_CONFIGURATIONS_LEN);
 
-  // // assume received configurations only if version is correct
-  // if (data[0] == ui_vars.ui8_configurations_version )
-  // {
+  // assume received configurations only if version is correct
+  if (data[0] == ui_vars.ui8_configurations_version )
+  {
     ui_vars.ui8_assist_level = data[1];
     ui_vars.ui16_wheel_perimeter = ((uint16_t) data[2]) +
                                   (((uint16_t) data[3]) << 8);
@@ -593,7 +594,9 @@ static void tsdz2_write_handler_configurations(uint8_t *p_data, uint16_t len)
     ui_vars.ui16_startup_motor_power_boost_factor[4] = ((uint16_t) data[52]) +
                                           (((uint16_t) data[53]) << 8);
     ui_vars.ui16_startup_motor_power_boost_factor[5] = ((uint16_t) data[54]) +
-                                          (((uint16_t) data[55]) << 8);                                  
+                                          (((uint16_t) data[55]) << 8);
+    ui_vars.ui16_startup_motor_power_boost_factor[6] = ((uint16_t) data[159]) +
+                                          (((uint16_t) data[160]) << 8);                                          
 
     ui_vars.ui8_startup_motor_power_boost_time = data[56];
     ui_vars.ui8_startup_motor_power_boost_fade_time = data[57];
@@ -725,8 +728,8 @@ static void tsdz2_write_handler_configurations(uint8_t *p_data, uint16_t len)
 
     ui_vars.ui8_ant_device_id = data[158];
 
-    eeprom_write_variables();
-  // }
+    ui8_m_flash_configurations = 1;
+  }
 }
 
 /**@brief Function for initializing services that will be used by the application.
@@ -1018,31 +1021,201 @@ void ble_send_periodic_data(void)
 }
 
 void ble_update_configurations_data(void)
-{
-  static uint8_t configurations_counter = 0;
-  
-  uint8_t tx_data[BLE_TSDZ2_CONFIGURATIONS_LEN] = {0};
-  configurations_counter++; // keep increasing each time
-  // tx_data[0] = configurations_counter;
-  tx_data[0] = configurations_counter;
-  tx_data[1] = ui_vars.ui8_assist_level;
-  tx_data[2] = (uint8_t) (ui_vars.ui16_wheel_perimeter & 0xff);
-  tx_data[3] = (uint8_t) (ui_vars.ui16_wheel_perimeter >> 8);
-  tx_data[4] = ui_vars.ui8_wheel_max_speed;
-  tx_data[5] = ui_vars.ui8_units_type;
-  tx_data[6] = (uint8_t) (ui_vars.ui32_wh_x10_offset & 0xff);
-  tx_data[7] = (uint8_t) ((ui_vars.ui32_wh_x10_offset >> 8) & 0xff);
-  tx_data[8] = (uint8_t) ((ui_vars.ui32_wh_x10_offset >> 16) & 0xff);
-  tx_data[9] = (uint8_t) ((ui_vars.ui32_wh_x10_offset >> 24) & 0xff);
-  tx_data[10] = (uint8_t) (ui_vars.ui32_wh_x10_100_percent & 0xff);
-  tx_data[11] = (uint8_t) ((ui_vars.ui32_wh_x10_100_percent >> 8) & 0xff);
-  tx_data[12] = (uint8_t) ((ui_vars.ui32_wh_x10_100_percent >> 16) & 0xff);
-  tx_data[13] = (uint8_t) ((ui_vars.ui32_wh_x10_100_percent >> 24) & 0xff);
-
-
+{  
+  uint8_t tx_data[BLE_TSDZ2_CONFIGURATIONS_LEN];
 
   if (m_conn_handle != BLE_CONN_HANDLE_INVALID) 
   {
+    tx_data[0] = CONFIGURATIONS_VERSION;
+    tx_data[1] = ui_vars.ui8_assist_level;
+    tx_data[2] = (uint8_t) (ui_vars.ui16_wheel_perimeter & 0xff);
+    tx_data[3] = (uint8_t) (ui_vars.ui16_wheel_perimeter >> 8);
+    tx_data[4] = ui_vars.ui8_wheel_max_speed;
+    tx_data[5] = ui_vars.ui8_units_type;
+    tx_data[6] = (uint8_t) (ui_vars.ui32_wh_x10_offset & 0xff);
+    tx_data[7] = (uint8_t) ((ui_vars.ui32_wh_x10_offset >> 8) & 0xff);
+    tx_data[8] = (uint8_t) ((ui_vars.ui32_wh_x10_offset >> 16) & 0xff);
+    tx_data[9] = (uint8_t) ((ui_vars.ui32_wh_x10_offset >> 24) & 0xff);
+    tx_data[10] = (uint8_t) (ui_vars.ui32_wh_x10_100_percent & 0xff);
+    tx_data[11] = (uint8_t) ((ui_vars.ui32_wh_x10_100_percent >> 8) & 0xff);
+    tx_data[12] = (uint8_t) ((ui_vars.ui32_wh_x10_100_percent >> 16) & 0xff);
+    tx_data[13] = (uint8_t) ((ui_vars.ui32_wh_x10_100_percent >> 24) & 0xff);
+    tx_data[14] = ui_vars.ui8_battery_soc_enable;
+    tx_data[15] = ui_vars.ui8_target_max_battery_power_div25;
+    tx_data[16] = ui_vars.ui8_battery_max_current;
+    tx_data[17] = ui_vars.ui8_motor_max_current;
+    tx_data[18] = ui_vars.ui8_motor_current_min_adc;
+    tx_data[19] = ui_vars.ui8_ramp_up_amps_per_second_x10;
+    tx_data[20] = ui_vars.ui16_battery_low_voltage_cut_off_x10;
+    tx_data[21] = (uint8_t) (ui_vars.ui16_battery_low_voltage_cut_off_x10 & 0xff);
+    tx_data[22] = (uint8_t) (ui_vars.ui16_battery_low_voltage_cut_off_x10 >> 8);
+    tx_data[23] = ui_vars.ui8_motor_type;
+    tx_data[24] = ui_vars.ui8_motor_current_control_mode;
+    tx_data[25] = ui_vars.ui8_motor_assistance_startup_without_pedal_rotation;
+
+    tx_data[26] = (uint8_t) (ui_vars.ui16_assist_level_factor[0] & 0xff);
+    tx_data[27] = (uint8_t) (ui_vars.ui16_assist_level_factor[0] >> 8);
+    tx_data[28] = (uint8_t) (ui_vars.ui16_assist_level_factor[1] & 0xff);
+    tx_data[29] = (uint8_t) (ui_vars.ui16_assist_level_factor[1] >> 8);
+    tx_data[30] = (uint8_t) (ui_vars.ui16_assist_level_factor[2] & 0xff);
+    tx_data[31] = (uint8_t) (ui_vars.ui16_assist_level_factor[2] >> 8);
+    tx_data[32] = (uint8_t) (ui_vars.ui16_assist_level_factor[3] & 0xff);
+    tx_data[33] = (uint8_t) (ui_vars.ui16_assist_level_factor[3] >> 8);
+    tx_data[34] = (uint8_t) (ui_vars.ui16_assist_level_factor[4] & 0xff);
+    tx_data[35] = (uint8_t) (ui_vars.ui16_assist_level_factor[4] >> 8);
+    tx_data[36] = (uint8_t) (ui_vars.ui16_assist_level_factor[5] & 0xff);
+    tx_data[37] = (uint8_t) (ui_vars.ui16_assist_level_factor[5] >> 8);
+    tx_data[38] = (uint8_t) (ui_vars.ui16_assist_level_factor[6] & 0xff);
+    tx_data[39] = (uint8_t) (ui_vars.ui16_assist_level_factor[6] >> 8);
+
+    tx_data[40] = ui_vars.ui8_number_of_assist_levels;
+    tx_data[41] = ui_vars.ui8_startup_motor_power_boost_feature_enabled;
+    tx_data[42] = ui_vars.ui8_startup_motor_power_boost_always;
+    tx_data[43] = ui_vars.ui8_startup_motor_power_boost_limit_power;
+
+    tx_data[44] = (uint8_t) (ui_vars.ui16_startup_motor_power_boost_factor[0] & 0xff);
+    tx_data[45] = (uint8_t) (ui_vars.ui16_startup_motor_power_boost_factor[0] >> 8);
+    tx_data[46] = (uint8_t) (ui_vars.ui16_startup_motor_power_boost_factor[1] & 0xff);
+    tx_data[47] = (uint8_t) (ui_vars.ui16_startup_motor_power_boost_factor[1] >> 8);
+    tx_data[48] = (uint8_t) (ui_vars.ui16_startup_motor_power_boost_factor[2] & 0xff);
+    tx_data[49] = (uint8_t) (ui_vars.ui16_startup_motor_power_boost_factor[2] >> 8);
+    tx_data[50] = (uint8_t) (ui_vars.ui16_startup_motor_power_boost_factor[3] & 0xff);
+    tx_data[51] = (uint8_t) (ui_vars.ui16_startup_motor_power_boost_factor[3] >> 8);
+    tx_data[52] = (uint8_t) (ui_vars.ui16_startup_motor_power_boost_factor[4] & 0xff);
+    tx_data[53] = (uint8_t) (ui_vars.ui16_startup_motor_power_boost_factor[4] >> 8);
+    tx_data[54] = (uint8_t) (ui_vars.ui16_startup_motor_power_boost_factor[5] & 0xff);
+    tx_data[55] = (uint8_t) (ui_vars.ui16_startup_motor_power_boost_factor[5] >> 8);
+    tx_data[159] = (uint8_t) (ui_vars.ui16_startup_motor_power_boost_factor[6] & 0xff);
+    tx_data[160] = (uint8_t) (ui_vars.ui16_startup_motor_power_boost_factor[6] >> 8);
+
+    tx_data[56] = ui_vars.ui8_startup_motor_power_boost_time;
+    tx_data[57] = ui_vars.ui8_startup_motor_power_boost_fade_time;
+    tx_data[58] = ui_vars.ui8_temperature_limit_feature_enabled;
+    tx_data[59] = ui_vars.ui8_motor_temperature_min_value_to_limit;
+    tx_data[60] = ui_vars.ui8_motor_temperature_max_value_to_limit;
+    tx_data[61] = ui_vars.ui8_coast_brake_enable;
+    tx_data[62] = ui_vars.ui8_coast_brake_adc;
+                                        
+    tx_data[63] = (uint8_t) (ui_vars.ui16_battery_voltage_reset_wh_counter_x10 & 0xff);
+    tx_data[64] = (uint8_t) (ui_vars.ui16_battery_voltage_reset_wh_counter_x10 >> 8);
+
+    tx_data[65] = ui_vars.ui8_system_power_off_time_minutes;                                      
+
+    tx_data[66] = (uint8_t) (ui_vars.ui16_battery_pack_resistance_x1000 & 0xff);
+    tx_data[67] = (uint8_t) (ui_vars.ui16_battery_pack_resistance_x1000 >> 8);
+
+    tx_data[68] = (uint8_t) (ui_vars.ui32_odometer_x10 & 0xff);
+    tx_data[69] = (uint8_t) ((ui_vars.ui32_odometer_x10 >> 8) & 0xff);
+    tx_data[70] = (uint8_t) ((ui_vars.ui32_odometer_x10 >> 16) & 0xff);
+    tx_data[71] = (uint8_t) ((ui_vars.ui32_odometer_x10 >> 24) & 0xff);
+
+    tx_data[72] = ui_vars.ui8_walk_assist_feature_enabled;
+
+    tx_data[73] = ui_vars.ui8_walk_assist_level_factor[0];
+    tx_data[74] = ui_vars.ui8_walk_assist_level_factor[1];
+    tx_data[75] = ui_vars.ui8_walk_assist_level_factor[2];
+    tx_data[76] = ui_vars.ui8_walk_assist_level_factor[3];
+    tx_data[77] = ui_vars.ui8_walk_assist_level_factor[4];
+    tx_data[78] = ui_vars.ui8_walk_assist_level_factor[5];
+    tx_data[79] = ui_vars.ui8_walk_assist_level_factor[6];
+
+    tx_data[80] = ui_vars.ui8_torque_sensor_calibration_feature_enabled;
+    tx_data[81] = ui_vars.ui8_torque_sensor_calibration_pedal_ground;
+    tx_data[82] = ui_vars.ui8_torque_sensor_filter;
+    tx_data[83] = ui_vars.ui8_torque_sensor_adc_threshold;
+
+    tx_data[84] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[0][0] & 0xff);
+    tx_data[85] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[0][0] >> 8);
+    tx_data[86] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[0][1] & 0xff);
+    tx_data[87] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[0][1] >> 8);
+
+    tx_data[88] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[1][0] & 0xff);
+    tx_data[89] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[1][1] >> 8);
+    tx_data[90] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[1][0] & 0xff);
+    tx_data[91] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[1][1] >> 8);
+
+    tx_data[92] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[2][0] & 0xff);
+    tx_data[93] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[2][1] >> 8);
+    tx_data[94] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[2][0] & 0xff);
+    tx_data[95] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[2][1] >> 8);
+
+    tx_data[96] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[3][0] & 0xff);
+    tx_data[97] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[3][1] >> 8);
+    tx_data[98] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[3][0] & 0xff);
+    tx_data[99] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[3][1] >> 8);
+
+    tx_data[100] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[4][0] & 0xff);
+    tx_data[101] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[4][1] >> 8);
+    tx_data[102] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[4][0] & 0xff);
+    tx_data[103] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[4][1] >> 8);
+
+    tx_data[104] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[5][0] & 0xff);
+    tx_data[105] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[5][1] >> 8);
+    tx_data[106] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[5][0] & 0xff);
+    tx_data[107] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[5][1] >> 8);
+
+    tx_data[108] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[6][0] & 0xff);
+    tx_data[109] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[6][1] >> 8);
+    tx_data[110] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[6][0] & 0xff);
+    tx_data[111] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[6][1] >> 8);
+
+    tx_data[112] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[7][0] & 0xff);
+    tx_data[113] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[7][1] >> 8);
+    tx_data[114] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[7][0] & 0xff);
+    tx_data[115] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_left[7][1] >> 8);
+    
+    tx_data[116] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[0][0] & 0xff);
+    tx_data[117] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[0][0] >> 8);
+    tx_data[118] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[0][1] & 0xff);
+    tx_data[119] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[0][1] >> 8);
+
+    tx_data[120] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[1][0] & 0xff);
+    tx_data[121] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[1][1] >> 8);
+    tx_data[122] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[1][0] & 0xff);
+    tx_data[123] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[1][1] >> 8);
+
+    tx_data[124] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[2][0] & 0xff);
+    tx_data[125] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[2][1] >> 8);
+    tx_data[126] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[2][0] & 0xff);
+    tx_data[127] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[2][1] >> 8);
+
+    tx_data[128] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[3][0] & 0xff);
+    tx_data[129] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[3][1] >> 8);
+    tx_data[130] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[3][0] & 0xff);
+    tx_data[131] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[3][1] >> 8);
+
+    tx_data[132] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[4][0] & 0xff);
+    tx_data[133] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[4][1] >> 8);
+    tx_data[134] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[4][0] & 0xff);
+    tx_data[135] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[4][1] >> 8);
+
+    tx_data[136] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[5][0] & 0xff);
+    tx_data[137] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[5][1] >> 8);
+    tx_data[138] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[5][0] & 0xff);
+    tx_data[139] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[5][1] >> 8);
+
+    tx_data[140] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[6][0] & 0xff);
+    tx_data[141] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[6][1] >> 8);
+    tx_data[142] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[6][0] & 0xff);
+    tx_data[143] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[6][1] >> 8);
+
+    tx_data[144] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[7][0] & 0xff);
+    tx_data[145] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[7][1] >> 8);
+    tx_data[146] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[7][0] & 0xff);
+    tx_data[147] = (uint8_t) (ui_vars.ui16_torque_sensor_calibration_table_right[7][1] >> 8);
+
+    tx_data[148] = ui_vars.ui8_street_mode_function_enabled;
+    tx_data[149] = ui_vars.ui8_street_mode_enabled;
+    tx_data[150] = ui_vars.ui8_street_mode_enabled_on_startup;
+    tx_data[151] = ui_vars.ui8_street_mode_speed_limit;
+    tx_data[152] = ui_vars.ui8_street_mode_power_limit_div25;
+    tx_data[153] = ui_vars.ui8_street_mode_throttle_enabled;
+    tx_data[154] = ui_vars.ui8_street_mode_hotkey_enabled;
+    tx_data[155] = ui_vars.ui8_pedal_cadence_fast_stop;
+    tx_data[156] = ui_vars.ui8_throttle_virtual_step;
+    tx_data[157] = ui_vars.ui8_street_mode_enabled;
+    tx_data[158] = ui_vars.ui8_ant_device_id;
+
     ret_code_t err_code;
     err_code = ble_tsdz2_configurations_on_change(m_conn_handle, &m_ble_tsdz2_service, tx_data);
     if (err_code == NRF_SUCCESS)
@@ -1092,6 +1265,13 @@ int main(void)
       {
         mp_ui_vars->ui8_ant_device_id = ui8_m_ant_device_id;
         change_ant_id_and_reset();
+      }
+
+      // see if there was a change to the ANT ID
+      if (ui8_m_flash_configurations)
+      {
+        ui8_m_flash_configurations = 0;
+        eeprom_write_variables();
       }
     }
   }
