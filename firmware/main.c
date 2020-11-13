@@ -541,10 +541,10 @@ static void tsdz2_write_handler_configurations(uint8_t *p_data, uint16_t len)
                                   (((uint16_t) data[3]) << 8);
     ui_vars.ui8_wheel_max_speed = data[4];
     ui_vars.ui8_units_type = data[5];
-    ui_vars.ui32_wh_x10_offset = ((uint16_t) data[6]) +
-                                (((uint16_t) data[7]) << 8) +
-                                (((uint16_t) data[8]) << 16) +
-                                  (((uint16_t) data[9]) << 24);
+    ui_vars.ui32_wh_x10 = ((uint16_t) data[6]) +
+                          (((uint16_t) data[7]) << 8) +
+                          (((uint16_t) data[8]) << 16) +
+                          (((uint16_t) data[9]) << 24);
     ui_vars.ui32_wh_x10_100_percent = ((uint16_t) data[10]) +
                                 (((uint16_t) data[11]) << 8) +
                                 (((uint16_t) data[12]) << 16) +
@@ -1032,10 +1032,10 @@ void ble_update_configurations_data(void)
     tx_data[3] = (uint8_t) (ui_vars.ui16_wheel_perimeter >> 8);
     tx_data[4] = ui_vars.ui8_wheel_max_speed;
     tx_data[5] = ui_vars.ui8_units_type;
-    tx_data[6] = (uint8_t) (ui_vars.ui32_wh_x10_offset & 0xff);
-    tx_data[7] = (uint8_t) ((ui_vars.ui32_wh_x10_offset >> 8) & 0xff);
-    tx_data[8] = (uint8_t) ((ui_vars.ui32_wh_x10_offset >> 16) & 0xff);
-    tx_data[9] = (uint8_t) ((ui_vars.ui32_wh_x10_offset >> 24) & 0xff);
+    tx_data[6] = (uint8_t) (ui_vars.ui32_wh_x10 & 0xff);
+    tx_data[7] = (uint8_t) ((ui_vars.ui32_wh_x10 >> 8) & 0xff);
+    tx_data[8] = (uint8_t) ((ui_vars.ui32_wh_x10 >> 16) & 0xff);
+    tx_data[9] = (uint8_t) ((ui_vars.ui32_wh_x10 >> 24) & 0xff);
     tx_data[10] = (uint8_t) (ui_vars.ui32_wh_x10_100_percent & 0xff);
     tx_data[11] = (uint8_t) ((ui_vars.ui32_wh_x10_100_percent >> 8) & 0xff);
     tx_data[12] = (uint8_t) ((ui_vars.ui32_wh_x10_100_percent >> 16) & 0xff);
