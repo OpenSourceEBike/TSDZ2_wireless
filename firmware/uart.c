@@ -166,7 +166,7 @@ const uint8_t* uart_get_rx_buffer_rdy(void)
   return r;
 }
 
-const void uart_get_rx_buffer_rdy_clear(void)
+void uart_get_rx_buffer_rdy_clear(void)
 {
   ui8_received_package_flag = 0;
 }

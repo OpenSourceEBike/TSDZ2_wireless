@@ -66,6 +66,32 @@ SRC_FILES += \
 	$(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_uart.c \
 	$(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uart.c \
   $(SDK_ROOT)/modules/nrfx/drivers/src/nrfx_uarte.c \
+	$(SDK_ROOT)/components/libraries/atomic_flags/nrf_atflags.c \
+	$(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage.c \
+	$(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage_sd.c \
+	$(SDK_ROOT)/components/libraries/fds/fds.c \
+	$(SDK_ROOT)/components/ble/common/ble_advdata.c \
+  $(SDK_ROOT)/components/ble/common/ble_conn_params.c \
+  $(SDK_ROOT)/components/ble/common/ble_conn_state.c \
+  $(SDK_ROOT)/components/ble/common/ble_srv_common.c \
+  $(SDK_ROOT)/components/ble/nrf_ble_gatt/nrf_ble_gatt.c \
+  $(SDK_ROOT)/components/ble/nrf_ble_qwr/nrf_ble_qwr.c \
+  $(SDK_ROOT)/components/ble/peer_manager/gatt_cache_manager.c \
+  $(SDK_ROOT)/components/ble/peer_manager/gatts_cache_manager.c \
+  $(SDK_ROOT)/components/ble/peer_manager/id_manager.c \
+  $(SDK_ROOT)/components/ble/nrf_ble_gq/nrf_ble_gq.c \
+  $(SDK_ROOT)/components/ble/peer_manager/peer_data_storage.c \
+  $(SDK_ROOT)/components/ble/peer_manager/peer_database.c \
+  $(SDK_ROOT)/components/ble/peer_manager/peer_id.c \
+  $(SDK_ROOT)/components/ble/peer_manager/peer_manager.c \
+  $(SDK_ROOT)/components/ble/peer_manager/peer_manager_handler.c \
+  $(SDK_ROOT)/components/ble/peer_manager/pm_buffer.c \
+  $(SDK_ROOT)/components/ble/peer_manager/security_dispatcher.c \
+  $(SDK_ROOT)/components/ble/peer_manager/security_manager.c \
+	$(SDK_ROOT)/components/ble/common/ble_advdata.c \
+  $(SDK_ROOT)/components/ble/ble_advertising/ble_advertising.c \
+  $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c \
+  $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c \
   $(SDK_ROOT)/components/ant/ant_profiles/ant_common/ant_request_controller/ant_request_controller.c \
   $(SDK_ROOT)/components/ant/ant_channel_config/ant_channel_config.c \
   $(SDK_ROOT)/components/ant/ant_key_manager/ant_key_manager.c \
@@ -84,11 +110,11 @@ SRC_FILES += \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_common_data.c \
   $(PROJ_DIR)/pins.c \
 	$(PROJ_DIR)/utils.c \
-	$(PROJ_DIR)/eeprom_hw.c \
 	$(PROJ_DIR)/eeprom.c \
 	$(PROJ_DIR)/state.c \
 	$(PROJ_DIR)/uart.c \
 	$(PROJ_DIR)/utils.c \
+	$(PROJ_DIR)/ble_services.c \
   $(PROJ_DIR)/main.c \
 
 # Include folders common to all targets
@@ -105,6 +131,8 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/atomic_fifo \
 	$(SDK_ROOT)/components/libraries/uart \
 	$(SDK_ROOT)/components/libraries/fifo \
+	$(SDK_ROOT)/components/libraries/fstorage \
+	$(SDK_ROOT)/components/libraries/fds \
   $(SDK_ROOT)/modules/nrfx/mdk \
   $(SDK_ROOT)/components/libraries/strerror \
   $(SDK_ROOT)/integration/nrfx/legacy \
@@ -132,6 +160,36 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/mutex \
   $(SDK_ROOT)/components/libraries/pwr_mgmt \
   $(SDK_ROOT)/components/libraries/timer \
+	$(SDK_ROOT)/components/libraries/atomic_flags \
+	$(SDK_ROOT)/components/ble/common \
+	$(SDK_ROOT)/components/ble/ble_services/ble_ancs_c \
+  $(SDK_ROOT)/components/ble/ble_services/ble_ias_c \
+	$(SDK_ROOT)/components/ble/ble_services/ble_gls \
+	$(SDK_ROOT)/components/ble/ble_advertising \
+	$(SDK_ROOT)/components/ble/ble_dtm \
+	$(SDK_ROOT)/components/ble/ble_services/ble_rscs_c \
+	$(SDK_ROOT)/components/ble/ble_services/ble_lls \
+	$(SDK_ROOT)/components/ble/ble_services/ble_bas \
+	$(SDK_ROOT)/components/ble/ble_services/ble_ans_c \
+	$(SDK_ROOT)/components/ble/ble_services/ble_nus_c \
+	$(SDK_ROOT)/components/nfc/ndef/conn_hand_parser/ble_oob_advdata_parser \
+	$(SDK_ROOT)/components/ble/ble_services/ble_lbs \
+  $(SDK_ROOT)/components/ble/ble_services/ble_hts \
+  $(SDK_ROOT)/components/ble/ble_services/ble_ias \
+	$(SDK_ROOT)/components/ble/ble_services/ble_cts_c \
+  $(SDK_ROOT)/components/ble/ble_services/ble_nus \
+  $(SDK_ROOT)/components/ble/ble_services/ble_hids \
+	$(SDK_ROOT)/components/ble/peer_manager \
+	$(SDK_ROOT)/components/ble/ble_services/ble_tps \
+	$(SDK_ROOT)/components/ble/ble_services/ble_dis \
+	$(SDK_ROOT)/components/ble/nrf_ble_gatt \
+  $(SDK_ROOT)/components/ble/nrf_ble_qwr \
+	$(SDK_ROOT)/components/ble/ble_services/ble_lbs_c \
+	$(SDK_ROOT)/components/ble/ble_racp \
+	$(SDK_ROOT)/components/ble/ble_services/ble_hrs \
+  $(SDK_ROOT)/components/ble/ble_services/ble_rscs \
+	$(SDK_ROOT)/components/ble/peer_manager \
+	$(SDK_ROOT)/components/ble/ble_advertising \
   $(SDK_ROOT)/components/ant/ant_state_indicator \
   $(SDK_ROOT)/components/ant/ant_key_manager \
   $(SDK_ROOT)/components/ant/ant_key_manager/config \

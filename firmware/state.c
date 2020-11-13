@@ -308,7 +308,7 @@ void copy_rt_ui_vars(void) {
 	rt_vars.ui16_battery_low_voltage_cut_off_x10 =
 			ui_vars.ui16_battery_low_voltage_cut_off_x10;
 	rt_vars.ui16_wheel_perimeter = ui_vars.ui16_wheel_perimeter;
-	rt_vars.ui8_wheel_max_speed = ui_vars.wheel_max_speed_x10 / 10;
+	rt_vars.ui8_wheel_max_speed = ui_vars.ui8_wheel_max_speed;
 	rt_vars.ui8_motor_type = ui_vars.ui8_motor_type;
 	rt_vars.ui8_motor_current_control_mode = ui_vars.ui8_motor_current_control_mode;
 	rt_vars.ui8_motor_assistance_startup_without_pedal_rotation =
@@ -332,14 +332,6 @@ void copy_rt_ui_vars(void) {
 			ui_vars.ui8_motor_temperature_min_value_to_limit;
 	rt_vars.ui8_motor_temperature_max_value_to_limit =
 			ui_vars.ui8_motor_temperature_max_value_to_limit;
-	rt_vars.ui8_offroad_feature_enabled = ui_vars.ui8_offroad_feature_enabled;
-	rt_vars.ui8_offroad_enabled_on_startup =
-			ui_vars.ui8_offroad_enabled_on_startup;
-	rt_vars.ui8_offroad_speed_limit = ui_vars.ui8_offroad_speed_limit;
-	rt_vars.ui8_offroad_power_limit_enabled =
-			ui_vars.ui8_offroad_power_limit_enabled;
-	rt_vars.ui8_offroad_power_limit_div25 =
-			ui_vars.ui8_offroad_power_limit_div25;
   rt_vars.ui8_torque_sensor_calibration_pedal_ground =
       ui_vars.ui8_torque_sensor_calibration_pedal_ground;
 
@@ -353,7 +345,6 @@ void copy_rt_ui_vars(void) {
 
   rt_vars.ui8_pedal_cadence_fast_stop = ui_vars.ui8_pedal_cadence_fast_stop;
   rt_vars.ui8_coast_brake_adc = ui_vars.ui8_coast_brake_adc;
-  rt_vars.ui8_adc_lights_current_offset = ui_vars.ui8_adc_lights_current_offset;
   rt_vars.ui8_throttle_virtual = ui_vars.ui8_throttle_virtual;
   rt_vars.ui8_torque_sensor_filter = ui_vars.ui8_torque_sensor_filter;
   rt_vars.ui8_torque_sensor_adc_threshold = ui_vars.ui8_torque_sensor_adc_threshold;

@@ -235,6 +235,9 @@ void ant_lev_sens_evt_handler(ant_evt_t * p_ant_evt, void * p_context)
                 }
                 break;
 
+            case EVENT_CHANNEL_CLOSED:
+                break;
+                
             default:
                 break;
         }
