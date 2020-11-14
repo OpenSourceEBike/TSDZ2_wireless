@@ -4,6 +4,8 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
+
+
         {
             "name": "NRF52 Flash and Debug",
             "type": "cppdbg",
@@ -43,8 +45,66 @@
                     "text": "monitor reset init"
                 },
                 {
+                    "text": "monitor halt"
+                },
+                {                    
+                    "description": "Erase PSEL",
+                    "text": "monitor flash write_image erase ${workspaceFolder}/include/pselreset_xxaa.hex.hex"
+                },
+                {
                     "description": "Flash firmware",
-                    "text": "monitor flash write_image erase ${workspaceFolder}/_build/TSDZ2_wireless_with_SD.hex"
+                    "text": "monitor flash write_image erase ${workspaceFolder}/_build/TSDZ2_wireless_combined.hex"
+                },
+                {
+                    "description": "Start debug",
+                    "text": "monitor reset halt"
+                }
+            ]
+        },
+        {
+            "name": "Erase PSEL register",
+            "type": "cppdbg",
+            "request": "launch",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/_build/TSDZ2_wireless.out",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",            
+            "miDebuggerServerAddress": "localhost:3333",
+            "targetArchitecture": "arm",
+            "logging": {
+                "moduleLoad": true,
+                "trace": true,
+                "engineLogging": true,
+                "programOutput": true,
+                "exceptions": true
+            },
+            "linux": {
+                "MIDebuggerPath": "gdb-multiarch",
+            },
+            "customLaunchSetupCommands": [
+                {
+                    "description": "Set remote target",
+                    "text": "file ${workspaceFolder}/_build/TSDZ2_wireless.out"
+                },
+                {
+                    "description": "Set remote target",
+                    "text": "target remote localhost:3333"
+                },
+                {
+                    "text": "monitor init"
+                },
+                {
+                    "text": "monitor reset init"
+                },
+                {
+                    "text": "monitor halt"
+                },
+                {                    
+                    "description": "Erase PSEL",
+                    "text": "monitor flash write_image erase ${workspaceFolder}/include/pselerase_xxaa.hex"
                 },
                 {
                     "description": "Start debug",
@@ -95,6 +155,7 @@
                     "text": "monitor reset halt"
                 }
             ]
+
         }
     ]
 }

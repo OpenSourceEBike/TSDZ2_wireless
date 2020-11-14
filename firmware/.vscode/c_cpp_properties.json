@@ -13,7 +13,6 @@
                 "APP_TIMER_V2_RTC1_ENABLED",
                 "BOARD_CUSTOM",
                 "NRF52840_MDK_USB_DONGLE",
-                "CONFIG_GPIO_AS_PINRESET",
                 "FLOAT_ABI_HARD",
                 "NRF52840_XXAA",
                 "NRF_SD_BLE_API_VERSION=6",
