@@ -1,0 +1,16 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Lint
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+      runs-on: ubuntu-latest
+              
+      steps:
+        - name: Install cppcheck
+          run: sudo apt-get -y install cppcheck
+        - uses: actions/checkout@v2
+        - name: "Run cppcheck"
+          run: cppcheck --enable=all --error-exitcode=1 -ifirmware/nRF5_SDK_16.0.0 firmware/
