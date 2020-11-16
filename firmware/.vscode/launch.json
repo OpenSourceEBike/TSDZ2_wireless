@@ -5,7 +5,6 @@
     "version": "0.2.0",
     "configurations": [
 
-
         {
             "name": "NRF52 Flash and Debug",
             "type": "cppdbg",
@@ -49,7 +48,7 @@
                 },
                 {                    
                     "description": "Erase PSEL",
-                    "text": "monitor flash write_image erase ${workspaceFolder}/include/pselreset_xxaa.hex.hex"
+                    "text": "monitor flash write_image erase ${workspaceFolder}/include/pselerase_xxaa.hex"
                 },
                 {
                     "description": "Flash firmware",

@@ -143,6 +143,8 @@ BLE_ADVERTISING_DEF(m_advertising); /**< Advertising module instance. */
 BLE_ANT_ID_DEF(m_ble_ant_id_service);
 BLE_TSDZ2_DEF(m_ble_tsdz2_service);
 
+void enter_dfu(void);
+
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
 void in_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
 {
@@ -159,11 +161,6 @@ static void gpio_init(void)
   err_code = nrf_drv_gpiote_init();
   APP_ERROR_CHECK(err_code);
 
-  nrf_drv_gpiote_out_config_t out_config = GPIOTE_CONFIG_OUT_SIMPLE(false);
-
-  //err_code = nrf_drv_gpiote_out_init(PIN_OUT, &out_config);
-  // APP_ERROR_CHECK(err_code);
-
   nrf_drv_gpiote_in_config_t in_config = GPIOTE_CONFIG_IN_SENSE_TOGGLE(true);
   in_config.pull = NRF_GPIO_PIN_PULLUP;
 
@@ -176,9 +173,9 @@ static void gpio_init(void)
 
 /**< Universally unique service identifiers. */
 static ble_uuid_t m_adv_uuids[] =
-    {
-        {ANT_ID_UUID_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN},
-};
+  {
+    {ANT_ID_UUID_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN},
+  };
 
 /**@brief Clear bond information from persistent storage.
  */
@@ -213,73 +210,7 @@ static void advertising_start(bool erase_bonds)
     APP_ERROR_CHECK(err_code);
   }
 }
-/**@brief Handler for shutdown preparation.
- *
- * @details During shutdown procedures, this function will be called at a 1 second interval
- *          untill the function returns true. When the function returns true, it means that the
- *          app is ready to reset to DFU mode.
- *
- * @param[in]   event   Power manager event.
- *
- * @retval  True if shutdown is allowed by this power manager handler, otherwise false.
- */
-static bool app_shutdown_handler(nrf_pwr_mgmt_evt_t event)
-{
-  switch (event)
-  {
-  case NRF_PWR_MGMT_EVT_PREPARE_DFU:
-    NRF_LOG_INFO("Power management wants to reset to DFU mode.");
-    // YOUR_JOB: Get ready to reset into DFU mode
-    //
-    // If you aren't finished with any ongoing tasks, return "false" to
-    // signal to the system that reset is impossible at this stage.
-    //
-    // Here is an example using a variable to delay resetting the device.
-    //
-    // if (!m_ready_for_reset)
-    // {
-    //      return false;
-    // }
-    // else
-    //{
-    //
-    //    // Device ready to enter
-    //   uint32_t err_code;
-    //  err_code = ser_sd_transport_close();
-    //   APP_ERROR_CHECK(err_code);
-    //   err_code = app_timer_stop_all();
-    //   APP_ERROR_CHECK(err_code);
-    //}
-    break;
 
-  default:
-    // YOUR_JOB: Implement any of the other events available from the power management module:
-    //      -NRF_PWR_MGMT_EVT_PREPARE_SYSOFF
-    //      -NRF_PWR_MGMT_EVT_PREPARE_WAKEUP
-    //      -NRF_PWR_MGMT_EVT_PREPARE_RESET
-    return true;
-  }
-
-  NRF_LOG_INFO("Power management allowed to reset to DFU mode.");
-  return true;
-}
-
-//lint -esym(528, m_app_shutdown_handler)
-/**@brief Register application shutdown handler with priority 0.
- */
-NRF_PWR_MGMT_HANDLER_REGISTER(app_shutdown_handler, 0);
-
-static void buttonless_dfu_sdh_state_observer(nrf_sdh_state_evt_t state, void *p_context)
-{
-  if (state == NRF_SDH_EVT_STATE_DISABLED)
-  {
-    // Softdevice was disabled before going into reset. Inform bootloader to skip CRC on next boot.
-    nrf_power_gpregret2_set(BOOTLOADER_DFU_SKIP_CRC);
-
-    //Go to system off.
-    nrf_pwr_mgmt_shutdown(NRF_PWR_MGMT_SHUTDOWN_GOTO_SYSOFF);
-  }
-}
 static void ble_dfu_buttonless_evt_handler(ble_dfu_buttonless_evt_type_t event)
 {
 
@@ -606,10 +537,6 @@ static void ble_stack_init(void)
   err_code = nrf_sdh_ble_default_cfg_set(APP_BLE_CONN_CFG_TAG, &ram_start);
   APP_ERROR_CHECK(err_code);
 
-  /*
-  ram_start += 32;
-  //ram_start += 10028;
-  */
   // Enable BLE stack.
   err_code = nrf_sdh_ble_enable(&ram_start);
   APP_ERROR_CHECK(err_code);
@@ -894,9 +821,10 @@ static void services_init(void)
   ble_tsdz2_init_t init_tsdz2 = {0};
 
   // Initialize the DFU service
-  ble_dfu_buttonless_init_t dfus_init =
-      {
-          .evt_handler = ble_dfu_buttonless_evt_handler};
+  ble_dfu_buttonless_init_t dfus_init = 
+  {
+    .evt_handler = ble_dfu_buttonless_evt_handler
+  };
   err_code = ble_dfu_buttonless_init(&dfus_init);
   APP_ERROR_CHECK(err_code);
 
