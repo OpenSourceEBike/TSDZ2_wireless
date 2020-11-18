@@ -51,6 +51,9 @@
 #include <stdbool.h>
 #include "boards.h"
 #include "nrf_bootloader_info.h"
+#include "nrf_gpio.h"
+#include "nrf_drv_gpiote.h"
+#include "boards.h"
 
 ui_vars_t *mp_ui_vars;
 
@@ -137,24 +140,46 @@ BLE_ADVERTISING_DEF(m_advertising); /**< Advertising module instance. */
 BLE_ANT_ID_DEF(m_ble_ant_id_service);
 BLE_TSDZ2_DEF(m_ble_tsdz2_service);
 
-void enter_dfu(void);
-
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
 
 /**< Universally unique service identifiers. */
 static ble_uuid_t m_adv_uuids[] =
+    {
+        {ANT_ID_UUID_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN},
+};
+void in_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
+{
+  ret_code_t err_code;
+  switch (action)
   {
-    {ANT_ID_UUID_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN},
-  };
+  case NRF_GPIOTE_POLARITY_LOTOHI:
 
-/**@brief Clear bond information from persistent storage.
- */
-/*
-uint32_t ui32_seconds_since_startup = 0;
-//uint32_t err_code=0;
-volatile uint32_t main_ticks;
-uint8_t enable_bluetooth = 0;
-*/
+    break;
+
+  case NRF_GPIOTE_POLARITY_HITOLO:
+    //go to bootloader
+    ui8_m_enter_bootloader = 1;
+    break;
+  case NRF_GPIOTE_POLARITY_TOGGLE:
+
+    break;
+  }
+}
+static void gpio_init(void)
+{
+  ret_code_t err_code;
+
+  err_code = nrf_drv_gpiote_init();
+  APP_ERROR_CHECK(err_code);
+
+  nrf_drv_gpiote_in_config_t in_config = GPIOTE_CONFIG_IN_SENSE_HITOLO(true);
+  in_config.pull = NRF_GPIO_PIN_PULLDOWN;
+
+  err_code = nrf_drv_gpiote_in_init(BUTTON_1, &in_config, in_pin_handler);
+  APP_ERROR_CHECK(err_code);
+
+  nrf_drv_gpiote_in_event_enable(BUTTON_1, true);
+ }
 static void delete_bonds(void)
 {
   ret_code_t err_code;
@@ -477,6 +502,10 @@ static void ble_stack_init(void)
   err_code = nrf_sdh_ble_default_cfg_set(APP_BLE_CONN_CFG_TAG, &ram_start);
   APP_ERROR_CHECK(err_code);
 
+  /*
+  ram_start += 32;
+  //ram_start += 10028;
+  */
   // Enable BLE stack.
   err_code = nrf_sdh_ble_enable(&ram_start);
   APP_ERROR_CHECK(err_code);
@@ -1257,6 +1286,7 @@ int main(void)
   motor_power_enable(true);
   lfclk_config(); // needed by the APP_TIMER
   init_app_timers();
+  gpio_init();
   eeprom_init();
 
   //below is what I had to do to get NVIC_SystemReset() not to hangup.
@@ -1272,7 +1302,7 @@ int main(void)
     nrf_delay_ms(3000); //wait for write to complete
     NVIC_SystemReset(); //reboot into bootloader
   }
-  
+
   ble_init();
   ant_setup();
   uart_init();
