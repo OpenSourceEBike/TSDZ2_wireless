@@ -54,7 +54,8 @@
 
 ui_vars_t *mp_ui_vars;
 
-volatile uint8_t ui8_m_ant_device_id;
+volatile uint8_t ui8_m_enter_bootloader = 0;
+volatile uint8_t ui8_m_ant_device_id = 0;
 volatile uint8_t ui8_m_flash_configurations = 0;
 
 #define MSEC_PER_TICK 10
@@ -538,7 +539,14 @@ static void nrf_qwr_error_handler(uint32_t nrf_error)
 
 static void ant_id_write_handler(uint16_t conn_handle, ble_ant_id_t *p_ant_id, uint8_t value)
 {
-  ui8_m_ant_device_id = value;
+  if (value == 0x99)
+  {
+    ui8_m_enter_bootloader = 1;
+  }
+  else
+  {
+    ui8_m_ant_device_id = value;
+  }
 }
 
 static void tsdz2_write_handler_periodic(uint8_t *p_data, uint16_t len)
@@ -999,7 +1007,7 @@ void ble_init(void)
   advertising_start(true);
 }
 
-void change_ant_id_and_reset(void)
+void eeprom_write_variables_and_reset(void)
 {
   // NOTE that flash of EEPROM does not work on an interrupt like on the ant_id_write_handler(), hence it is done here on main()
   eeprom_write_variables();
@@ -1250,22 +1258,21 @@ int main(void)
   lfclk_config(); // needed by the APP_TIMER
   init_app_timers();
   eeprom_init();
-  //cassainho - below  is what I had to do to get NVIC_SystemReset() not to hangup.
+
+  //below is what I had to do to get NVIC_SystemReset() not to hangup.
   //the s340 sd if what is preventing the restart into the bootloader, so it is important to reset before bluetooth starts.
-  //basically, the user changes the NT_ID to 0x99 , the firmware reboots as normal and we catch the change here before bluetooth starts
+  //basically, the user changes the ANT_ID to 0x99 , the firmware reboots as normal and we catch the change here before bluetooth starts
   //it now works in debug mode!
-  if (mp_ui_vars->ui8_ant_device_id == 0x99) //check to see if reboot into the bootloader is needed
+  if (mp_ui_vars->ui8_enter_bootloader) //check to see if reboot into the bootloader is needed
   {
+    mp_ui_vars->ui8_enter_bootloader = 0;
     nrf_power_gpregret_set(BOOTLOADER_DFU_START); //set the dfu register
     nrf_delay_ms(1000);                           //wait for write to complete
-    //reset the ANT_ID to 0x01 in case there is no firmware update and the app is reloaded.
-    //Cassainho - you may wish to restore the old ANT ID here (ie before it was changed to 0x99)
-    mp_ui_vars->ui8_ant_device_id = 0x01;
-    ui8_m_flash_configurations = 0;
     eeprom_write_variables();
     nrf_delay_ms(3000); //wait for write to complete
     NVIC_SystemReset(); //reboot into bootloader
   }
+  
   ble_init();
   ant_setup();
   uart_init();
@@ -1299,7 +1306,15 @@ int main(void)
       if (ui8_m_ant_device_id != mp_ui_vars->ui8_ant_device_id)
       {
         mp_ui_vars->ui8_ant_device_id = ui8_m_ant_device_id;
-        change_ant_id_and_reset();
+        eeprom_write_variables_and_reset();
+      }
+
+      // see if there a request to enter in bootloader
+      if (ui8_m_enter_bootloader)
+      {
+        ui8_m_enter_bootloader = 0;
+        mp_ui_vars->ui8_enter_bootloader = 1;
+        eeprom_write_variables_and_reset();
       }
 
       // see if there was a change to the ANT ID

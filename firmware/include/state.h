@@ -293,6 +293,7 @@ typedef struct ui_vars_struct {
   uint8_t ui8_coast_brake_enable;
 
   uint8_t ui8_ant_device_id;
+  uint8_t ui8_enter_bootloader;
 } ui_vars_t;
 
 ui_vars_t* get_ui_vars(void);
