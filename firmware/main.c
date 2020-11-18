@@ -136,13 +136,15 @@ BLE_ADVERTISING_DEF(m_advertising); /**< Advertising module instance. */
 BLE_ANT_ID_DEF(m_ble_ant_id_service);
 BLE_TSDZ2_DEF(m_ble_tsdz2_service);
 
+void enter_dfu(void);
+
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
 
 /**< Universally unique service identifiers. */
 static ble_uuid_t m_adv_uuids[] =
-    {
-        {ANT_ID_UUID_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN},
-};
+  {
+    {ANT_ID_UUID_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN},
+  };
 
 /**@brief Clear bond information from persistent storage.
  */
@@ -474,10 +476,6 @@ static void ble_stack_init(void)
   err_code = nrf_sdh_ble_default_cfg_set(APP_BLE_CONN_CFG_TAG, &ram_start);
   APP_ERROR_CHECK(err_code);
 
-  /*
-  ram_start += 32;
-  //ram_start += 10028;
-  */
   // Enable BLE stack.
   err_code = nrf_sdh_ble_enable(&ram_start);
   APP_ERROR_CHECK(err_code);
