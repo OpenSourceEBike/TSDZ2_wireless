@@ -117,10 +117,6 @@ SRC_FILES += \
 	$(PROJ_DIR)/utils.c \
 	$(PROJ_DIR)/ble_services.c \
   $(PROJ_DIR)/main.c \
-  $(SDK_ROOT)/components/ble/ble_services/ble_dfu/ble_dfu_bonded.c \
-  $(SDK_ROOT)/components/ble/ble_services/ble_dfu/ble_dfu_unbonded.c  \
-  $(SDK_ROOT)/components/ble/ble_services/ble_dfu/ble_dfu.c \
-  $(SDK_ROOT)/components/libraries/bootloader/dfu/nrf_dfu_svci.c \
   $(SDK_ROOT)/components/boards/boards.c \
  
 # Include folders common to all targets
@@ -150,8 +146,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/log/src \
   $(SDK_ROOT)/components/libraries/bsp \
   $(SDK_ROOT)/components/libraries/bootloader \
-  $(SDK_ROOT)/components/libraries/bootloader/dfu \
-  $(SDK_ROOT)/components/libraries/bootloader/ble_dfu \
+  $(SDK_ROOT)/modules/nrfx/hal \
   $(SDK_ROOT)/components/libraries/sortlist \
   $(SDK_ROOT)/modules/nrfx/drivers/include \
   $(SDK_ROOT)/components/libraries/hardfault \
@@ -171,10 +166,10 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/libraries/pwr_mgmt \
   $(SDK_ROOT)/components/libraries/timer \
 	$(SDK_ROOT)/components/libraries/atomic_flags \
+  $(SDK_ROOT)/components/libraries/bootloader \
 	$(SDK_ROOT)/components/ble/common \
 	$(SDK_ROOT)/components/ble/ble_services/ble_ancs_c \
   $(SDK_ROOT)/components/ble/ble_services \
-  $(SDK_ROOT)/components/ble/ble_services/ble_dfu \
   $(SDK_ROOT)/components/ble/ble_services/ble_ias_c \
 	$(SDK_ROOT)/components/ble/ble_services/ble_gls \
 	$(SDK_ROOT)/components/ble/ble_advertising \
@@ -241,9 +236,8 @@ CFLAGS += -ffunction-sections -fdata-sections -fno-strict-aliasing
 CFLAGS += -fno-builtin -fshort-enums
 CFLAGS += -DTSDZ2_FIRMWARE_MAJOR=\"$(TSDZ2_FIRMWARE_MAJOR)\"
 CFLAGS += -DTSDZ2_FIRMWARE_MINOR=\"$(TSDZ2_FIRMWARE_MINOR)\"
-CFLAGS += -BL_SETTINGS_ACCESS_ONLY
-CFLAGS += -DNRF_DFU_SVCI_ENABLED
-CFLAGS += -DNRF_DFU_TRANSPORT_BLE=1
+
+
 
 # C++ flags common to all targets
 CXXFLAGS += $(OPT)
@@ -260,9 +254,7 @@ ASMFLAGS += -DNRF52840_XXAA
 ASMFLAGS += -DNRF_SD_BLE_API_VERSION=6
 ASMFLAGS += -DS340
 ASMFLAGS += -DSOFTDEVICE_PRESENT
-ASMFLAGS += -DNRF_DFU_SVCI_ENABLED
-ASMFLAGS += -DNRF_DFU_TRANSPORT_BLE=1
-ASMFLAGS += -BL_SETTINGS_ACCESS_ONLY
+
 
 # Linker flags
 LDFLAGS += $(OPT)

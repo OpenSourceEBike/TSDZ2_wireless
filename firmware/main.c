@@ -48,16 +48,9 @@
 #include "nrf_delay.h"
 #include "fds.h"
 #include "nrf_power.h"
-#include "nrf_dfu_ble_svci_bond_sharing.h"
-#include "nrf_svci_async_function.h"
-#include "nrf_svci_async_handler.h"
-#include "ble_dfu.h"
-#include "nrf_bootloader_info.h"
-#include "nrf_gpio.h"
-#include "nrf_drv_gpiote.h"
 #include <stdbool.h>
 #include "boards.h"
-#define PIN_IN BUTTON_1 //board pin
+#include "nrf_bootloader_info.h"
 
 ui_vars_t *mp_ui_vars;
 
@@ -146,30 +139,6 @@ BLE_TSDZ2_DEF(m_ble_tsdz2_service);
 void enter_dfu(void);
 
 static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID; /**< Handle of the current connection. */
-void in_pin_handler(nrf_drv_gpiote_pin_t pin, nrf_gpiote_polarity_t action)
-{
-  enter_dfu();
-}
-/**
- * @brief Function for configuring: PIN_IN pin for input, PIN_OUT pin for output,
- * and configures GPIOTE to give an interrupt on pin change.
- */
-static void gpio_init(void)
-{
-  ret_code_t err_code;
-
-  err_code = nrf_drv_gpiote_init();
-  APP_ERROR_CHECK(err_code);
-
-  nrf_drv_gpiote_in_config_t in_config = GPIOTE_CONFIG_IN_SENSE_TOGGLE(true);
-  in_config.pull = NRF_GPIO_PIN_PULLUP;
-
-  err_code = nrf_drv_gpiote_in_init(PIN_IN, &in_config, in_pin_handler);
-  APP_ERROR_CHECK(err_code);
-
-  nrf_drv_gpiote_in_event_enable(PIN_IN, true);
-  nrf_gpio_pin_clear(PIN_IN); //clear the pin
-}
 
 /**< Universally unique service identifiers. */
 static ble_uuid_t m_adv_uuids[] =
@@ -208,28 +177,6 @@ static void advertising_start(bool erase_bonds)
   {
     uint32_t err_code = ble_advertising_start(&m_advertising, BLE_ADV_MODE_FAST);
     APP_ERROR_CHECK(err_code);
-  }
-}
-
-static void ble_dfu_buttonless_evt_handler(ble_dfu_buttonless_evt_type_t event)
-{
-
-  switch (event)
-  {
-  case BLE_DFU_EVT_BOOTLOADER_ENTER_PREPARE:
-    NRF_LOG_INFO("Device is preparing to enter bootloader mode\r\n");
-    break;
-
-  case BLE_DFU_EVT_BOOTLOADER_ENTER:
-    NRF_LOG_INFO("Device will enter bootloader mode\r\n");
-    break;
-
-  case BLE_DFU_EVT_BOOTLOADER_ENTER_FAILED:
-    NRF_LOG_ERROR("Device failed to enter bootloader mode\r\n");
-    break;
-  default:
-    NRF_LOG_INFO("Unknown event from ble_dfu.\r\n");
-    break;
   }
 }
 
@@ -510,14 +457,6 @@ static void init_app_timers(void)
 
   err_code = app_timer_start(main_timer, MAIN_INTERVAL, NULL);
   APP_ERROR_CHECK(err_code);
-}
-
-void enter_dfu(void)
-{
-  // Softdevice was disabled before going into reset. Inform bootloader to skip CRC on next boot.
-  nrf_power_gpregret_set(BOOTLOADER_DFU_START);
-  sd_nvic_SystemReset(); //reset and start again
-                         //  nrf_power_gpregret2_set(BOOTLOADER_DFU_SKIP_CRC);
 }
 
 /**@brief Function for initializing the BLE stack.
@@ -819,14 +758,6 @@ static void services_init(void)
   nrf_ble_qwr_init_t qwr_init = {0};
   ble_ant_id_init_t init_ant_id = {0};
   ble_tsdz2_init_t init_tsdz2 = {0};
-
-  // Initialize the DFU service
-  ble_dfu_buttonless_init_t dfus_init = 
-  {
-    .evt_handler = ble_dfu_buttonless_evt_handler
-  };
-  err_code = ble_dfu_buttonless_init(&dfus_init);
-  APP_ERROR_CHECK(err_code);
 
   // Initialize Queued Write Module.
   qwr_init.error_handler = nrf_qwr_error_handler;
@@ -1312,26 +1243,29 @@ void ble_update_configurations_data(void)
 
 int main(void)
 {
-  ret_code_t err_code;
-
-  //notes for Casainho on  manual DFU using board button:
-  //CONFIG_GPIO_AS_PINRESET sets the PSEL register which CANNOT be cleared with a OPENOCD erase
-  //I added an option "erase PSEL register" to launch.json to reset this register if you have 
-  //already compiled projects that had cONFIG_GPIO_AS_PINRESET set in the makefile
-  //This will flash  a small program that flashes the LEDS when the erase has completed
-  //the board button interrupt does not seem to work in debug mode, but works fine without the debugger.
-
-  gpio_init(); //check for dfu from the board button
-
   mp_ui_vars = get_ui_vars();
   // Initialize the async SVCI interface to bootloader before any interrupts are enabled.
-  err_code = ble_dfu_buttonless_async_svci_init();
-  APP_ERROR_CHECK(err_code);
   pins_init();
   motor_power_enable(true);
   lfclk_config(); // needed by the APP_TIMER
   init_app_timers();
   eeprom_init();
+  //cassainho - below  is what I had to do to get NVIC_SystemReset() not to hangup.
+  //the s340 sd if what is preventing the restart into the bootloader, so it is important to reset before bluetooth starts.
+  //basically, the user changes the NT_ID to 0x99 , the firmware reboots as normal and we catch the change here before bluetooth starts
+  //it now works in debug mode!
+  if (mp_ui_vars->ui8_ant_device_id == 0x99) //check to see if reboot into the bootloader is needed
+  {
+    nrf_power_gpregret_set(BOOTLOADER_DFU_START); //set the dfu register
+    nrf_delay_ms(1000);                           //wait for write to complete
+    //reset the ANT_ID to 0x01 in case there is no firmware update and the app is reloaded.
+    //Cassainho - you may wish to restore the old ANT ID here (ie before it was changed to 0x99)
+    mp_ui_vars->ui8_ant_device_id = 0x01;
+    ui8_m_flash_configurations = 0;
+    eeprom_write_variables();
+    nrf_delay_ms(3000); //wait for write to complete
+    NVIC_SystemReset(); //reboot into bootloader
+  }
   ble_init();
   ant_setup();
   uart_init();
@@ -1359,6 +1293,8 @@ int main(void)
     // every 1 second
     if (main_ticks % (1000 / MSEC_PER_TICK) == 0)
     {
+      //see if DFU reboot is needed
+
       // see if there was a change to the ANT ID
       if (ui8_m_ant_device_id != mp_ui_vars->ui8_ant_device_id)
       {
