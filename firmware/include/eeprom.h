@@ -173,6 +173,7 @@ typedef struct configurations {
   uint8_t ui8_coast_brake_adc;
   uint8_t ui8_ant_device_id;
   uint8_t ui8_configurations_version;
+  uint8_t ui8_enter_bootloader;
 } configurations_t;
 
 void eeprom_init(void);

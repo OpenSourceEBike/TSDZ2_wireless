@@ -148,6 +148,7 @@ const configurations_t m_configurations_defaults = {
   .ui8_coast_brake_enable = DEFAULT_COAST_BRAKE_ENABLE,
 
   .ui8_ant_device_id = 1,
+  .ui8_enter_bootloader = 0,
 };
 
 /* Keep track of the progress of a delete_all operation. */
@@ -371,6 +372,9 @@ void eeprom_init_variables(void) {
 
   ui_vars->ui8_ant_device_id =
     m_configurations.ui8_ant_device_id;
+
+  ui_vars->ui8_enter_bootloader =
+    m_configurations.ui8_enter_bootloader;
 }
 
 void eeprom_write_variables(void) {
@@ -471,6 +475,9 @@ void eeprom_write_variables(void) {
 
   m_configurations.ui8_ant_device_id =
     ui_vars->ui8_ant_device_id;
+
+  m_configurations.ui8_enter_bootloader =
+    ui_vars->ui8_enter_bootloader;
 
   /* Write the updated record to flash. */
   ret_code_t err_code = fds_record_update(&m_desc_config, &m_fds_configurations);
