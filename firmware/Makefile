@@ -13,7 +13,9 @@ PROJ_DIR := .
 $(OUTPUT_DIRECTORY)/TSDZ2_wireless.out: \
   LINKER_SCRIPT  := TSDZ2_wireless_gcc_nrf52.ld
 
-BOOT_LOADER = $(PROJ_DIR)/include/TSDZ2_bootloader_with_sd.hex
+BOOTLOADER_DIR = $(PROJ_DIR)/bootloader/firmware/
+BOOTLOADER_HEX = $(BOOTLOADER_DIR)/_build/TSDZ2_bootloader_with_sd.hex
+
 APP_VER_MAJOR = 0
 APP_VER_MINOR = 5
 # Source files common to all targets
@@ -279,11 +281,15 @@ LIB_FILES += -lc -lnosys -lm
 .PHONY: default help
 
 # Default target - first one defined
-default: TSDZ2_wireless bl_settings final OTA
+default: TSDZ2_wireless TSDZ2_bootloader bl_settings final OTA
+
+
+TSDZ2_bootloader:
+	cd ./bootloader/firmware && make -f ./Makefile
 
 # We use srec_cat here but if you want to be able to use the combined hex file with nRF Connect you should use Nordic's mergehex tool
 final:
-	mergehex -m $(OUTPUT_DIRECTORY)/TSDZ2_wireless.hex $(OUTPUT_DIRECTORY)/bl_settings.hex $(BOOT_LOADER) -o $(OUTPUT_DIRECTORY)/TSDZ2_wireless_combined.hex
+	mergehex -m $(OUTPUT_DIRECTORY)/TSDZ2_wireless.hex $(OUTPUT_DIRECTORY)/bl_settings.hex $(BOOTLOADER_HEX) -o $(OUTPUT_DIRECTORY)/TSDZ2_wireless_combined.hex
 
 bl_settings:
 	$(SREC_PATH)nrfutil settings generate --family NRF52840 --application $(OUTPUT_DIRECTORY)/TSDZ2_wireless.hex --application-version-string $(APP_VER_MAJOR).$(APP_VER_MINOR).0 --bootloader-version 1 --bl-settings-version 2 $(OUTPUT_DIRECTORY)/bl_settings.hex 
@@ -298,18 +304,18 @@ include $(TEMPLATE_PATH)/Makefile.common
 
 $(foreach target, $(TARGETS), $(call define_target, $(target)))
 
-.PHONY: flash erase
+# .PHONY: flash erase
 
-# Flash the program
-flash: default
-	@echo Flashing: $(OUTPUT_DIRECTORY)/TSDZ2_wireless.hex
-	nrfjprog -f nrf52 --program $(OUTPUT_DIRECTORY)/TSDZ2_wireless.hex --sectorerase
-	nrfjprog -f nrf52 --reset
+# # Flash the program
+# flash: default
+# 	@echo Flashing: $(OUTPUT_DIRECTORY)/TSDZ2_wireless.hex
+# 	nrfjprog -f nrf52 --program $(OUTPUT_DIRECTORY)/TSDZ2_wireless.hex --sectorerase
+# 	nrfjprog -f nrf52 --reset
 
 erase:
 	nrfjprog -f nrf52 --eraseall
 
-SDK_CONFIG_FILE := ../config/sdk_config.h
-CMSIS_CONFIG_TOOL := $(SDK_ROOT)/external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar
-sdk_config:
-	java -jar $(CMSIS_CONFIG_TOOL) $(SDK_CONFIG_FILE)
+# SDK_CONFIG_FILE := ../config/sdk_config.h
+# CMSIS_CONFIG_TOOL := $(SDK_ROOT)/external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar
+# sdk_config:
+# 	java -jar $(CMSIS_CONFIG_TOOL) $(SDK_CONFIG_FILE)
