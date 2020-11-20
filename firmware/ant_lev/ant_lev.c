@@ -50,9 +50,11 @@ ret_code_t ant_lev_sens_init(ant_lev_profile_t           * p_profile,
     ASSERT(p_channel_config != NULL);
     ASSERT(p_sens_config != NULL);
     ASSERT(p_sens_config->p_cb != NULL);
-    ASSERT(p_sens_config->evt_handler != NULL);
+    ASSERT(p_sens_config->evt_handler_pre != NULL);
+    ASSERT(p_sens_config->evt_handler_post != NULL);
 
-    p_profile->evt_handler    = p_sens_config->evt_handler;
+    p_profile->evt_handler_pre    = p_sens_config->evt_handler_pre;
+    p_profile->evt_handler_post   = p_sens_config->evt_handler_post;
     p_profile->_cb.p_sens_cb = p_sens_config->p_cb;
     ant_request_controller_init(&(p_profile->_cb.p_sens_cb->req_controller));
 
@@ -126,6 +128,8 @@ static void sens_message_encode(ant_lev_profile_t * p_profile, uint8_t * p_messa
 
     p_lev_message_payload->page_number = next_page_number_get(p_profile);
 
+    p_profile->evt_handler_pre(p_profile, (ant_lev_evt_t)p_lev_message_payload->page_number);
+
     switch (p_lev_message_payload->page_number)
     {
         case ANT_LEV_PAGE_1:
@@ -167,8 +171,6 @@ static void sens_message_encode(ant_lev_profile_t * p_profile, uint8_t * p_messa
         default:
             return;
     }
-
-    p_profile->evt_handler(p_profile, (ant_lev_evt_t)p_lev_message_payload->page_number);
 }
 
 static void disp_message_decode(ant_lev_profile_t * p_profile, uint8_t * p_message_payload)
@@ -187,7 +189,7 @@ static void disp_message_decode(ant_lev_profile_t * p_profile, uint8_t * p_messa
             return;
     }
 
-    p_profile->evt_handler(p_profile, (ant_lev_evt_t)p_lev_message_payload->page_number);
+    p_profile->evt_handler_post(p_profile, (ant_lev_evt_t)p_lev_message_payload->page_number);
 }
 
 void ant_lev_sens_evt_handler(ant_evt_t * p_ant_evt, void * p_context)
@@ -233,6 +235,9 @@ void ant_lev_sens_evt_handler(ant_evt_t * p_ant_evt, void * p_context)
                 }
                 break;
 
+            case EVENT_CHANNEL_CLOSED:
+                break;
+                
             default:
                 break;
         }

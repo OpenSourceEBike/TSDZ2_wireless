@@ -6,8 +6,8 @@ GROUP(-lgcc -lc -lnosys)
 MEMORY
 {
   /* values taken from examples/multiprotocol/ble_ant_app_hrm/pca10056/s340/armgcc */
-  FLASH (rx) : ORIGIN = 0x31000, LENGTH = 0xcf000 /* 828 kbytes */
-  RAM (rwx) :  ORIGIN = 0x20002798, LENGTH = 0x3d868 /* about 246 kbytes */
+  FLASH (rx) : ORIGIN = 0x31000, LENGTH = 0xCF000 /* 828 kbytes */
+  RAM (rwx) :  ORIGIN = 0x20003FF8, LENGTH = 0x3C008 /* about 240 kbytes */
 }
 
 SECTIONS

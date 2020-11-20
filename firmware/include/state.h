@@ -6,37 +6,36 @@
 
 #define ASSIST_LEVEL_NUMBER 20
 
-// typedef enum {
-//   MOTOR_INIT_GET_MOTOR_ALIVE,
-//   MOTOR_INIT_WAIT_MOTOR_ALIVE,
-//   MOTOR_INIT_GET_MOTOR_FIRMWARE_VERSION,
-//   MOTOR_INIT_WAIT_MOTOR_FIRMWARE_VERSION,
-//   MOTOR_INIT_GOT_MOTOR_FIRMWARE_VERSION,
-//   MOTOR_INIT_ERROR_GET_FIRMWARE_VERSION,
-//   MOTOR_INIT_RECEIVED_MOTOR_FIRMWARE_VERSION,
-//   MOTOR_INIT_ERROR_FIRMWARE_VERSION,
-//   MOTOR_INIT_SET_CONFIGURATIONS,
-//   MOTOR_INIT_WAIT_CONFIGURATIONS_OK,
-//   MOTOR_INIT_WAIT_GOT_CONFIGURATIONS_OK,
-//   MOTOR_INIT_ERROR_SET_CONFIGURATIONS,
-//   MOTOR_INIT_ERROR,
-//   MOTOR_INIT_READY,
-//   MOTOR_INIT_SIMULATING,
-// } motor_init_state_t;
+typedef enum {
+  MOTOR_INIT_GET_MOTOR_ALIVE,
+  MOTOR_INIT_WAIT_MOTOR_ALIVE,
+  MOTOR_INIT_GET_MOTOR_FIRMWARE_VERSION,
+  MOTOR_INIT_WAIT_MOTOR_FIRMWARE_VERSION,
+  MOTOR_INIT_GOT_MOTOR_FIRMWARE_VERSION,
+  MOTOR_INIT_ERROR_GET_FIRMWARE_VERSION,
+  MOTOR_INIT_RECEIVED_MOTOR_FIRMWARE_VERSION,
+  MOTOR_INIT_ERROR_FIRMWARE_VERSION,
+  MOTOR_INIT_SET_CONFIGURATIONS,
+  MOTOR_INIT_WAIT_CONFIGURATIONS_OK,
+  MOTOR_INIT_WAIT_GOT_CONFIGURATIONS_OK,
+  MOTOR_INIT_ERROR_SET_CONFIGURATIONS,
+  MOTOR_INIT_ERROR,
+  MOTOR_INIT_READY,
+} motor_init_state_t;
 
-// typedef enum {
-//   MOTOR_INIT_CONFIG_SEND_CONFIG,
-//   MOTOR_INIT_CONFIG_GET_STATUS,
-//   MOTOR_INIT_CONFIG_CHECK_STATUS,
-// } motor_init_state_config_t;
+typedef enum {
+  MOTOR_INIT_CONFIG_SEND_CONFIG,
+  MOTOR_INIT_CONFIG_GET_STATUS,
+  MOTOR_INIT_CONFIG_CHECK_STATUS,
+} motor_init_state_config_t;
 
-// typedef enum {
-//   MOTOR_INIT_STATUS_RESET = 0,
-//   MOTOR_INIT_STATUS_GOT_CONFIG = 1,
-//   MOTOR_INIT_STATUS_INIT_OK = 2,
-// } motor_init_status_t;
+typedef enum {
+  MOTOR_INIT_STATUS_RESET = 0,
+  MOTOR_INIT_STATUS_GOT_CONFIG = 1,
+  MOTOR_INIT_STATUS_INIT_OK = 2,
+} motor_init_status_t;
 
-// extern volatile motor_init_state_t g_motor_init_state;
+extern volatile motor_init_state_t g_motor_init_state;
 
 typedef struct battery_energy_h_km_struct {
   uint32_t ui32_sum_x50;
@@ -109,13 +108,6 @@ typedef struct rt_vars_struct {
 	uint8_t ui8_temperature_limit_feature_enabled;
 	uint8_t ui8_motor_temperature_min_value_to_limit;
 	uint8_t ui8_motor_temperature_max_value_to_limit;
-	uint8_t ui8_lcd_backlight_on_brightness;
-	uint8_t ui8_lcd_backlight_off_brightness;
-	uint8_t ui8_offroad_feature_enabled;
-	uint8_t ui8_offroad_enabled_on_startup;
-	uint8_t ui8_offroad_speed_limit;
-	uint8_t ui8_offroad_power_limit_enabled;
-	uint8_t ui8_offroad_power_limit_div25;
 	uint32_t ui32_odometer_x10;
 
 #ifndef SW102
@@ -178,6 +170,7 @@ typedef struct rt_vars_struct {
 #endif
 
 typedef struct ui_vars_struct {
+  uint8_t ui8_configurations_version;
 	uint16_t ui16_adc_battery_voltage;
 	uint8_t ui8_battery_current_x5;
   uint16_t ui16_battery_power_loss;
@@ -214,12 +207,11 @@ typedef struct ui_vars_struct {
 	uint8_t ui8_assist_level;
 	uint8_t ui8_number_of_assist_levels;
 	uint16_t ui16_wheel_perimeter;
-	uint16_t wheel_max_speed_x10;
+	uint8_t ui8_wheel_max_speed;
 	uint8_t ui8_units_type;
 	uint32_t ui32_wh_x10_offset;
 	uint32_t ui32_wh_x10_100_percent;
 	uint8_t ui8_battery_soc_enable;
-	uint8_t ui8_time_field_enable;
 	uint8_t ui8_target_max_battery_power_div25;
 	uint8_t ui8_battery_max_current;
 	uint8_t ui8_motor_max_current;
@@ -245,14 +237,7 @@ typedef struct ui_vars_struct {
 	uint8_t ui8_temperature_limit_feature_enabled;
 	uint8_t ui8_motor_temperature_min_value_to_limit;
 	uint8_t ui8_motor_temperature_max_value_to_limit;
-	uint8_t ui8_lcd_power_off_time_minutes;
-	uint8_t ui8_lcd_backlight_on_brightness;
-	uint8_t ui8_lcd_backlight_off_brightness;
-	uint8_t ui8_offroad_feature_enabled;
-	uint8_t ui8_offroad_enabled_on_startup;
-	uint8_t ui8_offroad_speed_limit;
-	uint8_t ui8_offroad_power_limit_enabled;
-	uint8_t ui8_offroad_power_limit_div25;
+	uint8_t ui8_system_power_off_time_minutes;
 	uint32_t ui32_odometer_x10;
 
 #ifndef SW102
@@ -283,15 +268,11 @@ typedef struct ui_vars_struct {
 	uint8_t ui8_braking;
 	uint8_t ui8_walk_assist;
 	uint8_t ui8_offroad_mode;
-	uint8_t ui8_buttons_up_down_invert;
 
 	uint8_t ui8_torque_sensor_calibration_feature_enabled;
 	uint8_t ui8_torque_sensor_calibration_pedal_ground;
 	uint16_t ui16_torque_sensor_calibration_table_left[8][2];
 	uint16_t ui16_torque_sensor_calibration_table_right[8][2];
-
-	uint8_t field_selectors[NUM_CUSTOMIZABLE_FIELDS]; // this array is opaque to the app, but the screen layer uses it to store which field is being displayed (it is stored to EEPROM)
-	uint8_t graphs_field_selectors[3]; // 3 screen main pages
 
 	uint8_t ui8_street_mode_function_enabled;
 	uint8_t ui8_street_mode_enabled;
@@ -302,100 +283,17 @@ typedef struct ui_vars_struct {
 	uint8_t ui8_street_mode_throttle_enabled;
 	uint8_t ui8_street_mode_hotkey_enabled;
 
-  uint16_t var_speed_graph_auto_max_min;
-  uint16_t var_speed_graph_max_x10;
-  uint16_t var_speed_graph_min_x10;
-  uint16_t var_speed_auto_thresholds;
-  uint16_t var_speed_threshold_max_x10;
-  uint16_t var_speed_threshold_min_x10;
-
-  uint32_t var_trip_distance_graph_auto_max_min_x10;
-  uint32_t var_trip_distance_graph_max_x10;
-  uint32_t var_trip_distance_graph_min_x10;
-
-  uint32_t var_odo_graph_auto_max_min;
-  uint32_t var_odo_graph_max;
-  uint32_t var_odo_graph_min;
-
-  uint8_t var_cadence_graph_auto_max_min;
-  uint8_t var_cadence_graph_max;
-  uint8_t var_cadence_graph_min;
-  uint8_t var_cadence_auto_thresholds;
-  uint8_t var_cadence_threshold_max;
-  uint8_t var_cadence_threshold_min;
-
-  uint8_t var_human_power_graph_auto_max_min;
-  uint8_t var_human_power_graph_max;
-  uint8_t var_human_power_graph_min;
-  uint8_t var_human_power_auto_thresholds;
-  uint8_t var_human_power_threshold_max;
-  uint8_t var_human_power_threshold_min;
-
-  uint8_t var_battery_power_graph_auto_max_min;
-  uint8_t var_battery_power_graph_max;
-  uint8_t var_battery_power_graph_min;
-  uint8_t var_battery_power_auto_thresholds;
-  uint8_t var_battery_power_threshold_max;
-  uint8_t var_battery_power_threshold_min;
-
-  uint8_t var_battery_voltage_graph_auto_max_min;
-  uint8_t var_battery_voltage_graph_max;
-  uint8_t var_battery_voltage_graph_min;
-  uint8_t var_battery_voltage_auto_thresholds;
-  uint8_t var_battery_voltage_threshold_max;
-  uint8_t var_battery_voltage_threshold_min;
-
-  uint8_t var_battery_current_graph_auto_max_min;
-  uint8_t var_battery_current_graph_max;
-  uint8_t var_battery_current_graph_min;
-  uint8_t var_battery_current_auto_thresholds;
-  uint8_t var_battery_current_threshold_max;
-  uint8_t var_battery_current_threshold_min;
-
-  uint8_t var_battery_soc_graph_auto_max_min;
-  uint8_t var_battery_soc_graph_max;
-  uint8_t var_battery_soc_graph_min;
-  uint8_t var_battery_soc_auto_thresholds;
-  uint8_t var_battery_soc_threshold_max;
-  uint8_t var_battery_soc_threshold_min;
-
-  uint8_t var_motor_temp_graph_auto_max_min;
-  uint8_t var_motor_temp_graph_max;
-  uint8_t var_motor_temp_graph_min;
-  uint8_t var_motor_temp_auto_thresholds;
-  uint8_t var_motor_temp_threshold_max;
-  uint8_t var_motor_temp_threshold_min;
-
-  uint8_t var_motor_erps_graph_auto_max_min;
-  uint8_t var_motor_erps_graph_max;
-  uint8_t var_motor_erps_graph_min;
-  uint8_t var_motor_erps_auto_thresholds;
-  uint8_t var_motor_erps_threshold_max;
-  uint8_t var_motor_erps_threshold_min;
-
-  uint8_t var_motor_pwm_graph_auto_max_min;
-  uint8_t var_motor_pwm_graph_max;
-  uint8_t var_motor_pwm_graph_min;
-  uint8_t var_motor_pwm_auto_thresholds;
-  uint8_t var_motor_pwm_threshold_max;
-  uint8_t var_motor_pwm_threshold_min;
-
-  uint8_t var_motor_foc_graph_auto_max_min;
-  uint8_t var_motor_foc_graph_max;
-  uint8_t var_motor_foc_graph_min;
-  uint8_t var_motor_foc_auto_thresholds;
-  uint8_t var_motor_foc_threshold_max;
-  uint8_t var_motor_foc_threshold_min;
-
   uint8_t ui8_pedal_cadence_fast_stop;
   uint8_t ui8_coast_brake_adc;
-  uint8_t ui8_adc_lights_current_offset;
   uint16_t ui16_adc_battery_current;
   uint8_t ui8_throttle_virtual;
   uint8_t ui8_throttle_virtual_step;
   uint8_t ui8_torque_sensor_filter;
   uint8_t ui8_torque_sensor_adc_threshold;
   uint8_t ui8_coast_brake_enable;
+
+  uint8_t ui8_ant_device_id;
+  uint8_t ui8_enter_bootloader;
 } ui_vars_t;
 
 ui_vars_t* get_ui_vars(void);
@@ -406,51 +304,21 @@ extern ui_vars_t ui_vars;
 
 // extern volatile uint8_t ui8_g_motorVariablesStabilized;
 
-// typedef struct {
-//   uint8_t major;
-//   uint8_t minor;
-//   uint8_t patch;
-// } tsdz2_firmware_version_t;
+typedef struct {
+  uint8_t major;
+  uint8_t minor;
+  uint8_t patch;
+} tsdz2_firmware_version_t;
 
-// void rt_processing(void);
-// void rt_processing_stop(void);
-// void rt_processing_start(void);
 
 // /**
 //  * Called from the main thread every 100ms
 //  *
 //  */
-// void copy_rt_to_ui_vars(void);
-
-// /// must be called from main() idle loop
-// void automatic_power_off_management(void);
-
-// void lcd_power_off(uint8_t updateDistanceOdo); // provided by LCD
-
-// /// Set correct backlight brightness for current headlight state
-// void set_lcd_backlight();
-
+void copy_rt_ui_vars(void);
+void set_conversions(void);
 void prepare_torque_sensor_calibration_table(void);
+void rt_processing(void);
 
-// void reset_wh(void);
-
-// extern uint8_t ui8_g_battery_soc;
-
-// extern tsdz2_firmware_version_t g_tsdz2_firmware_version;
-
-// extern volatile motor_init_status_t ui8_g_motor_init_status;
-
-// // Battery voltage (readed on motor controller):
-// #define ADC_BATTERY_VOLTAGE_PER_ADC_STEP_X10000 866
-
-// // Battery voltage (readed on LCD3):
-// // 30.0V --> 447 | 0.0671 volts per each ADC unit
-// // 40.0V --> 595 | 0.0672 volts per each ADC unit
-
-// // Possible values: 0, 1, 2, 3, 4, 5, 6
-// // 0 equal to no filtering and no delay, higher values will increase filtering but will also add bigger delay
-// #define BATTERY_VOLTAGE_FILTER_COEFFICIENT 3
-// #define BATTERY_CURRENT_FILTER_COEFFICIENT 2
-// #define MOTOR_CURRENT_FILTER_COEFFICIENT   2
-// #define PEDAL_POWER_FILTER_COEFFICIENT     3
-// #define PEDAL_CADENCE_FILTER_COEFFICIENT   3
+extern tsdz2_firmware_version_t g_tsdz2_firmware_version;
+extern volatile motor_init_status_t ui8_g_motor_init_status;

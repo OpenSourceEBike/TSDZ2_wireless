@@ -1,7 +1,9 @@
 # TSDZ2 Wireless
 
-- Forum message: [Fully wireless ANT+ BLE TSDZ2 mid drive motor (like Specialized Turbo Levo) -- Flexible OpenSource firmware](https://endless-sphere.com/forums/viewtopic.php?f=28&t=106346)
+- Forum message: [Fully wireless ANT+ BLE TSDZ2 mid drive motor (like Specialized Turbo Levo) -- Flexible OpenSource firmware](https://endless-sphere.com/forums/viewtopic.php?t=106346)
 - Developers: see [documentation](documentation/README.md)
+
+We are also developing our own wireless remote although any other comercial wireless EBike remote will work: https://github.com/OpenSource-EBike-firmware/ebike_wireless_remote
 
 
 TSDZ2 Wireless project aims
