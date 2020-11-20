@@ -17,6 +17,9 @@ jobs:
         
     - name: Install srecord
       run: sudo apt install srecord
+    
+    - name: Install nrfutil
+      run: sudo -H pip3 install nrfutil
 
     - name: make
       run: cd ./firmware && make
