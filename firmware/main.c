@@ -1071,7 +1071,7 @@ void ble_update_configurations_data(void)
     tx_data[17] = ui_vars.ui8_motor_max_current;
     tx_data[18] = ui_vars.ui8_motor_current_min_adc;
     tx_data[19] = ui_vars.ui8_ramp_up_amps_per_second_x10;
-    tx_data[20] = ui_vars.ui16_battery_low_voltage_cut_off_x10;
+    tx_data[19] = ui_vars.ui8_field_weakening;
     tx_data[21] = (uint8_t)(ui_vars.ui16_battery_low_voltage_cut_off_x10 & 0xff);
     tx_data[22] = (uint8_t)(ui_vars.ui16_battery_low_voltage_cut_off_x10 >> 8);
     tx_data[23] = ui_vars.ui8_motor_type;
@@ -1155,38 +1155,38 @@ void ble_update_configurations_data(void)
     tx_data[87] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[0][1] >> 8);
 
     tx_data[88] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[1][0] & 0xff);
-    tx_data[89] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[1][1] >> 8);
-    tx_data[90] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[1][0] & 0xff);
+    tx_data[89] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[1][0] >> 8);
+    tx_data[90] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[1][1] & 0xff);
     tx_data[91] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[1][1] >> 8);
 
     tx_data[92] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[2][0] & 0xff);
-    tx_data[93] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[2][1] >> 8);
-    tx_data[94] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[2][0] & 0xff);
+    tx_data[93] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[2][0] >> 8);
+    tx_data[94] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[2][1] & 0xff);
     tx_data[95] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[2][1] >> 8);
 
     tx_data[96] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[3][0] & 0xff);
-    tx_data[97] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[3][1] >> 8);
-    tx_data[98] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[3][0] & 0xff);
+    tx_data[97] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[3][0] >> 8);
+    tx_data[98] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[3][1] & 0xff);
     tx_data[99] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[3][1] >> 8);
 
     tx_data[100] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[4][0] & 0xff);
-    tx_data[101] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[4][1] >> 8);
-    tx_data[102] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[4][0] & 0xff);
+    tx_data[101] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[4][0] >> 8);
+    tx_data[102] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[4][1] & 0xff);
     tx_data[103] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[4][1] >> 8);
 
     tx_data[104] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[5][0] & 0xff);
-    tx_data[105] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[5][1] >> 8);
-    tx_data[106] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[5][0] & 0xff);
+    tx_data[105] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[5][0] >> 8);
+    tx_data[106] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[5][1] & 0xff);
     tx_data[107] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[5][1] >> 8);
 
     tx_data[108] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[6][0] & 0xff);
-    tx_data[109] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[6][1] >> 8);
-    tx_data[110] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[6][0] & 0xff);
+    tx_data[109] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[6][0] >> 8);
+    tx_data[110] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[6][1] & 0xff);
     tx_data[111] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[6][1] >> 8);
 
     tx_data[112] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[7][0] & 0xff);
-    tx_data[113] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[7][1] >> 8);
-    tx_data[114] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[7][0] & 0xff);
+    tx_data[113] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[7][0] >> 8);
+    tx_data[114] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[7][1] & 0xff);
     tx_data[115] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_left[7][1] >> 8);
 
     tx_data[116] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[0][0] & 0xff);
@@ -1195,38 +1195,38 @@ void ble_update_configurations_data(void)
     tx_data[119] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[0][1] >> 8);
 
     tx_data[120] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[1][0] & 0xff);
-    tx_data[121] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[1][1] >> 8);
-    tx_data[122] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[1][0] & 0xff);
+    tx_data[121] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[1][0] >> 8);
+    tx_data[122] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[1][1] & 0xff);
     tx_data[123] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[1][1] >> 8);
 
     tx_data[124] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[2][0] & 0xff);
-    tx_data[125] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[2][1] >> 8);
-    tx_data[126] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[2][0] & 0xff);
+    tx_data[125] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[2][0] >> 8);
+    tx_data[126] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[2][1] & 0xff);
     tx_data[127] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[2][1] >> 8);
 
     tx_data[128] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[3][0] & 0xff);
-    tx_data[129] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[3][1] >> 8);
-    tx_data[130] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[3][0] & 0xff);
+    tx_data[129] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[3][0] >> 8);
+    tx_data[130] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[3][1] & 0xff);
     tx_data[131] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[3][1] >> 8);
 
     tx_data[132] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[4][0] & 0xff);
-    tx_data[133] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[4][1] >> 8);
-    tx_data[134] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[4][0] & 0xff);
+    tx_data[133] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[4][0] >> 8);
+    tx_data[134] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[4][1] & 0xff);
     tx_data[135] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[4][1] >> 8);
 
     tx_data[136] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[5][0] & 0xff);
-    tx_data[137] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[5][1] >> 8);
-    tx_data[138] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[5][0] & 0xff);
+    tx_data[137] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[5][0] >> 8);
+    tx_data[138] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[5][1] & 0xff);
     tx_data[139] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[5][1] >> 8);
 
     tx_data[140] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[6][0] & 0xff);
-    tx_data[141] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[6][1] >> 8);
-    tx_data[142] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[6][0] & 0xff);
+    tx_data[141] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[6][0] >> 8);
+    tx_data[142] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[6][1] & 0xff);
     tx_data[143] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[6][1] >> 8);
 
     tx_data[144] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[7][0] & 0xff);
-    tx_data[145] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[7][1] >> 8);
-    tx_data[146] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[7][0] & 0xff);
+    tx_data[145] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[7][0] >> 8);
+    tx_data[146] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[7][1] & 0xff);
     tx_data[147] = (uint8_t)(ui_vars.ui16_torque_sensor_calibration_table_right[7][1] >> 8);
 
     tx_data[148] = ui_vars.ui8_street_mode_function_enabled;
