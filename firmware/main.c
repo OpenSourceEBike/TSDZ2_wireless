@@ -1070,8 +1070,8 @@ void ble_update_configurations_data(void)
     tx_data[16] = ui_vars.ui8_battery_max_current;
     tx_data[17] = ui_vars.ui8_motor_max_current;
     tx_data[18] = ui_vars.ui8_motor_current_min_adc;
-    tx_data[19] = ui_vars.ui8_ramp_up_amps_per_second_x10;
     tx_data[19] = ui_vars.ui8_field_weakening;
+    tx_data[20] = ui_vars.ui8_ramp_up_amps_per_second_x10;
     tx_data[21] = (uint8_t)(ui_vars.ui16_battery_low_voltage_cut_off_x10 & 0xff);
     tx_data[22] = (uint8_t)(ui_vars.ui16_battery_low_voltage_cut_off_x10 >> 8);
     tx_data[23] = ui_vars.ui8_motor_type;
