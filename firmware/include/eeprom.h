@@ -11,7 +11,7 @@
 
 #include "state.h"
 
-#define CONFIGURATIONS_VERSION 0xA3
+#define CONFIGURATIONS_VERSION 0xA6
 
 // EEPROM memory variables default values
 #define DEFAULT_VALUE_ASSIST_LEVEL                                  0
