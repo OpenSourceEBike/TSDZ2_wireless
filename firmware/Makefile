@@ -73,7 +73,6 @@ SRC_FILES += \
 	$(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage.c \
 	$(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage_sd.c \
 	$(SDK_ROOT)/components/libraries/fds/fds.c \
-	$(SDK_ROOT)/components/boards/boards.c \
 	$(SDK_ROOT)/components/ble/common/ble_advdata.c \
   $(SDK_ROOT)/components/ble/common/ble_conn_params.c \
   $(SDK_ROOT)/components/ble/common/ble_conn_state.c \
@@ -120,7 +119,7 @@ SRC_FILES += \
 	$(PROJ_DIR)/utils.c \
 	$(PROJ_DIR)/ble_services.c \
   $(PROJ_DIR)/main.c \
-	$(PROJ_DIR)/ble_project.c \
+  $(SDK_ROOT)/components/boards/boards.c \
  
 # Include folders common to all targets
 INC_FOLDERS += \
