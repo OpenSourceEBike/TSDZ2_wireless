@@ -52,6 +52,7 @@
 #include "boards.h"
 #include "nrf_bootloader_info.h"
 
+extern uint8_t ui8_g_battery_soc;
 ui_vars_t *mp_ui_vars;
 
 volatile uint8_t ui8_m_enter_bootloader = 0;
@@ -551,6 +552,7 @@ static void ant_id_write_handler(uint16_t conn_handle, ble_ant_id_t *p_ant_id, u
 
 static void tsdz2_write_handler_periodic(uint8_t *p_data, uint16_t len)
 {
+  ui_vars.ui8_assist_level = p_data[0];
 }
 
 static void tsdz2_write_handler_configurations(uint8_t *p_data, uint16_t len)
@@ -1021,19 +1023,45 @@ void eeprom_write_variables_and_reset(void)
 
 void ble_send_periodic_data(void)
 {
-  static uint8_t periodic_counter = 0;
-
   // send periodic to mobile app
   uint8_t tx_data[BLE_TSDZ2_PERIODIC_LEN] = {0};
-  periodic_counter++; // keep increasing each time
-  tx_data[0] = periodic_counter;
-  tx_data[1] = (uint8_t)(ui_vars.ui16_adc_battery_voltage & 0xff);
-  tx_data[2] = (uint8_t)(ui_vars.ui16_adc_battery_voltage >> 8);
-  tx_data[3] = ui_vars.ui8_battery_current_x5;
-  tx_data[4] = (uint8_t)(ui_vars.ui16_wheel_speed_x10 & 0xff);
-  tx_data[5] = ((uint8_t)(ui_vars.ui16_wheel_speed_x10 >> 8)) & 0x07;
-  // last 2 bits of adc_motor_current
-  tx_data[5] = ((uint8_t)((ui_vars.ui16_adc_battery_current & 0x300) >> 5));
+  tx_data[0] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
+  tx_data[1] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 >> 8);
+  tx_data[2] = ui_vars.ui8_battery_current_x5;
+  tx_data[3] = (uint8_t)(ui_vars.ui16_wheel_speed_x10 & 0xff);
+  tx_data[4] = (uint8_t)(ui_vars.ui16_wheel_speed_x10 >> 8);
+  tx_data[5] = ui_vars.ui8_braking;
+  tx_data[6] = ui_vars.ui8_motor_hall_sensors;
+  tx_data[7] = ui_vars.ui8_pas_pedal_right;
+  tx_data[8] = ui_vars.ui8_adc_throttle;
+  tx_data[9] = ui_vars.ui8_motor_temperature;
+  tx_data[10] = ui_vars.ui8_throttle;
+  tx_data[11] = (uint8_t)(ui_vars.ui16_adc_pedal_torque_sensor & 0xff);
+  tx_data[12] = (uint8_t)(ui_vars.ui16_adc_pedal_torque_sensor >> 8);
+  tx_data[13] = ui_vars.ui8_pedal_weight_with_offset;
+  tx_data[14] = ui_vars.ui8_pedal_weight;
+  tx_data[15] = ui_vars.ui8_pedal_cadence_filtered;
+  tx_data[16] = ui_vars.ui8_duty_cycle;
+  tx_data[17] = (uint8_t)(ui_vars.ui16_motor_speed_erps & 0xff);
+  tx_data[18] = (uint8_t)(ui_vars.ui16_motor_speed_erps >> 8);
+  tx_data[19] = ui_vars.ui8_foc_angle;
+  tx_data[20] = ui_vars.ui8_error_states;
+  tx_data[21] = ui_vars.ui8_motor_current_x5;
+  tx_data[22] = (uint8_t)(ui_vars.ui16_adc_battery_current & 0xff);
+  tx_data[23] = (uint8_t)(ui_vars.ui16_adc_battery_current >> 8);
+  tx_data[24] = ui_vars.ui8_assist_level;
+  tx_data[25] = (uint8_t)(ui_vars.ui16_pedal_power & 0xff);
+  tx_data[26] = (uint8_t)(ui_vars.ui16_pedal_power >> 8);
+  tx_data[27] = ui8_g_battery_soc;
+  tx_data[28] = (uint8_t)(ui_vars.ui32_odometer_x10 & 0xff);
+  tx_data[29] = (uint8_t)(ui_vars.ui32_odometer_x10 >> 8);
+  tx_data[30] = (uint8_t)(ui_vars.ui32_odometer_x10 >> 16);
+  tx_data[31] = (uint8_t)(ui_vars.ui32_odometer_x10 >> 24);
+  tx_data[28] = (uint8_t)(ui_vars.ui32_wh_x10 & 0xff);
+  tx_data[29] = (uint8_t)(ui_vars.ui32_wh_x10 >> 8);
+  tx_data[30] = (uint8_t)(ui_vars.ui32_wh_x10 >> 16);
+  tx_data[31] = (uint8_t)(ui_vars.ui32_wh_x10 >> 24);
+  
 
   if (m_conn_handle != BLE_CONN_HANDLE_INVALID)
   {
@@ -1283,11 +1311,11 @@ int main(void)
   while (1)
   {
     // every 50 ms
-    if (main_ticks % (500 / MSEC_PER_TICK) == 0)
+    if (main_ticks % (50 / MSEC_PER_TICK) == 0)
     {
       // exchange data from realtime layer to UI layer
       // do this in atomic way, disabling the real time layer (should be no problem as
-      // copy_rt_to_ui_vars() should be fast and take a small piece of the 100ms periodic realtime layer processing
+      // copy_rt_to_ui_vars() should be fast and take a small piece of the 50ms periodic realtime layer processing
       rt_processing_stop();
       copy_rt_ui_vars();
       rt_processing_start();

@@ -121,7 +121,8 @@ uint32_t ble_service_tsdz2_init(ble_tsdz2_t * p_tsdz2, const ble_tsdz2_init_t * 
   memset(&add_char_params, 0, sizeof(add_char_params));
   add_char_params.uuid             = TSDZ2_PERIODIC_UUID_CHAR;
   add_char_params.uuid_type        = p_tsdz2->uuid_type;
-  add_char_params.init_len         = BLE_TSDZ2_PERIODIC_LEN;
+  add_char_params.is_var_len       = true;
+  add_char_params.init_len         = sizeof(uint8_t);
   add_char_params.max_len          = BLE_TSDZ2_PERIODIC_LEN;
   add_char_params.char_props.read  = 1;
   add_char_params.char_props.write = 1;

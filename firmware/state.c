@@ -35,6 +35,8 @@ tsdz2_firmware_version_t g_tsdz2_firmware_version = { 0xff, 0, 0 };
 rt_vars_t rt_vars;
 ui_vars_t ui_vars;
 
+volatile bool m_reset_wh_flag = false;
+
 // Set to true if we should automatically convert kph -> mph and km -> mi
 bool screenConvertMiles = false;
 
@@ -226,7 +228,7 @@ void rt_send_tx_package(frame_type_t type) {
 }
 
 /**
- * Called from the main thread every 100ms
+ * Called from the main thread every 50ms
  *
  */
 void copy_rt_ui_vars(void) {
@@ -281,7 +283,7 @@ void copy_rt_ui_vars(void) {
   ui_vars.ui16_trip_b_avg_speed_x10 = rt_vars.ui16_trip_b_avg_speed_x10;
   ui_vars.ui16_trip_b_max_speed_x10 = rt_vars.ui16_trip_b_max_speed_x10;
 
-	ui_vars.ui32_odometer_x10 = rt_vars.ui32_odometer_x10;
+	// ui_vars.ui32_odometer_x10 = rt_vars.ui32_odometer_x10;
 	ui_vars.battery_energy_km_value_x100 = rt_vars.battery_energy_h_km.ui32_value_x100;
   ui_vars.ui16_adc_battery_current = rt_vars.ui16_adc_battery_current;
 
@@ -561,7 +563,287 @@ static void motor_init(void) {
   }
 }
 
-// Note: this called from ISR context every 50ms
+void rt_low_pass_filter_battery_voltage_current_power(void) {
+	static uint32_t ui32_battery_voltage_accumulated_x10000 = 0;
+	static uint16_t ui16_battery_current_accumulated_x5 = 0;
+  static uint16_t ui16_motor_current_accumulated_x5 = 0;
+
+	// low pass filter battery voltage
+	ui32_battery_voltage_accumulated_x10000 -=
+	    (ui32_battery_voltage_accumulated_x10000 >> BATTERY_VOLTAGE_FILTER_COEFFICIENT);
+
+	ui32_battery_voltage_accumulated_x10000 +=
+			((uint32_t) rt_vars.ui16_adc_battery_voltage * ADC_BATTERY_VOLTAGE_PER_ADC_STEP_X10000);
+
+	rt_vars.ui16_battery_voltage_filtered_x10 =
+			(((uint32_t) (ui32_battery_voltage_accumulated_x10000 >> BATTERY_VOLTAGE_FILTER_COEFFICIENT)) / 1000);
+
+	// low pass filter battery current
+	ui16_battery_current_accumulated_x5 -= ui16_battery_current_accumulated_x5 >> BATTERY_CURRENT_FILTER_COEFFICIENT;
+	ui16_battery_current_accumulated_x5 += (uint16_t) rt_vars.ui8_battery_current_x5;
+	rt_vars.ui16_battery_current_filtered_x5 = ui16_battery_current_accumulated_x5 >> BATTERY_CURRENT_FILTER_COEFFICIENT;
+
+  // low pass filter motor current
+  ui16_motor_current_accumulated_x5 -= ui16_motor_current_accumulated_x5 >> MOTOR_CURRENT_FILTER_COEFFICIENT;
+  ui16_motor_current_accumulated_x5 += (uint16_t) rt_vars.ui8_motor_current_x5;
+  rt_vars.ui16_motor_current_filtered_x5 = ui16_motor_current_accumulated_x5 >> MOTOR_CURRENT_FILTER_COEFFICIENT;
+
+	// full battery power, considering the power loss also inside the battery and cables, because we are using the battery resistance
+  //
+  uint16_t ui16_battery_power_filtered_x50 = rt_vars.ui16_battery_current_filtered_x5 * rt_vars.ui16_battery_voltage_filtered_x10;
+  rt_vars.ui16_battery_power_filtered = ui16_battery_power_filtered_x50 / 50;
+
+  // P = R * I^2
+  uint32_t ui32_temp = (uint32_t) rt_vars.ui16_battery_current_filtered_x5;
+  ui32_temp = ui32_temp * ui32_temp; // I * I
+  ui32_temp /= 25;
+
+  ui32_temp *= (uint32_t) rt_vars.ui16_battery_pack_resistance_x1000; // R * I * I
+  ui32_temp /= 20; // now is _x50
+  rt_vars.ui16_battery_power_loss = (uint16_t) (ui32_temp / 50);
+
+  rt_vars.ui16_full_battery_power_filtered_x50 = ui16_battery_power_filtered_x50 + (uint16_t) ui32_temp;
+}
+
+void rt_low_pass_filter_pedal_power(void) {
+	static uint32_t ui32_pedal_power_accumulated = 0;
+
+	// low pass filter
+	ui32_pedal_power_accumulated -= ui32_pedal_power_accumulated >> PEDAL_POWER_FILTER_COEFFICIENT;
+	ui32_pedal_power_accumulated += (uint32_t) rt_vars.ui16_pedal_power_x10 / 10;
+	rt_vars.ui16_pedal_power_filtered = ((uint32_t) (ui32_pedal_power_accumulated >> PEDAL_POWER_FILTER_COEFFICIENT));
+}
+
+void rt_calc_battery_voltage_soc(void) {
+	uint16_t ui16_fluctuate_battery_voltage_x10;
+
+	// calculate flutuate voltage, that depends on the current and battery pack resistance
+	ui16_fluctuate_battery_voltage_x10 =
+			(uint16_t) ((((uint32_t) rt_vars.ui16_battery_pack_resistance_x1000)
+					* ((uint32_t) rt_vars.ui16_battery_current_filtered_x5))
+					/ ((uint32_t) 500));
+	// now add fluctuate voltage value
+	rt_vars.ui16_battery_voltage_soc_x10 = rt_vars.ui16_battery_voltage_filtered_x10 + ui16_fluctuate_battery_voltage_x10;
+}
+
+void rt_calc_wh(void) {
+	static uint8_t ui8_1s_timer_counter = 0;
+	uint32_t ui32_temp = 0;
+
+	if (m_reset_wh_flag == false) {
+    if (rt_vars.ui16_full_battery_power_filtered_x50 > 0) {
+      rt_vars.ui32_wh_sum_x5 += rt_vars.ui16_full_battery_power_filtered_x50 / 10;
+      rt_vars.ui32_wh_sum_counter++;
+    }
+
+    // calc at 1s rate
+    if (++ui8_1s_timer_counter >= 20) {
+      ui8_1s_timer_counter = 0;
+
+      // avoid zero division
+      if (rt_vars.ui32_wh_sum_counter != 0) {
+        ui32_temp = rt_vars.ui32_wh_sum_counter / 36;
+        ui32_temp = (ui32_temp
+            * (rt_vars.ui32_wh_sum_x5 / rt_vars.ui32_wh_sum_counter))
+            / 500;
+      }
+
+      rt_vars.ui32_wh_x10 = rt_vars.ui32_wh_x10_offset + ui32_temp;
+    }
+	}
+}
+
+void reset_wh(void) {
+  m_reset_wh_flag = true;
+  rt_vars.ui32_wh_sum_x5 = 0;
+  rt_vars.ui32_wh_sum_counter = 0;
+  m_reset_wh_flag = false;
+}
+
+static void rt_calc_odometer(void) {
+  static uint8_t ui8_1s_timer_counter;
+	uint8_t ui8_01km_flag = 0;
+
+	// calc at 1s rate
+	if (++ui8_1s_timer_counter >= 20) {
+		ui8_1s_timer_counter = 0;
+
+		// calculate how many revolutions since last reset and convert to distance traveled
+		uint32_t ui32_temp = (rt_vars.ui32_wheel_speed_sensor_tick_counter
+				- rt_vars.ui32_wheel_speed_sensor_tick_counter_offset)
+				* ((uint32_t) rt_vars.ui16_wheel_perimeter);
+
+		// if traveled distance is more than 100 meters update all distance variables and reset
+		if (ui32_temp >= 100000) { // 100000 -> 100000 mm -> 0.1 km
+			// update all distance variables
+			// ui_vars.ui16_distance_since_power_on_x10 += 1;
+			rt_vars.ui32_odometer_x10 += 1;
+			ui8_01km_flag = 1;
+
+			// reset the always incrementing value (up to motor controller power reset) by setting the offset to current value
+			rt_vars.ui32_wheel_speed_sensor_tick_counter_offset =
+					rt_vars.ui32_wheel_speed_sensor_tick_counter;
+		}
+	}
+
+  // calc battery energy per km
+#define BATTERY_ENERGY_H_KM_FACTOR_X2 1800 // (60 * 60) / 2, each step at fixed interval of 100ms and apply 1 / 2 for have value from _x50 to _x100
+
+	// keep accumulating the energy
+  rt_vars.battery_energy_h_km.ui32_sum_x50 += rt_vars.ui16_full_battery_power_filtered_x50;
+
+  static uint16_t ui16_one_km_timeout_counter = 0;
+
+  // reset value if riding at very low speed or being stopped for 2 minutes
+  if (++ui16_one_km_timeout_counter >= 600) { // 600 equals min of average 2km/h for 2 minutes, at least
+    ui16_one_km_timeout_counter = 600; // keep on this state...
+    rt_vars.battery_energy_h_km.ui32_value_x100 = 0;
+    rt_vars.battery_energy_h_km.ui32_value_x10 = 0;
+    rt_vars.battery_energy_h_km.ui32_sum_x50 = 0;
+  }
+
+	if (ui8_01km_flag) {
+    ui16_one_km_timeout_counter = 0;
+    rt_vars.battery_energy_h_km.ui32_value_x100 = rt_vars.battery_energy_h_km.ui32_sum_x50 / BATTERY_ENERGY_H_KM_FACTOR_X2;
+    rt_vars.battery_energy_h_km.ui32_value_x10 = rt_vars.battery_energy_h_km.ui32_value_x100 / 10;
+    rt_vars.battery_energy_h_km.ui32_sum_x50 = 0;
+  }
+}
+
+static void rt_low_pass_filter_pedal_cadence(void) {
+	static uint16_t ui16_pedal_cadence_accumulated = 0;
+
+	// low pass filter
+	ui16_pedal_cadence_accumulated -= (ui16_pedal_cadence_accumulated >> PEDAL_CADENCE_FILTER_COEFFICIENT);
+	ui16_pedal_cadence_accumulated += (uint16_t) rt_vars.ui8_pedal_cadence;
+
+	// consider the filtered value only for medium and high values of the unfiltered value
+	if (rt_vars.ui8_pedal_cadence > 20) {
+		rt_vars.ui8_pedal_cadence_filtered =
+				(uint8_t) (ui16_pedal_cadence_accumulated
+						>> PEDAL_CADENCE_FILTER_COEFFICIENT);
+	} else {
+		rt_vars.ui8_pedal_cadence_filtered = rt_vars.ui8_pedal_cadence;
+	}
+}
+
+static void rt_calc_trips(void) {
+  static uint8_t ui8_1s_timer_counter = 0;
+  static uint8_t ui8_3s_timer_counter = 0;
+  static uint32_t ui32_wheel_speed_sensor_tick_counter_offset = 0;
+  
+  // used to determine if trip avg speed values have to be calculated :
+  // - on first time this function is called ; so set by dfault to 1
+  // - then every 1 meter traveled
+  static uint8_t ui8_calc_avg_speed_flag = 1;
+
+  // calculate how many revolutions since last reset ...
+  uint32_t wheel_ticks = rt_vars.ui32_wheel_speed_sensor_tick_counter
+      - ui32_wheel_speed_sensor_tick_counter_offset;
+
+  // ... and convert to distance traveled
+  uint32_t ui32_temp = wheel_ticks * ((uint32_t) rt_vars.ui16_wheel_perimeter);
+
+  // if traveled distance is more than 1 wheel turn update trip variables and reset
+  if (wheel_ticks >= 1) { 
+ 
+    ui8_calc_avg_speed_flag = 1;
+
+    // update all trip distance variables
+    rt_vars.ui32_trip_a_distance_x1000 += (ui32_temp / 1000);
+    rt_vars.ui32_trip_b_distance_x1000 += (ui32_temp / 1000);
+
+    // update trip A max speed
+    if (rt_vars.ui16_wheel_speed_x10 > rt_vars.ui16_trip_a_max_speed_x10)
+      rt_vars.ui16_trip_a_max_speed_x10 = rt_vars.ui16_wheel_speed_x10;
+
+    // update trip B max speed
+    if (rt_vars.ui16_wheel_speed_x10 > rt_vars.ui16_trip_b_max_speed_x10)
+      rt_vars.ui16_trip_b_max_speed_x10 = rt_vars.ui16_wheel_speed_x10;
+    
+    // reset the always incrementing value (up to motor controller power reset) by setting the offset to current value
+    ui32_wheel_speed_sensor_tick_counter_offset =	rt_vars.ui32_wheel_speed_sensor_tick_counter;
+  }
+
+  // calculate trip A and B average speeds (every 3s)
+  if (ui8_calc_avg_speed_flag == 1 && ++ui8_3s_timer_counter >= 60) {
+    rt_vars.ui16_trip_a_avg_speed_x10 = (rt_vars.ui32_trip_a_distance_x1000 * 36) / rt_vars.ui32_trip_a_time;
+    rt_vars.ui16_trip_b_avg_speed_x10 = (rt_vars.ui32_trip_b_distance_x1000 * 36) / rt_vars.ui32_trip_b_time;
+    
+    // reset 3s timer counter and flag
+    ui8_calc_avg_speed_flag = 0;    
+    ui8_3s_timer_counter = 0;
+  }
+
+  // at 1s rate : update all trip time variables if wheel is turning
+  if (++ui8_1s_timer_counter >= 20) {
+    if (rt_vars.ui16_wheel_speed_x10 > 0) {
+      rt_vars.ui32_trip_a_time += 1;
+      rt_vars.ui32_trip_b_time += 1;
+    }
+    ui8_1s_timer_counter = 0;
+  }
+}
+
+uint8_t rt_first_time_management(void) {
+  static uint32_t ui32_counter = 0;
+	static uint8_t ui8_motor_controller_init = 1;
+	uint8_t ui8_status = 0;
+
+  // wait 5 seconds to help motor variables data stabilize
+  if (ui8_g_motorVariablesStabilized == 0 &&
+      (g_motor_init_state == MOTOR_INIT_READY)) {
+  
+    if (++ui32_counter > 100) {
+      ui8_g_motorVariablesStabilized = 1;
+    }
+  }
+
+	// don't update LCD up to we get first communication package from the motor controller
+	if (ui8_motor_controller_init
+			&& (ui8_m_usart1_received_first_package < 10)) {
+		ui8_status = 1;
+	}
+	// this will be executed only 1 time at startup
+  else if (ui8_motor_controller_init &&
+      ui8_g_motorVariablesStabilized) {
+
+    ui8_motor_controller_init = 0;
+
+    // reset Wh value if battery voltage is over ui16_battery_voltage_reset_wh_counter_x10 (value configured by user)
+    if (((uint32_t) ui_vars.ui16_adc_battery_voltage * ADC_BATTERY_VOLTAGE_PER_ADC_STEP_X10000)
+        > ((uint32_t) ui_vars.ui16_battery_voltage_reset_wh_counter_x10
+            * 1000)) {
+      ui_vars.ui32_wh_x10_offset = 0;
+    }
+
+    // if (ui_vars.ui8_offroad_feature_enabled
+    //     && ui_vars.ui8_offroad_enabled_on_startup) {
+    //   ui_vars.ui8_offroad_mode = 1;
+    // }
+  }
+
+	return ui8_status;
+}
+
+void rt_calc_battery_soc(void) {
+	uint32_t ui32_temp;
+
+	ui32_temp = rt_vars.ui32_wh_x10 * 100;
+
+	if (rt_vars.ui32_wh_x10_100_percent > 0) {
+		ui32_temp /= rt_vars.ui32_wh_x10_100_percent;
+	} else {
+		ui32_temp = 0;
+	}
+
+	if (ui32_temp > 100)
+		ui32_temp = 100;
+
+  ui8_g_battery_soc = (uint8_t) (100 - ui32_temp);
+}
+
+// Note: this is called from ISR context every 50ms
 void rt_processing(void)
 {
   communications();
@@ -570,6 +852,19 @@ void rt_processing(void)
   // montor init processing must be done when exiting the configurations menu
   // once motor is initialized, this should take almost no processing time
   motor_init();
+
+  /************************************************************************************************/
+  // now do all the calculations that must be done every 50ms
+  rt_low_pass_filter_battery_voltage_current_power();
+  rt_low_pass_filter_pedal_power();
+  rt_low_pass_filter_pedal_cadence();
+  rt_calc_battery_voltage_soc();
+  rt_calc_odometer();
+  rt_calc_trips();
+  rt_calc_wh();
+  rt_first_time_management();
+  rt_calc_battery_soc();
+  /************************************************************************************************/
 }
 
 void prepare_torque_sensor_calibration_table(void) {
