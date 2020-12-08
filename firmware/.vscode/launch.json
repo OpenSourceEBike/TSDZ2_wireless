@@ -41,14 +41,10 @@
                     "text": "monitor init"
                 },
                 {
-                    "text": "monitor reset init"
+                    "text": "monitor reset halt"
                 },
                 {
-                    "text": "monitor halt"
-                },
-                {                    
-                    "description": "Erase PSEL",
-                    "text": "monitor flash write_image erase ${workspaceFolder}/include/pselerase_xxaa.hex"
+                  "text": "monitor nrf51 mass_erase"
                 },
                 {
                     "description": "Flash firmware",
