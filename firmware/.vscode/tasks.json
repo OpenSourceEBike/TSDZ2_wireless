@@ -20,6 +20,22 @@
             }
         },
         {
+          "label": "build development",
+          "type": "shell",
+          "args": [],
+          "options": {
+              "cwd": "${workspaceFolder}"
+          },
+          "linux": {
+              "command": "make for_development_only"
+          },
+          "problemMatcher": [],
+          "group": {
+              "kind": "build",
+              "isDefault": true
+          }
+        },
+        {
             "label": "clean",
             "type": "shell",
             "args": [],
