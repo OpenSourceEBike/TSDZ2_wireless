@@ -327,7 +327,7 @@ void eeprom_init_variables(void) {
 			m_configurations.ui8_system_power_off_time_minutes;
 	ui_vars->ui16_battery_pack_resistance_x1000 =
 			m_configurations.ui16_battery_pack_resistance_x1000;
-	rt_vars->ui32_odometer_x10 = m_configurations.ui32_odometer_x10; // odometer value should reside on RT vars
+	ui_vars->ui32_odometer_x10 = m_configurations.ui32_odometer_x10;
 	ui_vars->ui8_walk_assist_feature_enabled =
 			m_configurations.ui8_walk_assist_feature_enabled;
 	COPY_ARRAY(ui_vars, &m_configurations, ui8_walk_assist_level_factor);

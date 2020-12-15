@@ -4,7 +4,18 @@
 #include <stdint.h>
 #include "state.h"
 
-#define ASSIST_LEVEL_NUMBER 20
+#define ASSIST_LEVEL_NUMBER 7
+
+// Possible values: 0, 1, 2, 3, 4, 5, 6
+// 0 equal to no filtering and no delay, higher values will increase filtering but will also add bigger delay
+#define BATTERY_VOLTAGE_FILTER_COEFFICIENT 3
+#define BATTERY_CURRENT_FILTER_COEFFICIENT 2
+#define MOTOR_CURRENT_FILTER_COEFFICIENT   2
+#define PEDAL_POWER_FILTER_COEFFICIENT     3
+#define PEDAL_CADENCE_FILTER_COEFFICIENT   3
+
+// Battery voltage (readed on motor controller):
+#define ADC_BATTERY_VOLTAGE_PER_ADC_STEP_X10000 866
 
 typedef enum {
   MOTOR_INIT_GET_MOTOR_ALIVE,
