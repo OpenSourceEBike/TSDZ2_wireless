@@ -1668,7 +1668,7 @@
 // <i> The total amount of flash memory that is used by FDS amounts to @ref FDS_VIRTUAL_PAGES * @ref FDS_VIRTUAL_PAGE_SIZE * 4 bytes.
 
 #ifndef FDS_VIRTUAL_PAGES
-#define FDS_VIRTUAL_PAGES 5
+#define FDS_VIRTUAL_PAGES 2
 #endif
 
 // <o> FDS_VIRTUAL_PAGE_SIZE  - The size of a virtual flash page.
@@ -1690,7 +1690,7 @@
 // <i> As a result the reserved space can be used by other modules.
 
 #ifndef FDS_VIRTUAL_PAGES_RESERVED
-#define FDS_VIRTUAL_PAGES_RESERVED 1
+#define FDS_VIRTUAL_PAGES_RESERVED 2
 #endif
 
 // </h> 
@@ -1738,7 +1738,7 @@
 // <i> Additionally, they will not be garbage collected until they are deleted.
 //==========================================================
 #ifndef FDS_CRC_CHECK_ON_READ
-#define FDS_CRC_CHECK_ON_READ 0
+#define FDS_CRC_CHECK_ON_READ 1
 #endif
 // <o> FDS_CRC_CHECK_ON_WRITE  - Perform a CRC check on newly written records.
  
@@ -1749,7 +1749,7 @@
 // <0=> Disabled 
 
 #ifndef FDS_CRC_CHECK_ON_WRITE
-#define FDS_CRC_CHECK_ON_WRITE 0
+#define FDS_CRC_CHECK_ON_WRITE 1
 #endif
 
 // </e>

@@ -64,6 +64,7 @@ SRC_FILES += \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ant.c \
+	$(SDK_ROOT)/components/libraries/crc16/crc16.c \
 	$(SDK_ROOT)/components/libraries/fifo/app_fifo.c \
   $(SDK_ROOT)/components/libraries/uart/app_uart_fifo.c \
 	$(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_uart.c \
@@ -73,7 +74,6 @@ SRC_FILES += \
 	$(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage.c \
 	$(SDK_ROOT)/components/libraries/fstorage/nrf_fstorage_sd.c \
 	$(SDK_ROOT)/components/libraries/fds/fds.c \
-	$(SDK_ROOT)/components/boards/boards.c \
 	$(SDK_ROOT)/components/ble/common/ble_advdata.c \
   $(SDK_ROOT)/components/ble/common/ble_conn_params.c \
   $(SDK_ROOT)/components/ble/common/ble_conn_state.c \
@@ -120,7 +120,7 @@ SRC_FILES += \
 	$(PROJ_DIR)/utils.c \
 	$(PROJ_DIR)/ble_services.c \
   $(PROJ_DIR)/main.c \
-	$(PROJ_DIR)/ble_project.c \
+  $(SDK_ROOT)/components/boards/boards.c \
  
 # Include folders common to all targets
 INC_FOLDERS += \
@@ -154,6 +154,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/modules/nrfx/drivers/include \
   $(SDK_ROOT)/components/libraries/hardfault \
   $(SDK_ROOT)/components/libraries/balloc \
+	$(SDK_ROOT)/components/libraries/crc16 \
   $(SDK_ROOT)/components/libraries/util \
   $(SDK_ROOT)/modules/nrfx \
   $(SDK_ROOT)/components/softdevice/common \
@@ -284,6 +285,8 @@ LIB_FILES += -lc -lnosys -lm
 # Default target - first one defined
 default: TSDZ2_wireless TSDZ2_bootloader bl_settings final OTA
 
+for_development_only: TSDZ2_wireless bl_settings final
+
 
 TSDZ2_bootloader:
 	cd ./bootloader/firmware && make -f ./Makefile
@@ -293,7 +296,7 @@ final:
 	srec_cat $(OUTPUT_DIRECTORY)/TSDZ2_wireless.hex -intel $(OUTPUT_DIRECTORY)/bl_settings.hex -intel $(BOOTLOADER_HEX) -intel -o $(OUTPUT_DIRECTORY)/TSDZ2_wireless_combined.hex -intel -address-length=4
 
 bl_settings:
-	$(SREC_PATH)nrfutil settings generate --family NRF52840 --application $(OUTPUT_DIRECTORY)/TSDZ2_wireless.hex --application-version-string $(APP_VER_MAJOR).$(APP_VER_MINOR).0 --bootloader-version 1 --bl-settings-version 2 $(OUTPUT_DIRECTORY)/bl_settings.hex 
+	$(SREC_PATH)nrfutil settings generate --family NRF52840 --application $(OUTPUT_DIRECTORY)/TSDZ2_wireless.hex --application-version-string $(APP_VER_MAJOR).$(APP_VER_MINOR).0 --bootloader-version 1 --bl-settings-version 2 $(OUTPUT_DIRECTORY)/bl_settings.hex
 
 OTA:
 	$(SREC_PATH)nrfutil pkg generate --hw-version 52 --sd-req 0xB9 --application-version-string $(APP_VER_MAJOR).$(APP_VER_MINOR).0 --application $(OUTPUT_DIRECTORY)/TSDZ2_wireless.hex --key-file private.key --app-boot-validation VALIDATE_ECDSA_P256_SHA256 $(OUTPUT_DIRECTORY)/TSDZ2_wireless_ota_update.zip
