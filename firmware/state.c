@@ -461,8 +461,7 @@ static void motor_init(void) {
   static uint16_t ui16_motor_init_command_error_cnt = 0;
   static uint8_t ui8_motor_init_status_cnt = 0;
 
-  if ((g_motor_init_state != MOTOR_INIT_ERROR) &&
-      (g_motor_init_state != MOTOR_INIT_ERROR_GET_FIRMWARE_VERSION) &&
+  if ((g_motor_init_state != MOTOR_INIT_ERROR_GET_FIRMWARE_VERSION) &&
       (g_motor_init_state != MOTOR_INIT_ERROR_FIRMWARE_VERSION) &&
       (g_motor_init_state != MOTOR_INIT_READY))
   {
