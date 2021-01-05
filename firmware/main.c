@@ -67,7 +67,7 @@ typedef enum {
   TSDZ2_POWER_STATE_ON,
 } TSDZ2_power_state_t;
 
-TSDZ2_power_state_t m_TSDZ2_power_state = TSDZ2_POWER_STATE_OFF;
+TSDZ2_power_state_t m_TSDZ2_power_state = TSDZ2_POWER_STATE_OFF_START;
 
 #define MSEC_PER_TICK 10
 APP_TIMER_DEF(main_timer);
@@ -1322,7 +1322,7 @@ void TSDZ2_power_manage(void)
         if (counter == 0) {
           // reset state variables
           uart_reset_rx_buffer();
-          g_motor_init_state = MOTOR_INIT_GET_MOTOR_ALIVE;
+          g_motor_init_state = MOTOR_INIT_OFF;
           g_motor_init_state_conf = MOTOR_INIT_CONFIG_SEND_CONFIG;
           ui8_g_motor_init_status = MOTOR_INIT_STATUS_RESET;
 
@@ -1336,6 +1336,7 @@ void TSDZ2_power_manage(void)
 
     case TSDZ2_POWER_STATE_ON_START:
       motor_power_enable(true);
+      g_motor_init_state = MOTOR_INIT_GET_MOTOR_ALIVE;
       m_TSDZ2_power_state = TSDZ2_POWER_STATE_ON;
       break;
 
@@ -1344,7 +1345,7 @@ void TSDZ2_power_manage(void)
       break;
   }
 }
-
+ 
 int main(void)
 {
   mp_ui_vars = get_ui_vars();
