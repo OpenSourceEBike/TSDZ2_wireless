@@ -22,6 +22,7 @@
 uint8_t ui8_rx_buffer[UART_NUMBER_DATA_BYTES_TO_RECEIVE];
 uint8_t ui8_tx_buffer[UART_NUMBER_DATA_BYTES_TO_SEND];
 volatile uint8_t ui8_received_package_flag = 0;
+static uint8_t ui8_m_state_machine = 0;
 
 uint8_t* uart_get_rx_buffer(void)
 {
@@ -41,7 +42,6 @@ uint8_t uart_received_package(void)
 void uart_event_handler(app_uart_evt_t * p_event)
 {
   uint8_t ui8_byte_received;
-  static uint8_t ui8_state_machine = 0;
   static uint8_t ui8_rx[UART_NUMBER_DATA_BYTES_TO_RECEIVE];
   static uint8_t ui8_rx_cnt = 0;
   uint8_t ui8_i;
@@ -52,15 +52,15 @@ void uart_event_handler(app_uart_evt_t * p_event)
     case APP_UART_DATA_READY:
       //Data is ready on the UART
       (void) app_uart_get(&ui8_byte_received);
-      switch (ui8_state_machine)
+      switch (ui8_m_state_machine)
       {
         case 0:
         if (ui8_byte_received == 0x43) { // see if we get start package byte
           ui8_rx[0] = ui8_byte_received;
-          ui8_state_machine = 1;
+          ui8_m_state_machine = 1;
         }
         else {
-          ui8_state_machine = 0;
+          ui8_m_state_machine = 0;
         }
 
         ui8_rx_cnt = 0;
@@ -68,7 +68,7 @@ void uart_event_handler(app_uart_evt_t * p_event)
 
         case 1:
           ui8_rx[1] = ui8_byte_received;
-          ui8_state_machine = 2;
+          ui8_m_state_machine = 2;
         break;
 
         case 2:
@@ -78,7 +78,7 @@ void uart_event_handler(app_uart_evt_t * p_event)
         // reset if it is the last byte of the package and index is out of bounds
         if (ui8_rx_cnt >= ui8_rx[1])
         {
-          ui8_state_machine = 0;
+          ui8_m_state_machine = 0;
 
           // just to make easy next calculations
           ui16_crc_rx = 0xffff;
@@ -104,18 +104,18 @@ void uart_event_handler(app_uart_evt_t * p_event)
         break;
 
         default:
-          ui8_state_machine = 0;
+          ui8_m_state_machine = 0;
           break;
       }
     break;
 
     case APP_UART_COMMUNICATION_ERROR:
-      ui8_state_machine = 0;
+      ui8_m_state_machine = 0;
       // APP_ERROR_HANDLER(p_event->data.error_communication);
       break;
 
     case APP_UART_FIFO_ERROR:
-      ui8_state_machine = 0;
+      ui8_m_state_machine = 0;
       // APP_ERROR_HANDLER(p_event->data.error_code);
       break;
 
@@ -164,6 +164,12 @@ const uint8_t* uart_get_rx_buffer_rdy(void)
 
   uint8_t *r = uart_get_rx_buffer();
   return r;
+}
+
+void uart_reset_rx_buffer(void)
+{
+  ui8_m_state_machine = 0; // reset state machine, will ignore any data on RX buffer
+  uart_get_rx_buffer_rdy_clear();
 }
 
 void uart_get_rx_buffer_rdy_clear(void)

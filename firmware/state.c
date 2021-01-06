@@ -26,7 +26,7 @@ uint8_t ui8_g_battery_soc;
 volatile uint8_t ui8_g_motorVariablesStabilized = 0;
 
 volatile uint8_t m_get_tsdz2_firmware_version; // true if we are simulating a motor (and therefore not talking on serial at all)
-volatile motor_init_state_t g_motor_init_state = MOTOR_INIT_GET_MOTOR_ALIVE;
+volatile motor_init_state_t g_motor_init_state = MOTOR_INIT_OFF;
 volatile motor_init_state_config_t g_motor_init_state_conf = MOTOR_INIT_CONFIG_SEND_CONFIG;
 volatile motor_init_status_t ui8_g_motor_init_status = MOTOR_INIT_STATUS_RESET;
 
@@ -461,14 +461,13 @@ static void motor_init(void) {
   static uint16_t ui16_motor_init_command_error_cnt = 0;
   static uint8_t ui8_motor_init_status_cnt = 0;
 
-  if ((g_motor_init_state != MOTOR_INIT_ERROR) &&
-      (g_motor_init_state != MOTOR_INIT_ERROR_GET_FIRMWARE_VERSION) &&
+  if ((g_motor_init_state != MOTOR_INIT_ERROR_GET_FIRMWARE_VERSION) &&
       (g_motor_init_state != MOTOR_INIT_ERROR_FIRMWARE_VERSION) &&
       (g_motor_init_state != MOTOR_INIT_READY))
   {
     switch (g_motor_init_state) {
       case MOTOR_INIT_GET_MOTOR_ALIVE:
-        ui16_motor_init_command_error_cnt = 1000;
+        ui16_motor_init_command_error_cnt = 2000;
         g_motor_init_state = MOTOR_INIT_WAIT_MOTOR_ALIVE;
         // not break here to follow for next case
 
@@ -476,12 +475,12 @@ static void motor_init(void) {
         // check timeout
         ui16_motor_init_command_error_cnt--;
         if (ui16_motor_init_command_error_cnt == 0) {
-          g_motor_init_state = MOTOR_INIT_GET_MOTOR_ALIVE;
+          g_motor_init_state = MOTOR_INIT_ERROR_ALIVE;
         }
         break;
 
       case MOTOR_INIT_GET_MOTOR_FIRMWARE_VERSION:
-        ui16_motor_init_command_error_cnt = 1000; // 10 seconds
+        ui16_motor_init_command_error_cnt = 2000; // 10 seconds
         g_motor_init_state = MOTOR_INIT_WAIT_MOTOR_FIRMWARE_VERSION;
         // not break here to follow for next case
 
@@ -506,7 +505,7 @@ static void motor_init(void) {
         }
 
       case MOTOR_INIT_SET_CONFIGURATIONS:
-        ui16_motor_init_command_error_cnt = 1000;
+        ui16_motor_init_command_error_cnt = 2000;
         g_motor_init_state_conf = MOTOR_INIT_CONFIG_SEND_CONFIG;
         g_motor_init_state = MOTOR_INIT_WAIT_CONFIGURATIONS_OK;
         // not break here to follow for next case
@@ -523,7 +522,7 @@ static void motor_init(void) {
         switch (g_motor_init_state_conf) {
           case MOTOR_INIT_CONFIG_SEND_CONFIG:
             rt_send_tx_package(FRAME_TYPE_CONFIGURATIONS);
-            ui8_motor_init_status_cnt = 10;
+            ui8_motor_init_status_cnt = 20;
             g_motor_init_state_conf = MOTOR_INIT_CONFIG_GET_STATUS;
             break;
 

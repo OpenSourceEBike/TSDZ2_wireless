@@ -59,6 +59,16 @@ volatile uint8_t ui8_m_enter_bootloader = 0;
 volatile uint8_t ui8_m_ant_device_id = 0;
 volatile uint8_t ui8_m_flash_configurations = 0;
 
+typedef enum {
+  TSDZ2_POWER_STATE_OFF_START,
+  TSDZ2_POWER_STATE_OFF_WAIT,
+  TSDZ2_POWER_STATE_OFF,
+  TSDZ2_POWER_STATE_ON_START,
+  TSDZ2_POWER_STATE_ON,
+} TSDZ2_power_state_t;
+
+TSDZ2_power_state_t m_TSDZ2_power_state = TSDZ2_POWER_STATE_OFF_START;
+
 #define MSEC_PER_TICK 10
 APP_TIMER_DEF(main_timer);
 #define MAIN_INTERVAL APP_TIMER_TICKS(MSEC_PER_TICK)
@@ -552,7 +562,25 @@ static void ant_id_write_handler(uint16_t conn_handle, ble_ant_id_t *p_ant_id, u
 
 static void tsdz2_write_handler_periodic(uint8_t *p_data, uint16_t len)
 {
-  ui_vars.ui8_assist_level = p_data[0];
+  if (p_data[0] != 255)
+    ui_vars.ui8_assist_level = p_data[0];
+
+  if (p_data[1] != 255) 
+  {
+    switch (p_data[1]) {
+      case 1:
+        // turn on TSDZ2 motor controller
+        if (m_TSDZ2_power_state == TSDZ2_POWER_STATE_OFF)
+          m_TSDZ2_power_state = TSDZ2_POWER_STATE_ON_START;
+        break;
+
+      case 2:
+        // turn off TSDZ2 motor controller
+        if (m_TSDZ2_power_state == TSDZ2_POWER_STATE_ON)
+          m_TSDZ2_power_state = TSDZ2_POWER_STATE_OFF_START;
+        break;
+    }
+  } 
 }
 
 static void tsdz2_write_handler_configurations(uint8_t *p_data, uint16_t len)
@@ -1030,7 +1058,7 @@ void ble_send_periodic_data(void)
   tx_data[2] = ui_vars.ui8_battery_current_x5;
   tx_data[3] = (uint8_t)(ui_vars.ui16_wheel_speed_x10 & 0xff);
   tx_data[4] = (uint8_t)(ui_vars.ui16_wheel_speed_x10 >> 8);
-  tx_data[5] = ui_vars.ui8_braking;
+  tx_data[5] = (uint8_t) ((ui_vars.ui8_braking & 1) | ((ui_vars.ui8_lights & 1) << 1));
   tx_data[6] = ui_vars.ui8_motor_hall_sensors;
   tx_data[7] = ui_vars.ui8_pas_pedal_right;
   tx_data[8] = ui_vars.ui8_adc_throttle;
@@ -1061,7 +1089,7 @@ void ble_send_periodic_data(void)
   tx_data[29] = (uint8_t)(ui_vars.ui32_wh_x10 >> 8);
   tx_data[30] = (uint8_t)(ui_vars.ui32_wh_x10 >> 16);
   tx_data[31] = (uint8_t)(ui_vars.ui32_wh_x10 >> 24);
-  
+  tx_data[32] = (uint8_t) g_motor_init_state;
 
   if (m_conn_handle != BLE_CONN_HANDLE_INVALID)
   {
@@ -1277,12 +1305,52 @@ void ble_update_configurations_data(void)
   }
 }
 
+void TSDZ2_power_manage(void)
+{
+  static uint8_t counter;
+
+  switch (m_TSDZ2_power_state)
+  {
+    case TSDZ2_POWER_STATE_OFF_START:
+      motor_power_enable(false);
+      counter = 10;
+      m_TSDZ2_power_state = TSDZ2_POWER_STATE_OFF_WAIT;
+      break;
+
+    case TSDZ2_POWER_STATE_OFF_WAIT:
+        counter--;
+        if (counter == 0) {
+          // reset state variables
+          uart_reset_rx_buffer();
+          g_motor_init_state = MOTOR_INIT_OFF;
+          g_motor_init_state_conf = MOTOR_INIT_CONFIG_SEND_CONFIG;
+          ui8_g_motor_init_status = MOTOR_INIT_STATUS_RESET;
+
+          m_TSDZ2_power_state = TSDZ2_POWER_STATE_OFF;
+        }
+      break;
+
+      case TSDZ2_POWER_STATE_OFF:
+        // do nothing
+      break;
+
+    case TSDZ2_POWER_STATE_ON_START:
+      motor_power_enable(true);
+      g_motor_init_state = MOTOR_INIT_GET_MOTOR_ALIVE;
+      m_TSDZ2_power_state = TSDZ2_POWER_STATE_ON;
+      break;
+
+    case TSDZ2_POWER_STATE_ON:
+      // do nothing
+      break;
+  }
+}
+ 
 int main(void)
 {
   mp_ui_vars = get_ui_vars();
   // Initialize the async SVCI interface to bootloader before any interrupts are enabled.
   pins_init();
-  motor_power_enable(true);
   lfclk_config(); // needed by the APP_TIMER
   init_app_timers();
   eeprom_init();
@@ -1321,8 +1389,8 @@ int main(void)
       rt_processing_start();
 
       ble_send_periodic_data();
-
       ble_update_configurations_data();
+      TSDZ2_power_manage();
     }
 
     // every 1 second
