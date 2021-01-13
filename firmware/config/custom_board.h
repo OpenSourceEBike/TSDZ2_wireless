@@ -47,7 +47,7 @@ extern "C" {
 #if defined NRF52840_MDK_USB_DONGLE
 #include "nrf52840_mdk_usb_dongle.h"
 #else
-#error "Board is not defined"
+// #error "Board is not defined"
 #endif
 
 #ifdef __cplusplus
