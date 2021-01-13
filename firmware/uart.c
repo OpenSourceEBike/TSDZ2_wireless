@@ -16,6 +16,7 @@
 #include "app_uart.h"
 #include "custom_board.h"
 #include "utils.h"
+#include "pins.h"
 
 #define UART_IRQ_PRIORITY APP_IRQ_PRIORITY_LOW
 
@@ -135,13 +136,13 @@ void uart_init(void)
   uint32_t err_code;
   app_uart_comm_params_t const comm_params =
   {
-      .rx_pin_no    = RX_PIN_NUMBER,
-      .tx_pin_no    = TX_PIN_NUMBER,
-      .rts_pin_no   = RTS_PIN_NUMBER,
-      .cts_pin_no   = CTS_PIN_NUMBER,
-      .flow_control = APP_UART_FLOW_CONTROL_DISABLED,
-      .use_parity   = false,
-      .baud_rate    = UART_BAUDRATE_BAUDRATE_Baud19200
+    .rx_pin_no    = RX_PIN_NUMBER,
+    .tx_pin_no    = TX_PIN_NUMBER,
+    .rts_pin_no   = RTS_PIN_NUMBER,
+    .cts_pin_no   = CTS_PIN_NUMBER,
+    .flow_control = APP_UART_FLOW_CONTROL_DISABLED,
+    .use_parity   = false,
+    .baud_rate    = UART_BAUDRATE_BAUDRATE_Baud19200
   };
 
   APP_UART_FIFO_INIT(&comm_params,
