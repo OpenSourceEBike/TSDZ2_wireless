@@ -1,6 +1,6 @@
-update=Fri 10 Jul 2020 22:59:47 BST
+update=sáb 16 jan 2021 18:56:24
 version=1
-last_client=kicad
+last_client=eeschema
 [general]
 version=1
 RootSch=
@@ -30,3 +30,14 @@ NetIExt=net
 [eeschema]
 version=1
 LibDir=
+[eeschema/libraries]
+[schematic_editor]
+version=1
+PageLayoutDescrFile=
+PlotDirectoryName=./schematic.svg
+SubpartIdSeparator=0
+SubpartFirstId=65
+NetFmtName=
+SpiceAjustPassiveValues=0
+LabSize=50
+ERC_TestSimilarLabels=1
