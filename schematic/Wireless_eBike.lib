@@ -1,11 +1,11 @@
 EESchema-LIBRARY Version 2.4
 #encoding utf-8
 #
-# Wireless_eBike_6-Way_Higo-Dongle
+# 6-Way_Higo-Dongle
 #
-DEF Wireless_eBike_6-Way_Higo-Dongle K 0 40 Y Y 1 F N
+DEF 6-Way_Higo-Dongle K 0 40 Y Y 1 F N
 F0 "K" 0 -250 60 H V C CNN
-F1 "Wireless_eBike_6-Way_Higo-Dongle" -50 550 60 H V C CNN
+F1 "6-Way_Higo-Dongle" -50 550 60 H V C CNN
 F2 "" 0 0 60 H V C CNN
 F3 "" 0 0 60 H V C CNN
 DRAW
@@ -35,11 +35,11 @@ X White/Vin 6 550 -100 200 L 50 50 1 1 w
 ENDDRAW
 ENDDEF
 #
-# Wireless_eBike_8-Way_Higo-Dongle
+# 8-Way_Higo-Dongle
 #
-DEF Wireless_eBike_8-Way_Higo-Dongle K 0 40 Y Y 1 F N
+DEF 8-Way_Higo-Dongle K 0 40 Y Y 1 F N
 F0 "K" -150 -350 60 H V C CNN
-F1 "Wireless_eBike_8-Way_Higo-Dongle" -150 650 60 H V C CNN
+F1 "8-Way_Higo-Dongle" -150 650 60 H V C CNN
 F2 "" 0 0 60 H V C CNN
 F3 "" 0 0 60 H V C CNN
 DRAW
@@ -72,11 +72,11 @@ X Brown/Tx 8 600 -200 200 L 50 50 1 1 O
 ENDDRAW
 ENDDEF
 #
-# Wireless_eBike_BSP296
+# BSP296
 #
-DEF Wireless_eBike_BSP296 U 0 40 Y Y 1 F N
+DEF BSP296 U 0 40 Y Y 1 F N
 F0 "U" 0 -300 60 H V C CNN
-F1 "Wireless_eBike_BSP296" 0 300 60 H V C CNN
+F1 "BSP296" 0 300 60 H V C CNN
 F2 "" -600 50 60 H V C CNN
 F3 "" -600 50 60 H V C CNN
 DRAW
@@ -88,11 +88,11 @@ X ~ 4 300 0 200 L 50 50 1 1 W
 ENDDRAW
 ENDDEF
 #
-# Wireless_eBike_BTS4140N-Wireless_eBike
+# BTS4140N-Wireless_eBike
 #
-DEF Wireless_eBike_BTS4140N-Wireless_eBike U 0 40 Y Y 1 F N
+DEF BTS4140N-Wireless_eBike U 0 40 Y Y 1 F N
 F0 "U" 400 550 60 H V C CNN
-F1 "Wireless_eBike_BTS4140N-Wireless_eBike" 50 600 60 H V C CNN
+F1 "BTS4140N-Wireless_eBike" 50 600 60 H V C CNN
 F2 "" -600 50 60 H V C CNN
 F3 "" -600 50 60 H V C CNN
 DRAW
@@ -104,11 +104,11 @@ X ~ 4 300 0 200 L 50 50 1 1 W
 ENDDRAW
 ENDDEF
 #
-# Wireless_eBike_CONN_01X04-Wireless_eBike
+# CONN_01X04-Wireless_eBike
 #
-DEF Wireless_eBike_CONN_01X04-Wireless_eBike P 0 40 Y N 1 F N
+DEF CONN_01X04-Wireless_eBike P 0 40 Y N 1 F N
 F0 "P" 0 250 50 H V C CNN
-F1 "Wireless_eBike_CONN_01X04-Wireless_eBike" 100 0 50 V V C CNN
+F1 "CONN_01X04-Wireless_eBike" 100 0 50 V V C CNN
 F2 "" 0 0 50 H V C CNN
 F3 "" 0 0 50 H V C CNN
 $FPLIST
@@ -130,11 +130,11 @@ X P4 4 -200 -150 150 R 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# Wireless_eBike_Generic_DC-DC-Wireless_eBike
+# Generic_DC-DC-Wireless_eBike
 #
-DEF Wireless_eBike_Generic_DC-DC-Wireless_eBike U 0 40 Y Y 1 F N
+DEF Generic_DC-DC-Wireless_eBike U 0 40 Y Y 1 F N
 F0 "U" 0 0 60 H V C CNN
-F1 "Wireless_eBike_Generic_DC-DC-Wireless_eBike" 0 250 60 H V C CNN
+F1 "Generic_DC-DC-Wireless_eBike" 0 250 60 H V C CNN
 F2 "" -50 0 60 H V C CNN
 F3 "" -50 0 60 H V C CNN
 DRAW
@@ -146,11 +146,11 @@ X OUT+ 4 500 100 200 L 50 50 1 1 w
 ENDDRAW
 ENDDEF
 #
-# Wireless_eBike_Nordic_nRF52840_USB_Dongle
+# Nordic_nRF52840_USB_Dongle
 #
-DEF Wireless_eBike_Nordic_nRF52840_USB_Dongle U 0 40 Y Y 1 F N
+DEF Nordic_nRF52840_USB_Dongle U 0 40 Y Y 1 F N
 F0 "U" -150 -100 60 H V C CNN
-F1 "Wireless_eBike_Nordic_nRF52840_USB_Dongle" -50 -700 60 H V C CNN
+F1 "Nordic_nRF52840_USB_Dongle" -50 -700 60 H V C CNN
 F2 "" -150 -150 60 H V C CNN
 F3 "" -150 -150 60 H V C CNN
 DRAW
@@ -179,19 +179,6 @@ X P0.17 8 -700 150 200 R 50 50 1 1 W
 X P1.13 8 700 -350 200 L 50 50 1 1 B
 X P0.15 9 -700 250 200 R 50 50 1 1 W
 X P1.10 9 700 -450 200 L 50 50 1 1 B
-ENDDRAW
-ENDDEF
-#
-# power_GND
-#
-DEF power_GND #PWR 0 0 Y Y 1 F P
-F0 "#PWR" 0 -250 50 H I C CNN
-F1 "power_GND" 0 -150 50 H V C CNN
-F2 "" 0 0 50 H I C CNN
-F3 "" 0 0 50 H I C CNN
-DRAW
-P 6 0 1 0 0 0 0 -50 50 -50 0 -100 -50 -50 0 -50 N
-X GND 1 0 0 0 D 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
