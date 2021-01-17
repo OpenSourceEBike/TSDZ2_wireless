@@ -59,7 +59,8 @@ volatile uint8_t ui8_m_enter_bootloader = 0;
 volatile uint8_t ui8_m_ant_device_id = 0;
 volatile uint8_t ui8_m_flash_configurations = 0;
 
-typedef enum {
+typedef enum
+{
   TSDZ2_POWER_STATE_OFF_START,
   TSDZ2_POWER_STATE_OFF_WAIT,
   TSDZ2_POWER_STATE_OFF,
@@ -154,9 +155,9 @@ static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID; /**< Handle of the curr
 
 /**< Universally unique service identifiers. */
 static ble_uuid_t m_adv_uuids[] =
-  {
-    {ANT_ID_UUID_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN},
-  };
+    {
+        {ANT_ID_UUID_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN},
+};
 
 /**@brief Clear bond information from persistent storage.
  */
@@ -291,6 +292,59 @@ static void ble_evt_handler(ble_evt_t const *p_ble_evt, void *p_context)
 void ant_lev_evt_handler_pre(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
 {
   nrf_pwr_mgmt_feed();
+  //set the assist level
+  p_profile->common.travel_mode_state = (mp_ui_vars->ui8_assist_level << 3);
+  p_profile->page_16.travel_mode = p_profile->common.travel_mode_state;
+  //common gear state is used for motor state control
+  // use front gear setting to transfer motor state information to the remote:
+  // the two bits are used as follows:
+  // 00 - motor off (MOTOR_INIT_OFF (0))
+  // 01  - motor ready (MOTOR_INIT_READY (1))
+  // 10  - motor not ready (MOTOR_INIT_GET_MOTOR_ALIVE-2, MOTOR_INIT_WAIT_MOTOR_ALIVE-3)
+  // 11  - signal to turn motor on/off (3)
+  // higher bits are used to indicated motor start up errors (MOTOR_INIT_ERROR_ALIVE -4, MOTOR_INIT_ERROR_GET_FIRMWARE_VERSION-8,
+  //       MOTOR_INIT_ERROR_FIRMWARE_VERSION-10,MOTOR_INIT_ERROR_SET_CONFIGURATIONS-14)
+  //set up the common gear state byte
+  if (g_motor_init_state < 4) // no errors
+    p_profile->common.gear_state = 0; // clear any error states
+
+  switch (g_motor_init_state)
+  {
+  case MOTOR_INIT_OFF:
+
+    //first two bits are front gear
+    p_profile->common.gear_state = (p_profile->common.gear_state & 0x7C) + 0;
+    break;
+
+  case MOTOR_INIT_READY:
+    p_profile->common.gear_state = (p_profile->common.gear_state & 0x7C) + 1;
+    break;
+  case MOTOR_INIT_GET_MOTOR_ALIVE:
+  case MOTOR_INIT_WAIT_MOTOR_ALIVE:
+    p_profile->common.gear_state = (p_profile->common.gear_state & 0x7C) + 2;
+
+    break;
+    // note gear state value 3 is used to turn on/off the motor; above 3 are error states
+  case MOTOR_INIT_ERROR_ALIVE:
+    p_profile->common.gear_state = (4 | (p_profile->common.gear_state & 0x03));
+    //p_profile->page_16.current_rear_gear = 1;
+    break;
+  case MOTOR_INIT_ERROR_GET_FIRMWARE_VERSION:
+    p_profile->common.gear_state = (8 | (p_profile->common.gear_state & 0x03));
+    // p_profile->page_16.current_rear_gear = 2;
+    break;
+  case MOTOR_INIT_ERROR_FIRMWARE_VERSION:
+    p_profile->common.gear_state = (12 | (p_profile->common.gear_state & 0x03));
+    p_profile->page_16.current_rear_gear = 3;
+    break;
+  case MOTOR_INIT_ERROR_SET_CONFIGURATIONS:
+    p_profile->common.gear_state = (16 | (p_profile->common.gear_state & 0x03));
+    // p_profile->page_16.current_rear_gear = 4;
+    break;
+
+  default:
+    break;
+  }
 
   switch (event)
   {
@@ -300,9 +354,10 @@ void ant_lev_evt_handler_pre(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
 
     // lights
     p_profile->common.system_state |= (mp_ui_vars->ui8_lights << 3) & 0x08;
-    break;
 
+    break;
   case ANT_LEV_PAGE_2_UPDATED:
+
     break;
 
   case ANT_LEV_PAGE_3_UPDATED:
@@ -311,6 +366,7 @@ void ant_lev_evt_handler_pre(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
 
     // lights
     p_profile->common.system_state |= (mp_ui_vars->ui8_lights << 3) & 0x08;
+
     break;
 
   case ANT_LEV_PAGE_4_UPDATED:
@@ -323,8 +379,8 @@ void ant_lev_evt_handler_pre(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
     break;
 
   case ANT_LEV_PAGE_16_UPDATED:
-    break;
 
+    break;
   case ANT_LEV_PAGE_80_UPDATED:
     break;
 
@@ -367,6 +423,23 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
     break;
 
   case ANT_LEV_PAGE_16_UPDATED:
+
+    if (p_profile->page_16.current_front_gear == 3)
+    {
+
+      if (m_TSDZ2_power_state == TSDZ2_POWER_STATE_OFF)
+      {
+        // turn on TSDZ2 motor controller
+        m_TSDZ2_power_state = TSDZ2_POWER_STATE_ON_START;
+      }
+
+      else if (m_TSDZ2_power_state == TSDZ2_POWER_STATE_ON)
+      {
+        //  turn off TSDZ2 motor controller
+        m_TSDZ2_power_state = TSDZ2_POWER_STATE_OFF_START;
+      }
+    }
+
     // assist level
     p_profile->common.travel_mode_state = p_profile->page_16.travel_mode;
     mp_ui_vars->ui8_assist_level = p_profile->page_16.travel_mode >> 3;
@@ -565,22 +638,23 @@ static void tsdz2_write_handler_periodic(uint8_t *p_data, uint16_t len)
   if (p_data[0] != 255)
     ui_vars.ui8_assist_level = p_data[0];
 
-  if (p_data[1] != 255) 
+  if (p_data[1] != 255)
   {
-    switch (p_data[1]) {
-      case 1:
-        // turn on TSDZ2 motor controller
-        if (m_TSDZ2_power_state == TSDZ2_POWER_STATE_OFF)
-          m_TSDZ2_power_state = TSDZ2_POWER_STATE_ON_START;
-        break;
+    switch (p_data[1])
+    {
+    case 1:
+      // turn on TSDZ2 motor controller
+      if (m_TSDZ2_power_state == TSDZ2_POWER_STATE_OFF)
+        m_TSDZ2_power_state = TSDZ2_POWER_STATE_ON_START;
+      break;
 
-      case 2:
-        // turn off TSDZ2 motor controller
-        if (m_TSDZ2_power_state == TSDZ2_POWER_STATE_ON)
-          m_TSDZ2_power_state = TSDZ2_POWER_STATE_OFF_START;
-        break;
+    case 2:
+      // turn off TSDZ2 motor controller
+      if (m_TSDZ2_power_state == TSDZ2_POWER_STATE_ON)
+        m_TSDZ2_power_state = TSDZ2_POWER_STATE_OFF_START;
+      break;
     }
-  } 
+  }
 }
 
 static void tsdz2_write_handler_configurations(uint8_t *p_data, uint16_t len)
@@ -1058,7 +1132,7 @@ void ble_send_periodic_data(void)
   tx_data[2] = ui_vars.ui8_battery_current_x5;
   tx_data[3] = (uint8_t)(ui_vars.ui16_wheel_speed_x10 & 0xff);
   tx_data[4] = (uint8_t)(ui_vars.ui16_wheel_speed_x10 >> 8);
-  tx_data[5] = (uint8_t) ((ui_vars.ui8_braking & 1) | ((ui_vars.ui8_lights & 1) << 1));
+  tx_data[5] = (uint8_t)((ui_vars.ui8_braking & 1) | ((ui_vars.ui8_lights & 1) << 1));
   tx_data[6] = ui_vars.ui8_motor_hall_sensors;
   tx_data[7] = ui_vars.ui8_pas_pedal_right;
   tx_data[8] = ui_vars.ui8_adc_throttle;
@@ -1089,7 +1163,7 @@ void ble_send_periodic_data(void)
   tx_data[29] = (uint8_t)(ui_vars.ui32_wh_x10 >> 8);
   tx_data[30] = (uint8_t)(ui_vars.ui32_wh_x10 >> 16);
   tx_data[31] = (uint8_t)(ui_vars.ui32_wh_x10 >> 24);
-  tx_data[32] = (uint8_t) g_motor_init_state;
+  tx_data[32] = (uint8_t)g_motor_init_state;
 
   if (m_conn_handle != BLE_CONN_HANDLE_INVALID)
   {
@@ -1311,41 +1385,42 @@ void TSDZ2_power_manage(void)
 
   switch (m_TSDZ2_power_state)
   {
-    case TSDZ2_POWER_STATE_OFF_START:
-      motor_power_enable(false);
-      counter = 10;
-      m_TSDZ2_power_state = TSDZ2_POWER_STATE_OFF_WAIT;
-      break;
+  case TSDZ2_POWER_STATE_OFF_START:
+    motor_power_enable(false);
+    counter = 10;
+    m_TSDZ2_power_state = TSDZ2_POWER_STATE_OFF_WAIT;
+    break;
 
-    case TSDZ2_POWER_STATE_OFF_WAIT:
-        counter--;
-        if (counter == 0) {
-          // reset state variables
-          uart_reset_rx_buffer();
-          g_motor_init_state = MOTOR_INIT_OFF;
-          g_motor_init_state_conf = MOTOR_INIT_CONFIG_SEND_CONFIG;
-          ui8_g_motor_init_status = MOTOR_INIT_STATUS_RESET;
+  case TSDZ2_POWER_STATE_OFF_WAIT:
+    counter--;
+    if (counter == 0)
+    {
+      // reset state variables
+      uart_reset_rx_buffer();
+      g_motor_init_state = MOTOR_INIT_OFF;
+      g_motor_init_state_conf = MOTOR_INIT_CONFIG_SEND_CONFIG;
+      ui8_g_motor_init_status = MOTOR_INIT_STATUS_RESET;
 
-          m_TSDZ2_power_state = TSDZ2_POWER_STATE_OFF;
-        }
-      break;
+      m_TSDZ2_power_state = TSDZ2_POWER_STATE_OFF;
+    }
+    break;
 
-      case TSDZ2_POWER_STATE_OFF:
-        // do nothing
-      break;
+  case TSDZ2_POWER_STATE_OFF:
+    // do nothing
+    break;
 
-    case TSDZ2_POWER_STATE_ON_START:
-      motor_power_enable(true);
-      g_motor_init_state = MOTOR_INIT_GET_MOTOR_ALIVE;
-      m_TSDZ2_power_state = TSDZ2_POWER_STATE_ON;
-      break;
+  case TSDZ2_POWER_STATE_ON_START:
+    motor_power_enable(true);
+    g_motor_init_state = MOTOR_INIT_GET_MOTOR_ALIVE;
+    m_TSDZ2_power_state = TSDZ2_POWER_STATE_ON;
+    break;
 
-    case TSDZ2_POWER_STATE_ON:
-      // do nothing
-      break;
+  case TSDZ2_POWER_STATE_ON:
+    // do nothing
+    break;
   }
 }
- 
+
 int main(void)
 {
   mp_ui_vars = get_ui_vars();
@@ -1368,7 +1443,7 @@ int main(void)
     nrf_delay_ms(3000); //wait for write to complete
     NVIC_SystemReset(); //reboot into bootloader
   }
-  
+
   ble_init();
   ant_setup();
   uart_init();
