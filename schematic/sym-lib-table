@@ -1,4 +1,0 @@
-(sym_lib_table
-  (lib (name Wireless_eBike-rescue)(type Legacy)(uri ${KIPRJMOD}/Wireless_eBike-rescue.lib)(options "")(descr ""))
-  (lib (name Wireless_eBike_V1-rescue)(type Legacy)(uri ${KIPRJMOD}/Wireless_eBike_V1-rescue.lib)(options "")(descr ""))
-)
