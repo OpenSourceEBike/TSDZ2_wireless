@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../../common_firmware"
+		}
+	],
+  "settings": {
+    "git.ignoreLimitWarning": true,
+    "files.associations": {
+      "nrf_assert.h": "c"
+    }
+  }
+}
