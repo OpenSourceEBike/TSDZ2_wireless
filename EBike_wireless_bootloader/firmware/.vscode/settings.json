@@ -1,0 +1,5 @@
+{
+    "git.ignoreLimitWarning": true,
+    "github.gitAuthentication": false,
+    "C_Cpp.dimInactiveRegions": false
+}

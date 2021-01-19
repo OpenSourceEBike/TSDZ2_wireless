@@ -1,0 +1,7 @@
+{
+    "git.ignoreLimitWarning": true,
+    "github.gitAuthentication": false,
+    "files.associations": {
+      "nrf_assert.h": "c"
+    }
+}

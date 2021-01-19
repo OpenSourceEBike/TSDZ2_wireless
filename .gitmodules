@@ -1,3 +1,0 @@
-[submodule "firmware/bootloader"]
-	path = firmware/bootloader
-	url = https://github.com/OpenSource-EBike-firmware/TSDZ2_wireless-bootloader.git
