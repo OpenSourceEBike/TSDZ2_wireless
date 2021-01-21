@@ -1,0 +1,183 @@
+# Query: TIMER_ENABLED 
+# ContextLines: 1
+
+47 results - 14 files
+
+nRF5_SDK_16.0.0/sdk_config.h:
+  1139  
+  1140: // <e> APP_TIMER_ENABLED - app_timer - Application timer functionality
+  1141  //==========================================================
+  1142  #ifndef APP_TIMER_ENABLED
+  1143: #define APP_TIMER_ENABLED 1
+  1144  #endif
+
+nRF5_SDK_16.0.0/config/nrf52810/config/sdk_config.h:
+  3157  
+  3158: // <e> NRFX_TIMER_ENABLED - nrfx_timer - TIMER periperal driver
+  3159  //==========================================================
+  3160  #ifndef NRFX_TIMER_ENABLED
+  3161: #define NRFX_TIMER_ENABLED 0
+  3162  #endif
+
+  4722  
+  4723: // <e> TIMER_ENABLED - nrf_drv_timer - TIMER periperal driver - legacy layer
+  4724  //==========================================================
+  4725  #ifndef TIMER_ENABLED
+  4726: #define TIMER_ENABLED 1
+  4727  #endif
+
+  5281  
+  5282: // <e> APP_TIMER_ENABLED - app_timer - Application timer functionality
+  5283  //==========================================================
+  5284  #ifndef APP_TIMER_ENABLED
+  5285: #define APP_TIMER_ENABLED 0
+  5286  #endif
+
+nRF5_SDK_16.0.0/config/nrf52811/config/sdk_config.h:
+  3178  
+  3179: // <e> NRFX_TIMER_ENABLED - nrfx_timer - TIMER periperal driver
+  3180  //==========================================================
+  3181  #ifndef NRFX_TIMER_ENABLED
+  3182: #define NRFX_TIMER_ENABLED 0
+  3183  #endif
+
+  4764  
+  4765: // <e> TIMER_ENABLED - nrf_drv_timer - TIMER periperal driver - legacy layer
+  4766  //==========================================================
+  4767  #ifndef TIMER_ENABLED
+  4768: #define TIMER_ENABLED 0
+  4769  #endif
+
+  5323  
+  5324: // <e> APP_TIMER_ENABLED - app_timer - Application timer functionality
+  5325  //==========================================================
+  5326  #ifndef APP_TIMER_ENABLED
+  5327: #define APP_TIMER_ENABLED 0
+  5328  #endif
+
+nRF5_SDK_16.0.0/config/nrf52832/config/sdk_config.h:
+  4773  
+  4774: // <e> NRFX_TIMER_ENABLED - nrfx_timer - TIMER periperal driver
+  4775  //==========================================================
+  4776  #ifndef NRFX_TIMER_ENABLED
+  4777: #define NRFX_TIMER_ENABLED 0
+  4778  #endif
+
+  6484  
+  6485: // <e> TIMER_ENABLED - nrf_drv_timer - TIMER periperal driver - legacy layer
+  6486  //==========================================================
+  6487  #ifndef TIMER_ENABLED
+  6488: #define TIMER_ENABLED 0
+  6489  #endif
+
+  7058  
+  7059: // <e> APP_TIMER_ENABLED - app_timer - Application timer functionality
+  7060  //==========================================================
+  7061  #ifndef APP_TIMER_ENABLED
+  7062: #define APP_TIMER_ENABLED 0
+  7063  #endif
+
+nRF5_SDK_16.0.0/config/nrf52833/config/sdk_config.h:
+  3638  
+  3639: // <e> NRFX_TIMER_ENABLED - nrfx_timer - TIMER periperal driver
+  3640  //==========================================================
+  3641  #ifndef NRFX_TIMER_ENABLED
+  3642: #define NRFX_TIMER_ENABLED 0
+  3643  #endif
+
+  5346  
+  5347: // <e> TIMER_ENABLED - nrf_drv_timer - TIMER periperal driver - legacy layer
+  5348  //==========================================================
+  5349  #ifndef TIMER_ENABLED
+  5350: #define TIMER_ENABLED 0
+  5351  #endif
+
+  5908  
+  5909: // <e> APP_TIMER_ENABLED - app_timer - Application timer functionality
+  5910  //==========================================================
+  5911  #ifndef APP_TIMER_ENABLED
+  5912: #define APP_TIMER_ENABLED 0
+  5913  #endif
+
+nRF5_SDK_16.0.0/config/nrf52840/config/sdk_config.h:
+  3766  
+  3767: // <e> NRFX_TIMER_ENABLED - nrfx_timer - TIMER periperal driver
+  3768  //==========================================================
+  3769  #ifndef NRFX_TIMER_ENABLED
+  3770: #define NRFX_TIMER_ENABLED 1
+  3771  #endif
+
+  5474  
+  5475: // <e> TIMER_ENABLED - nrf_drv_timer - TIMER periperal driver - legacy layer
+  5476  //==========================================================
+  5477  #ifndef TIMER_ENABLED
+  5478: #define TIMER_ENABLED 0
+  5479  #endif
+
+  6030  
+  6031: // <e> APP_TIMER_ENABLED - app_timer - Application timer functionality
+  6032  //==========================================================
+  6033  #ifndef APP_TIMER_ENABLED
+  6034: #define APP_TIMER_ENABLED 1
+  6035  #endif
+
+nRF5_SDK_16.0.0/integration/nrfx/legacy/apply_old_config.h:
+  1050  #undef NRFX_TIMER_ENABLED
+  1051: #define NRFX_TIMER_ENABLED  TIMER_ENABLED
+  1052  
+
+nRF5_SDK_16.0.0/modules/nrfx/templates/nRF51/nrfx_config.h:
+  1162  
+  1163: // <e> NRFX_TIMER_ENABLED - nrfx_timer - TIMER periperal driver
+  1164  //==========================================================
+  1165  #ifndef NRFX_TIMER_ENABLED
+  1166: #define NRFX_TIMER_ENABLED 1
+  1167  #endif
+
+nRF5_SDK_16.0.0/modules/nrfx/templates/nRF52810/nrfx_config.h:
+  1616  
+  1617: // <e> NRFX_TIMER_ENABLED - nrfx_timer - TIMER periperal driver
+  1618  //==========================================================
+  1619  #ifndef NRFX_TIMER_ENABLED
+  1620: #define NRFX_TIMER_ENABLED 1
+  1621  #endif
+
+nRF5_SDK_16.0.0/modules/nrfx/templates/nRF52811/nrfx_config.h:
+  1631  
+  1632: // <e> NRFX_TIMER_ENABLED - nrfx_timer - TIMER periperal driver
+  1633  //==========================================================
+  1634  #ifndef NRFX_TIMER_ENABLED
+  1635: #define NRFX_TIMER_ENABLED 1
+  1636  #endif
+
+nRF5_SDK_16.0.0/modules/nrfx/templates/nRF52832/nrfx_config.h:
+  2144  
+  2145: // <e> NRFX_TIMER_ENABLED - nrfx_timer - TIMER periperal driver
+  2146  //==========================================================
+  2147  #ifndef NRFX_TIMER_ENABLED
+  2148: #define NRFX_TIMER_ENABLED 1
+  2149  #endif
+
+nRF5_SDK_16.0.0/modules/nrfx/templates/nRF52833/nrfx_config.h:
+  2109  
+  2110: // <e> NRFX_TIMER_ENABLED - nrfx_timer - TIMER periperal driver
+  2111  //==========================================================
+  2112  #ifndef NRFX_TIMER_ENABLED
+  2113: #define NRFX_TIMER_ENABLED 1
+  2114  #endif
+
+nRF5_SDK_16.0.0/modules/nrfx/templates/nRF52840/nrfx_config.h:
+  2247  
+  2248: // <e> NRFX_TIMER_ENABLED - nrfx_timer - TIMER periperal driver
+  2249  //==========================================================
+  2250  #ifndef NRFX_TIMER_ENABLED
+  2251: #define NRFX_TIMER_ENABLED 1
+  2252  #endif
+
+nRF5_SDK_16.0.0/modules/nrfx/templates/nRF9160/nrfx_config.h:
+  1442  
+  1443: // <e> NRFX_TIMER_ENABLED - nrfx_timer - TIMER periperal driver.
+  1444  //==========================================================
+  1445  #ifndef NRFX_TIMER_ENABLED
+  1446: #define NRFX_TIMER_ENABLED 1
+  1447  #endif

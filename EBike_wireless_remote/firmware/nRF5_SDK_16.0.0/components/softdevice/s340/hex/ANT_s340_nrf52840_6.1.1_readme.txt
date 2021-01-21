@@ -1,0 +1,9 @@
+ANT_S340_NRF52840_6.1.1
+
+This release consists of the following:
+- This readme file
+- A Notes file
+- The ANT_S340_NRF52840_6.1.1 softdevice (binary hex file)
+- The ANT_S340_NRF52840_6.1.1 API (softdevice header files)
+- The ANT_S340_NRF52840_6.1.1 release notes
+- The ANT_S340_NRF52840_6.1.1 license

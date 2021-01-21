@@ -3,7 +3,7 @@ TARGETS          := TSDZ2_wireless_remote
 
 OUTPUT_DIRECTORY := _build
 
-SDK_ROOT := ../../common_firmware/nRF5_SDK_16.0.0
+SDK_ROOT := ./nRF5_SDK_16.0.0
 PROJ_DIR := .
 SD_REQ := 0xB9 #s340 sd is required
 
@@ -11,12 +11,13 @@ SD_REQ := 0xB9 #s340 sd is required
 $(OUTPUT_DIRECTORY)/TSDZ2_wireless_remote.out: \
   LINKER_SCRIPT  := TSDZ2_wireless_gcc_nrf52.ld
 
-BOOTLOADER_DIR = $(PROJ_DIR)/../../EBike_wireless_bootloader/firmware
+BOOTLOADER_DIR = $(PROJ_DIR)/bootloader/firmware
 BOOTLOADER_HEX = $(BOOTLOADER_DIR)/_build/TSDZ2_bootloader_with_sd.hex
+
+
 
 APP_VER_MAJOR = 1
 APP_VER_MINOR = 0
-
 # Source files common to all targets
 SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52840.S \
@@ -209,7 +210,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components/ant/ant_state_indicator \
   $(SDK_ROOT)/components/ant/ant_key_manager \
   $(SDK_ROOT)/components/ant/ant_search_config \
-  $(SDK_ROOT)/components/ant/ant_key_manager \
+  $(SDK_ROOT)/components/ant/ant_key_manager/config \
   $(SDK_ROOT)/components/ant/ant_channel_config \
   $(SDK_ROOT)/components/ant/ant_profiles/ant_common/ant_request_controller \
   $(SDK_ROOT)/components/ant/ant_profiles/ant_common/pages \
@@ -217,6 +218,7 @@ INC_FOLDERS += \
   $(PROJ_DIR)/ant_lev/pages \
   $(PROJ_DIR)/antplus_controls \
   $(PROJ_DIR)/antplus_controls/pages \
+  $(PROJ_DIR)/config \
   $(PROJ_DIR)/ \
   $(PROJ_DIR)/include \
   $(SDK_ROOT)/integration/nrfx/legacy \

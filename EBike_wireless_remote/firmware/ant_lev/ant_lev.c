@@ -79,6 +79,7 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
         {
             if (p_profile->page_16.travel_mode != 0)
                 p_profile->page_16.travel_mode -= 8;
+            p_profile->page_16.current_front_gear = 0;
             //p_profile->page_16.travel_mode=p_profile->common.travel_mode_state;
             send_page = true;
         }
@@ -86,7 +87,7 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
         {
             if (p_profile->page_16.travel_mode != 56)
                 p_profile->page_16.travel_mode += 8;
-
+            p_profile->page_16.current_front_gear = 0;
             send_page = true;
         }
         else if (button == ENTER__PIN)
@@ -104,6 +105,11 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
     }
     else //long press actions
     {
+        if (button == STANDBY__PIN)
+        {
+            p_profile->page_16.current_front_gear = 3;
+            send_page = true;
+        }
         /*
         if (button == MINUS__PIN)
         {
@@ -162,7 +168,7 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
             // nrf_delay_ms(50);
         }
         (void)err_code; // ignore
-        //nrf_delay_ms(50);
+                        //  nrf_delay_ms(100);
     }
 
     if (send_page)
