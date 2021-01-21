@@ -1,24 +1,35 @@
 # Remote operation
-LED Operation Signals
+LED Information Signals
 ------
 1. ANT Searching/Connection
    When the remote is searching for either an ANT+ LEV or an ANT+ Controls connection, the RED LED will slowly flash. When a connection is made, the RED LED will quickly flash and then go out.
-2. The RED LED will briefly flash to indicate a    long press has been made
+2. The RED LED will briefly flash to indicate  that a long press has been made.
 3. The RED LED will turn on for 2 seconds to indicated that the remote is entering DFU mode.
-4. The Blue LED will turn on for 2 seconds to indicated bluetooth mode is active.
-5. The configuration of the remote is signalled by a long press of the ENTER key. [See Configuration Options](configuration.md)
+4. The Blue LED will flash slowly to indicate that bluetooth mode is active.
+5. A long press of the ENTER key can be used to determine the configuration options. [See Configuration Options for LED Behavior in this mode](configuration.md)
+6. A long press of the STANDBY key will turn the motor ON or OFF. When the motor is initializing, the LED will flash off-white. When the motor is on, the off-white led will rapidly flash, followed 2 seconds later by a display of the motor battery state. If the motor is turning off, the battery state will also be displayed. 
+Battery state is indicated by flashing the GREEN LED. The number of flashes will indicate percent battery charge from 10% (1 flash) to 100% (10 flashes). For example, 5 flashes would indicate a 50% charge.
+7. A short press of the [STANDBY] key will also display the % battery state of charge if the motor is on. (see 6 above for a description of the LED display in this mode.
+8. Motor error states are indicated by the Green power LED on the other side of the Nordic board. There are three error states indicated:
+
+    1 - Motor initialization errors are indicated by a slowly flashing LED. 
+
+    2 - Firmware mismatch errors are indicated by a fast flashing LED. 
+
+    3 - Motor configuration errors are indicated by a full on Green LED.
 
 
 Short Press buttons
 ----
+* Short Press the [STANDBY] button to display the motor batter state of charge. 
 * Short Press the [ENTER] button to switch pages (pageup) on an ANT+ CONTROLS device (ie: garmin bike computer) 
-  (You can also use the long press of PLUS and MINUS to pageup/pagedown - see below)
+  (You can also use the long press of [PLUS] and [MINUS] to pageup/pagedown - see below)
 * Short press the [PLUS] button to increase the motor assist level (ANT+ LEV control)
 * Short press the [MINUS] button to decrease the motor assist level (ANT+ LEV control)
   
 Long Press Buttons
 -----
-
+* Long Press the STANDBY button to turn on/off the motor. See LED Operation Signalling above for a description of operation.
 * Long Press the [PLUS] button to pageup on a garmin bike computer
 * Long Press the [MINUS] button to pagedown on a garmin bike computer
 * Long press the [ENTER] button to cycle through the configuration LED display.     [See Configuration Options](configuration.md)

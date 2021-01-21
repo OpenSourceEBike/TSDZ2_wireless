@@ -43,9 +43,9 @@
                 "command": "openocd",
                 "args": [
                     "-f",
-                    "${workspaceFolder}/../../common_firmware/tools/openocd-v0.10.0_dev-scripts/stlink-v2.cfg",
+                    "${workspaceFolder}/tools/openocd-v0.10.0-scripts/stlink-v2.cfg",
                     "-f",
-                    "${workspaceFolder}/../../common_firmware/tools/openocd-v0.10.0_dev-scripts/nrf52.cfg"
+                    "${workspaceFolder}/tools/openocd-v0.10.0-scripts/nrf52.cfg"
                 ]
             },
             "problemMatcher": []
