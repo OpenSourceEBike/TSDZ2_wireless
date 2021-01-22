@@ -305,7 +305,7 @@ void ant_lev_evt_handler_pre(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
   // higher bits are used to indicated motor start up errors (MOTOR_INIT_ERROR_ALIVE -4, MOTOR_INIT_ERROR_GET_FIRMWARE_VERSION-8,
   //       MOTOR_INIT_ERROR_FIRMWARE_VERSION-10,MOTOR_INIT_ERROR_SET_CONFIGURATIONS-14)
   //set up the common gear state byte
-  if (g_motor_init_state < 4) // no errors
+  if (g_motor_init_state < 4)         // no errors
     p_profile->common.gear_state = 0; // clear any error states
 
   switch (g_motor_init_state)
@@ -345,15 +345,28 @@ void ant_lev_evt_handler_pre(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
   default:
     break;
   }
+  //set variables for ANT transmission
+
+  // battery voltage
+  p_profile->page_4.battery_voltage = ui_vars.ui16_battery_voltage_filtered_x10;
+
+  // assist level
+  p_profile->common.travel_mode_state |= (mp_ui_vars->ui8_assist_level << 3) & 0x38;
+
+  // lights
+  p_profile->common.system_state |= (mp_ui_vars->ui8_lights << 3) & 0x08;
+  
+  // lev speed
+  p_profile->common.lev_speed = ui_vars.ui16_wheel_speed_x10/10;
+
+  //state of charge
+  p_profile->page_3.battery_soc = ui8_g_battery_soc;
+
+  
 
   switch (event)
   {
   case ANT_LEV_PAGE_1_UPDATED:
-    // assist level
-    p_profile->common.travel_mode_state |= (mp_ui_vars->ui8_assist_level << 3) & 0x38;
-
-    // lights
-    p_profile->common.system_state |= (mp_ui_vars->ui8_lights << 3) & 0x08;
 
     break;
   case ANT_LEV_PAGE_2_UPDATED:
@@ -361,11 +374,6 @@ void ant_lev_evt_handler_pre(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
     break;
 
   case ANT_LEV_PAGE_3_UPDATED:
-    // assist level
-    p_profile->common.travel_mode_state |= (mp_ui_vars->ui8_assist_level << 3) & 0x38;
-
-    // lights
-    p_profile->common.system_state |= (mp_ui_vars->ui8_lights << 3) & 0x08;
 
     break;
 
