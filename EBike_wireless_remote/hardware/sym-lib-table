@@ -1,0 +1,3 @@
+(sym_lib_table
+  (lib (name Wireless_eBike)(type Legacy)(uri ${KIPRJMOD}/Wireless_eBike.lib)(options "")(descr ""))
+)

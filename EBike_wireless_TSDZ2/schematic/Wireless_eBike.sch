@@ -144,22 +144,6 @@ Text GLabel 5100 4750 0    57   Output ~ 0
 TSDZ2_Brake_Input
 Wire Wire Line
 	6650 4750 5100 4750
-Text Label 9400 4000 0    60   ~ 0
-VBUS
-Text Label 9400 4100 0    60   ~ 0
-SWDCLK
-Text Label 9400 4200 0    60   ~ 0
-SWDIO
-Text Label 9400 3900 0    60   ~ 0
-GND
-Wire Wire Line
-	9400 3900 9750 3900
-Wire Wire Line
-	9750 4000 9400 4000
-Wire Wire Line
-	9750 4100 9400 4100
-Wire Wire Line
-	9750 4200 9400 4200
 NoConn ~ 6650 4050
 NoConn ~ 6650 4150
 NoConn ~ 6650 4250
@@ -172,32 +156,18 @@ NoConn ~ 8050 4650
 NoConn ~ 8050 4750
 NoConn ~ 8050 4850
 NoConn ~ 8050 4950
-Text Notes 9150 3800 0    60   ~ 0
-Connector to flash the bootloader.\nYou will need it only once, so you\ncan remove the wires after flashing.\n\n\n
 Text Notes 6030 2560 0    60   ~ 0
 This wire MUST have about 5V (4.7V up to 5.3V)\n\n\n
-Text Label 8450 3900 0    60   ~ 0
+Text Label 8800 3900 2    60   ~ 0
 SWDCLK
-Wire Wire Line
-	7900 3900 8800 3900
-Wire Wire Line
-	8250 4050 8800 4050
-Connection ~ 8250 4050
-Text Label 8600 4250 0    60   ~ 0
+Text Label 8800 4250 2    60   ~ 0
 GND
 Wire Wire Line
 	8050 4250 8250 4250
 Wire Wire Line
 	8250 4250 8250 4350
-Wire Wire Line
-	8250 4250 8800 4250
-Connection ~ 8250 4250
-Text Label 8550 4050 0    60   ~ 0
-VBUS
-Text Label 6350 3900 2    60   ~ 0
+Text Label 6100 3900 0    60   ~ 0
 SWDIO
-Wire Wire Line
-	6800 3900 6100 3900
 $Comp
 L Wireless_eBike:8-Way_Higo-Dongle K?
 U 1 1 600F98A9
@@ -231,17 +201,6 @@ F 1 "Generic DC-DC (min input allowed 60V, output 5V)" H 5450 2800 60  0000 C CN
 F 2 "" H 5450 2500 60  0000 C CNN
 F 3 "" H 5450 2500 60  0000 C CNN
 	1    5500 2500
-	1    0    0    -1  
-$EndComp
-$Comp
-L Wireless_eBike:CONN_01X04-Wireless_eBike P?
-U 1 1 60034D62
-P 9950 4050
-F 0 "P?" H 10028 4091 50  0001 L CNN
-F 1 "Bootloader flash" V 10050 3750 50  0000 L CNN
-F 2 "" H 9950 4050 50  0000 C CNN
-F 3 "" H 9950 4050 50  0000 C CNN
-	1    9950 4050
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -308,4 +267,36 @@ Wire Wire Line
 Wire Wire Line
 	5700 3000 4750 3000
 NoConn ~ 5600 3300
+$Comp
+L Connector_Generic:Conn_01x03 J?
+U 1 1 600B389D
+P 9900 4050
+F 0 "J?" H 9980 4092 50  0001 L CNN
+F 1 "Bootloader flash" V 10050 3750 50  0000 L CNN
+F 2 "" H 9900 4050 50  0001 C CNN
+F 3 "~" H 9900 4050 50  0001 C CNN
+	1    9900 4050
+	1    0    0    -1  
+$EndComp
+Text Label 9350 4050 0    60   ~ 0
+SWDCLK
+Text Label 9350 4150 0    60   ~ 0
+SWDIO
+Text Label 9350 3950 0    60   ~ 0
+GND
+Text Notes 9100 3850 0    60   ~ 0
+Connector to flash the bootloader.\nYou will need it only once, so you\ncan remove the wires after flashing.\n\n\n
+Wire Notes Line style solid rgb(255, 114, 0)
+	9350 3950 9700 3950
+Wire Notes Line style solid rgb(255, 114, 0)
+	9350 4050 9700 4050
+Wire Notes Line style solid rgb(255, 114, 0)
+	9350 4150 9700 4150
+Wire Notes Line style solid rgb(255, 114, 0)
+	7900 3900 8800 3900
+Wire Notes Line style solid rgb(255, 114, 0)
+	6100 3900 6800 3900
+Wire Notes Line style solid rgb(255, 114, 0)
+	8250 4250 8800 4250
+Connection ~ 8250 4250
 $EndSCHEMATC

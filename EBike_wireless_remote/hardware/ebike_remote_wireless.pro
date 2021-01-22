@@ -1,4 +1,4 @@
-update=Sat 25 Jul 2020 19:13:48 BST
+update=sex 22 jan 2021 17:42:52
 version=1
 last_client=kicad
 [general]
@@ -33,7 +33,7 @@ LibDir=
 [schematic_editor]
 version=1
 PageLayoutDescrFile=
-PlotDirectoryName=/home/tom/workspace/NRF52840/TSDZ2_wireless/schematic/new/
+PlotDirectoryName=./schematic.svg
 SubpartIdSeparator=0
 SubpartFirstId=65
 NetFmtName=
