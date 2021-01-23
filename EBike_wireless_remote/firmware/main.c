@@ -758,6 +758,11 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
     {
       //turn off the brake led
       soft_blink = led_softblink_uninit();
+      //set the brake flag in the rear gearing to signal that the brake has been pressed
+      m_button_long_press=true;
+      buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
+     
+   
     }
     else if (button_pin == STANDBY__PIN)
     {                           //display the battery SOC

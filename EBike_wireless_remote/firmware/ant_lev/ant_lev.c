@@ -115,6 +115,11 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
             p_profile->page_16.current_front_gear = 3;
             send_page = true;
         }
+        else if (button == BRAKE__PIN)
+        {
+            p_profile->page_16.current_rear_gear = 0;
+            send_page = true;
+        }
         /*
         if (button == MINUS__PIN)
         {
