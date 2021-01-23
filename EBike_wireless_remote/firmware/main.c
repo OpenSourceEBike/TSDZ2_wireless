@@ -805,7 +805,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       //set the brake flag in the rear gearing to signal that the brake has been pressed
       buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
       //display the red led
-      led_pwm_on(R_LED, 100, 99, 100, 0); //keep on
+      led_pwm_on(R_LED, 100, 99, 100, 1000); //keep on for 1 sec
     }
     else
     {
