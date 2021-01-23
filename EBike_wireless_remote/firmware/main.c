@@ -754,6 +754,16 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       if (ebike)
         buttons_send_page16(&m_ant_lev, button_pin, m_button_long_press);
     }
+    else if (button_pin == BRAKE__PIN)
+    { 
+      //set the brake flag in the rear gearing to signal that the brake has been pressed
+      m_button_long_press = false;
+      buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
+      //display the red led for 0.5 second
+     
+      led_pwm_on(R_LED, 100, 99, 100, 500); //fast flaSH
+
+    }
     else if (button_pin == STANDBY__PIN)
     {                           //display the battery SOC
       motor_display_soc = true; //flag needed due to interrupt priority
@@ -802,12 +812,13 @@ void buttons_init(void)
   ret_code_t err_code;
 
   // the array must be static because a pointer to it will be saved in the button handler module
-  static app_button_cfg_t buttons[4] =
+  static app_button_cfg_t buttons[5] =
       {
           {(uint8_t)PLUS__PIN, APP_BUTTON_ACTIVE_LOW, GPIO_PIN_CNF_PULL_Pullup, button_event_handler},
           {(uint8_t)MINUS__PIN, APP_BUTTON_ACTIVE_LOW, GPIO_PIN_CNF_PULL_Pullup, button_event_handler},
           {(uint8_t)ENTER__PIN, APP_BUTTON_ACTIVE_LOW, GPIO_PIN_CNF_PULL_Pullup, button_event_handler},
-          {(uint8_t)STANDBY__PIN, APP_BUTTON_ACTIVE_LOW, GPIO_PIN_CNF_PULL_Pullup, button_event_handler}};
+          {(uint8_t)STANDBY__PIN, APP_BUTTON_ACTIVE_LOW, GPIO_PIN_CNF_PULL_Pullup, button_event_handler},
+          {(uint8_t)BRAKE__PIN, APP_BUTTON_ACTIVE_LOW, GPIO_PIN_CNF_PULL_Pullup, button_event_handler}};
 
   err_code = app_button_init(buttons, ARRAY_SIZE(buttons), BUTTON_DETECTION_DELAY);
   // this will enable wakeup from ultra low power mode (any button press)
@@ -815,6 +826,7 @@ void buttons_init(void)
   nrf_gpio_cfg_sense_input(MINUS__PIN, GPIO_PIN_CNF_PULL_Pullup, GPIO_PIN_CNF_SENSE_Low);
   nrf_gpio_cfg_sense_input(ENTER__PIN, GPIO_PIN_CNF_PULL_Pullup, GPIO_PIN_CNF_SENSE_Low);
   nrf_gpio_cfg_sense_input(STANDBY__PIN, GPIO_PIN_CNF_PULL_Pullup, GPIO_PIN_CNF_SENSE_Low);
+  nrf_gpio_cfg_sense_input(BRAKE__PIN, GPIO_PIN_CNF_PULL_Pullup, GPIO_PIN_CNF_SENSE_Low);
   nrf_drv_gpiote_in_event_disable(BUTTON_1);
 
   if (err_code == NRF_SUCCESS)
