@@ -54,6 +54,7 @@
 
 extern uint8_t ui8_g_battery_soc;
 ui_vars_t *mp_ui_vars;
+bool brake_flag=false;
 
 volatile uint8_t ui8_m_enter_bootloader = 0;
 volatile uint8_t ui8_m_ant_device_id = 0;
@@ -355,14 +356,12 @@ void ant_lev_evt_handler_pre(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
 
   // lights
   p_profile->common.system_state |= (mp_ui_vars->ui8_lights << 3) & 0x08;
-  
+
   // lev speed
-  p_profile->common.lev_speed = ui_vars.ui16_wheel_speed_x10/10;
+  p_profile->common.lev_speed = ui_vars.ui16_wheel_speed_x10 / 10;
 
   //state of charge
   p_profile->page_3.battery_soc = ui8_g_battery_soc;
-
-  
 
   switch (event)
   {
@@ -432,6 +431,10 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
 
   case ANT_LEV_PAGE_16_UPDATED:
 
+    if (p_profile->page_16.current_rear_gear == 15)
+    {
+      brake_flag = true;
+    }
     if (p_profile->page_16.current_front_gear == 3)
     {
 
