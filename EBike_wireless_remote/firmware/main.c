@@ -755,14 +755,9 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         buttons_send_page16(&m_ant_lev, button_pin, m_button_long_press);
     }
     else if (button_pin == BRAKE__PIN)
-    { 
-      //set the brake flag in the rear gearing to signal that the brake has been pressed
-      m_button_long_press = false;
-      buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
-      //display the red led for 0.5 second
-     
-      led_pwm_on(R_LED, 100, 99, 100, 500); //fast flaSH
-
+    {
+      //turn off the brake led
+      soft_blink = led_softblink_uninit();
     }
     else if (button_pin == STANDBY__PIN)
     {                           //display the battery SOC
@@ -795,14 +790,23 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
 
     break;
 
-  case APP_BUTTON_PUSH:                                           //button pushed
+  case APP_BUTTON_PUSH:
+    m_button_long_press = false;                                  //button pushed
     err_code = app_timer_stop(m_timer_button_long_press_timeout); //stop the long press timer
     APP_ERROR_CHECK(err_code);
-
-    err_code = app_timer_start(m_timer_button_long_press_timeout, BUTTON_LONG_PRESS_TIMEOUT, NULL); //start the long press timer
-    APP_ERROR_CHECK(err_code);
-
-    m_button_long_press = false;
+    //send the brake signal on a button push for BRAKE__PIN
+    if (button_pin == BRAKE__PIN)
+    {
+      //set the brake flag in the rear gearing to signal that the brake has been pressed
+      buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
+      //display the red led
+      led_pwm_on(R_LED, 100, 99, 100, 0); //keep on
+    }
+    else
+    {
+      err_code = app_timer_start(m_timer_button_long_press_timeout, BUTTON_LONG_PRESS_TIMEOUT, NULL); //start the long press timer
+      APP_ERROR_CHECK(err_code);
+    }
     break;
   }
 }
