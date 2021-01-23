@@ -17,203 +17,202 @@ NoConn ~ 3800 8100
 $Comp
 L Switch:SW_Push button_1
 U 1 1 5F4A3714
-P 2650 3000
-F 0 "button_1" H 2650 3200 50  0000 C CNN
-F 1 "UP" H 2650 3300 50  0000 C CNB
-F 2 "" H 2650 3200 50  0001 C CNN
-F 3 "~" H 2650 3200 50  0001 C CNN
-	1    2650 3000
+P 4100 2650
+F 0 "button_1" H 4100 2850 50  0000 C CNN
+F 1 "UP" H 4100 2950 50  0000 C CNB
+F 2 "" H 4100 2850 50  0001 C CNN
+F 3 "~" H 4100 2850 50  0001 C CNN
+	1    4100 2650
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2300 3000 2450 3000
+	3750 2650 3900 2650
+Connection ~ 3750 3650
 Wire Wire Line
-	3150 3900 4050 3900
-Connection ~ 2300 4000
-Wire Wire Line
-	2300 4000 2450 4000
+	3750 3650 3900 3650
 $Comp
 L Switch:SW_Push button_3
 U 1 1 5F4A4B3B
-P 2650 4000
-F 0 "button_3" H 2650 4200 50  0000 C CNN
-F 1 "ENTER" H 2650 4300 50  0000 C CNB
-F 2 "" H 2650 4200 50  0001 C CNN
-F 3 "~" H 2650 4200 50  0001 C CNN
-	1    2650 4000
+P 4100 3650
+F 0 "button_3" H 4100 3850 50  0000 C CNN
+F 1 "ENTER" H 4100 3950 50  0000 C CNB
+F 2 "" H 4100 3850 50  0001 C CNN
+F 3 "~" H 4100 3850 50  0001 C CNN
+	1    4100 3650
 	1    0    0    -1  
 $EndComp
-Connection ~ 2300 3500
+Connection ~ 3750 3150
 Wire Wire Line
-	2300 4000 2300 3500
+	3750 3650 3750 3150
 Wire Wire Line
-	2300 3500 2300 3000
+	3750 3150 3750 2650
 Wire Wire Line
-	2300 3500 2450 3500
+	3750 3150 3900 3150
 $Comp
 L Switch:SW_Push button_2
 U 1 1 5F4A3F33
-P 2650 3500
-F 0 "button_2" H 2650 3700 50  0000 C CNN
-F 1 "DOWN" H 2650 3800 50  0000 C CNB
-F 2 "" H 2650 3700 50  0001 C CNN
-F 3 "~" H 2650 3700 50  0001 C CNN
-	1    2650 3500
+P 4100 3150
+F 0 "button_2" H 4100 3350 50  0000 C CNN
+F 1 "DOWN" H 4100 3450 50  0000 C CNB
+F 2 "" H 4100 3350 50  0001 C CNN
+F 3 "~" H 4100 3350 50  0001 C CNN
+	1    4100 3150
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2850 4000 3000 4000
+	4300 3650 4450 3650
 Wire Wire Line
-	3000 4000 3000 3800
+	4450 3650 4450 3450
 Wire Wire Line
-	3000 3800 4050 3800
+	4450 3350 4450 3150
 Wire Wire Line
-	4050 3700 3000 3700
+	4450 3150 4300 3150
 Wire Wire Line
-	3000 3700 3000 3500
+	4300 2650 4550 2650
 Wire Wire Line
-	3000 3500 2850 3500
-Wire Wire Line
-	2850 3000 3150 3000
-Wire Wire Line
-	3150 3000 3150 3600
-Wire Wire Line
-	3150 3600 4050 3600
+	4550 2650 4550 3250
 Wire Notes Line
-	2150 2550 3500 2550
+	3600 2200 4800 2200
 Wire Notes Line
-	3500 2550 3500 4800
+	4800 2200 4800 4450
 Wire Notes Line
-	3500 4800 2150 4800
+	4800 4450 3600 4450
 Wire Notes Line
-	2150 2550 2150 4800
-Text Notes 4250 2900 0    79   ~ 0
-(wireless board)
-Text Notes 7550 3450 0    79   ~ 0
-Connector to flash the bootloader.\nYou will need it only once, so you\ncan remove the wires after flashing.
-Text Notes 2350 2500 0    79   ~ 0
-VLCD5 handlebar\nremote keypad
-$Comp
-L Wireless_eBike:Nordic_nRF52840_USB_Dongle U?
-U 1 1 600AD575
-P 4750 3950
-F 0 "U?" H 4750 4987 60  0001 C CNN
-F 1 "Nordic nRF52840 USB Dongle" H 4750 4900 60  0000 C CNN
-F 2 "" H 4600 3800 60  0000 C CNN
-F 3 "" H 4600 3800 60  0000 C CNN
-	1    4750 3950
-	1    0    0    -1  
-$EndComp
-Wire Notes Line
-	6000 4050 6000 3400
-Wire Notes Line
-	6000 3400 6750 3400
-Text Notes 5900 3350 0    79   ~ 0
-should work for\nat least 2 years
-$Comp
-L Device:Battery_Cell coincell
-U 1 1 600B4826
-P 6450 3800
-F 0 "coincell" V 6300 3850 50  0001 C CNN
-F 1 "CR2032 coin cell" H 6380 4130 50  0000 C CNN
-F 2 "" V 6450 3860 50  0001 C CNN
-F 3 "~" V 6450 3860 50  0001 C CNN
-	1    6450 3800
-	1    0    0    -1  
-$EndComp
+	3600 2200 3600 4450
+Text Notes 3600 2150 0    79   ~ 0
+VLCD5 remote keypad
 Wire Wire Line
-	2850 4500 3150 4500
+	4300 4150 4550 4150
 Wire Wire Line
-	2300 4500 2300 4000
+	3750 4150 3750 3650
 Wire Wire Line
-	3150 4500 3150 3900
+	4550 4150 4550 3550
 Wire Wire Line
-	2450 4500 2300 4500
+	3900 4150 3750 4150
 $Comp
 L Switch:SW_Push button_4
 U 1 1 5F4A4B45
-P 2650 4500
-F 0 "button_4" H 2650 4700 50  0000 C CNN
-F 1 "POWER" H 2650 4800 50  0000 C CNB
-F 2 "" H 2650 4700 50  0001 C CNN
-F 3 "~" H 2650 4700 50  0001 C CNN
-	1    2650 4500
+P 4100 4150
+F 0 "button_4" H 4100 4350 50  0000 C CNN
+F 1 "POWER" H 4100 4450 50  0000 C CNB
+F 2 "" H 4100 4350 50  0001 C CNN
+F 3 "~" H 4100 4350 50  0001 C CNN
+	1    4100 4150
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2300 4500 2300 4650
+	3750 4150 3750 4300
 Wire Wire Line
-	2300 4650 3350 4650
+	3750 4300 4650 4300
 Wire Wire Line
-	3350 4650 3350 4500
-Wire Wire Line
-	3350 4500 4050 4500
-Connection ~ 2300 4500
-Wire Notes Line
-	6750 3400 6750 4050
-Wire Notes Line
-	6000 4050 6750 4050
-NoConn ~ 4050 4000
-NoConn ~ 4050 4100
-NoConn ~ 4050 4200
-NoConn ~ 4050 4300
-NoConn ~ 4050 4400
-NoConn ~ 5450 4400
-NoConn ~ 5450 4300
-NoConn ~ 5450 4200
-NoConn ~ 5450 4100
-NoConn ~ 5450 4000
-NoConn ~ 5450 3900
-Text Label 7550 3700 0    60   ~ 0
-GND
-Text Label 7550 3900 0    60   ~ 0
-SWDIO
-Text Label 7550 3800 0    60   ~ 0
-SWDCLK
-Text Label 5750 3450 2    60   ~ 0
-SWDCLK
-Text Label 5750 4500 2    60   ~ 0
-GND
-Text Label 3850 3450 0    60   ~ 0
-SWDIO
-Wire Notes Line style solid rgb(255, 114, 0)
-	4200 3450 3850 3450
-Wire Notes Line style solid rgb(255, 114, 0)
-	5750 3450 5300 3450
-Wire Notes Line style solid rgb(255, 114, 0)
-	5750 4500 5450 4500
-Wire Notes Line style solid rgb(255, 114, 0)
-	7950 3700 7550 3700
-Wire Notes Line style solid rgb(255, 114, 0)
-	7950 3800 7550 3800
-Wire Notes Line style solid rgb(255, 114, 0)
-	7950 3900 7550 3900
-Wire Wire Line
-	5450 3800 6250 3800
-Wire Wire Line
-	6250 3700 6250 3550
-Wire Wire Line
-	6250 3550 6450 3550
-Wire Wire Line
-	6450 3550 6450 3600
-Wire Wire Line
-	5450 3700 6250 3700
-Wire Wire Line
-	6250 3800 6250 3950
-Wire Wire Line
-	6250 3950 6450 3950
-Wire Wire Line
-	6450 3950 6450 3900
+	4650 4300 4650 4150
+Connection ~ 3750 4150
 $Comp
-L Connector_Generic:Conn_01x03 J?
-U 1 1 600C2D4C
-P 8150 3800
-F 0 "J?" H 8230 3842 50  0001 L CNN
-F 1 "Bootloader flash" V 8300 3450 50  0000 L CNN
-F 2 "" H 8150 3800 50  0001 C CNN
-F 3 "~" H 8150 3800 50  0001 C CNN
-	1    8150 3800
+L Connector_Generic:Conn_01x02 J?
+U 1 1 600CF908
+P 4000 5350
+F 0 "J?" H 3918 5025 50  0001 C CNN
+F 1 "Brake" V 4125 5300 50  0000 C CNB
+F 2 "" H 4000 5350 50  0001 C CNN
+F 3 "~" H 4000 5350 50  0001 C CNN
+	1    4000 5350
+	-1   0    0    -1  
+$EndComp
+Wire Notes Line
+	3600 5050 3600 5800
+Wire Notes Line
+	4400 5050 4400 5800
+Text Notes 3600 5000 0    79   ~ 0
+Brake sensor\nconnector
+Wire Notes Line
+	4400 5800 3600 5800
+Wire Notes Line
+	4400 5050 3600 5050
+Wire Wire Line
+	4200 5450 5250 5450
+Wire Wire Line
+	5150 5350 4200 5350
+Wire Wire Line
+	5150 3650 5150 5350
+Wire Wire Line
+	5400 3650 5150 3650
+Wire Wire Line
+	5250 4150 5400 4150
+Connection ~ 5250 4150
+Wire Wire Line
+	5250 5450 5250 4150
+NoConn ~ 6800 3250
+Wire Wire Line
+	7600 3600 7600 3550
+Wire Wire Line
+	7400 3600 7600 3600
+Wire Wire Line
+	7400 3450 7400 3600
+Wire Wire Line
+	6800 3350 7400 3350
+Wire Wire Line
+	7600 3200 7600 3250
+Wire Wire Line
+	7400 3200 7600 3200
+Wire Wire Line
+	7400 3350 7400 3200
+Wire Wire Line
+	6800 3450 7400 3450
+NoConn ~ 6800 3550
+NoConn ~ 6800 3650
+NoConn ~ 6800 3750
+NoConn ~ 6800 3850
+NoConn ~ 6800 3950
+NoConn ~ 6800 4050
+NoConn ~ 5400 4050
+NoConn ~ 5400 3950
+NoConn ~ 5400 3850
+NoConn ~ 5400 3750
+Wire Notes Line
+	7150 3700 7900 3700
+Wire Notes Line
+	7900 3050 7900 3700
+Wire Wire Line
+	4650 4150 5250 4150
+$Comp
+L Device:Battery_Cell coincell
+U 1 1 600B4826
+P 7600 3450
+F 0 "coincell" V 7450 3500 50  0001 C CNN
+F 1 "CR2032 coin cell" H 7530 3780 50  0000 C CNN
+F 2 "" V 7600 3510 50  0001 C CNN
+F 3 "~" V 7600 3510 50  0001 C CNN
+	1    7600 3450
 	1    0    0    -1  
 $EndComp
-NoConn ~ 5450 3600
+Text Notes 7150 3000 0    79   ~ 0
+should work for\nat least 2 years
+Wire Notes Line
+	7150 3050 7900 3050
+Wire Notes Line
+	7150 3700 7150 3050
+$Comp
+L Wireless_eBike:Nordic_nRF52840_USB_Dongle U?
+U 1 1 600AD575
+P 6100 3600
+F 0 "U?" H 6100 4637 60  0001 C CNN
+F 1 "Nordic nRF52840 USB Dongle" H 6100 4550 60  0000 C CNN
+F 2 "" H 5950 3450 60  0000 C CNN
+F 3 "" H 5950 3450 60  0000 C CNN
+	1    6100 3600
+	1    0    0    -1  
+$EndComp
+Text Notes 5600 2550 0    79   ~ 0
+wireless board
+Wire Wire Line
+	4550 3250 5400 3250
+Wire Wire Line
+	5400 3350 4450 3350
+Wire Wire Line
+	4450 3450 5400 3450
+Wire Wire Line
+	4550 3550 5400 3550
+NoConn ~ 5550 3100
+NoConn ~ 6650 3100
+NoConn ~ 6800 4150
 $EndSCHEMATC
