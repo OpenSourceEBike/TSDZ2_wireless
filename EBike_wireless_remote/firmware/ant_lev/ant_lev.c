@@ -102,12 +102,22 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
 
             //send_page = true;
         }
+        else if (button == BRAKE__PIN)
+        {
+            p_profile->page_16.current_rear_gear = 15;
+            send_page = true;
+        }
     }
     else //long press actions
     {
         if (button == STANDBY__PIN)
         {
             p_profile->page_16.current_front_gear = 3;
+            send_page = true;
+        }
+        else if (button == BRAKE__PIN)
+        {
+            p_profile->page_16.current_rear_gear = 0;
             send_page = true;
         }
         /*
@@ -163,6 +173,9 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
 
         uint32_t err_code;
         err_code = sd_ant_acknowledge_message_tx(p_profile->channel_number, sizeof(p_message_payload), p_message_payload);
+        //reset the on/off and brake flags
+        p_profile->page_16.current_front_gear = 0;
+        p_profile->page_16.current_rear_gear = 0;
         if (err_code != 0)
         {
             // nrf_delay_ms(50);
