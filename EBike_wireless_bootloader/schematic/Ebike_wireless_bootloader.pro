@@ -1,6 +1,6 @@
-update=sex 22 jan 2021 17:42:52
+update=sáb 16 jan 2021 18:56:24
 version=1
-last_client=kicad
+last_client=eeschema
 [general]
 version=1
 RootSch=
@@ -30,6 +30,7 @@ NetIExt=net
 [eeschema]
 version=1
 LibDir=
+[eeschema/libraries]
 [schematic_editor]
 version=1
 PageLayoutDescrFile=
