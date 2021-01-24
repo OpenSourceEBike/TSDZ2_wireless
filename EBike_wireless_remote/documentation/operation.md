@@ -5,7 +5,7 @@ LED Information Signals
    When the remote is searching for either an ANT+ LEV or an ANT+ Controls connection, the RED LED will slowly flash. When a connection is made, the RED LED will quickly flash and then go out.
 2. The RED LED will briefly flash to indicate  that a long press has been made.
 3. The RED LED will turn on for 2 seconds to indicated that the remote is entering DFU mode.
-4. The RED LED will turn on when the brake lever is pressed, and turn off when the brake lever is released.
+4. The RED LED will turn on for up to 1 second when the brake lever is pressed, and turn off immediately when the brake lever is released.
 5. The Blue LED will flash slowly to indicate that bluetooth mode is active.
 6. A long press of the ENTER key can be used to determine the configuration options. [See Configuration Options for LED Behavior in this mode](configuration.md)
 7. A long press of the STANDBY key will turn the motor ON or OFF. When the motor is initializing, the LED will flash off-white. When the motor is on, the off-white led will rapidly flash, followed 2 seconds later by a display of the motor battery state. If the motor is turning off, the battery state will also be displayed. 

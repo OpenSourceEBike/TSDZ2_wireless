@@ -38,7 +38,7 @@ typedef enum {
     MINUS__PIN  = 15,
     ENTER__PIN = 17,
     STANDBY__PIN = 20,
-    BRAKE__PIN = 22,
+    BRAKE__PIN = 10,
     BUTTON_PIN_ELEMENTS = 5 // must be updated when added or removed an element
 } button_pins_t;
 
