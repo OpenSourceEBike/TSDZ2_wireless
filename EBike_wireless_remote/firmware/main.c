@@ -692,11 +692,37 @@ static void timer_button_long_press_timeout_handler(void *p_context)
 
   //pageup/pagedown
   if ((nrf_gpio_pin_read(PLUS__PIN) == 0) && garmin)
+  {
+    if (motor_init_state == 1)
+    {
+      bsp_board_led_on(LED_R__PIN); //briefly display red led
+      nrf_delay_ms(5);
+      bsp_board_led_off(LED_R__PIN); //briefly display red led
+    }
+    else
+      {
+      bsp_board_led_on(LED_G__PIN); //briefly display red led
+      nrf_delay_ms(5);
+      bsp_board_led_off(LED_G__PIN); //briefly display red led
+    }
     buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 0);
-
+  }
   if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && garmin)
+  {
+    if (motor_init_state == 1)
+    {
+      bsp_board_led_on(LED_R__PIN); //briefly display red led
+      nrf_delay_ms(5);
+      bsp_board_led_off(LED_R__PIN); //briefly display red led
+    }
+    else
+    {
+      bsp_board_led_on(LED_G__PIN); //briefly display red led
+      nrf_delay_ms(5);
+      bsp_board_led_off(LED_G__PIN); //briefly display red led
+    }
     buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 1);
-
+  }
   // check for enter bootloader buttons
   if ((nrf_gpio_pin_read(ENTER__PIN) == 0) && (nrf_gpio_pin_read(STANDBY__PIN) == 0))
 
@@ -752,17 +778,29 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         shutdown_flag = true; //needed because button release will wake up the board
 
       if (ebike)
+      {
+        if (motor_init_state == 1)
+        {
+          bsp_board_led_on(LED_R__PIN); //briefly display red led
+          nrf_delay_ms(5);
+          bsp_board_led_off(LED_R__PIN); //briefly display red led
+        }
+        else
+        {
+          bsp_board_led_on(LED_G__PIN); //briefly display red led
+          nrf_delay_ms(5);
+          bsp_board_led_off(LED_G__PIN); //briefly display red led
+        }
         buttons_send_page16(&m_ant_lev, button_pin, m_button_long_press);
+      }
     }
     else if (button_pin == BRAKE__PIN)
     {
       //turn off the brake led
       soft_blink = led_softblink_uninit();
       //set the brake flag in the rear gearing to signal that the brake has been pressed
-      m_button_long_press=true;
+      m_button_long_press = true;
       buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
-     
-   
     }
     else if (button_pin == STANDBY__PIN)
     {                           //display the battery SOC
@@ -774,7 +812,21 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         shutdown_flag = true; //needed because button release will wake up the board
 
       if (ebike)
+      {
+        if (motor_init_state == 1)
+        {
+          bsp_board_led_on(LED_R__PIN); //briefly display red led
+          nrf_delay_ms(5);
+          bsp_board_led_off(LED_R__PIN); //briefly display red led
+        }
+        else
+        {
+          bsp_board_led_on(LED_G__PIN); //briefly display red led
+          nrf_delay_ms(5);
+          bsp_board_led_off(LED_G__PIN); //briefly display red led
+        }
         buttons_send_page16(&m_ant_lev, button_pin, m_button_long_press);
+      }
     }
     else if ((button_pin == ENTER__PIN) && (!m_button_long_press))
     //pageup on bike computer
@@ -805,7 +857,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       //set the brake flag in the rear gearing to signal that the brake has been pressed
       buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
       //display the red led
-      led_pwm_on(R_LED, 100, 99, 100, 1000); //keep on for 1 sec
+      led_pwm_on(R_LED, 255, 254, 255, 1000); //keep on full brightness for 1 sec
     }
     else
     {

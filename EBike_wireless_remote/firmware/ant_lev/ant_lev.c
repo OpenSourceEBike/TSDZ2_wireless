@@ -78,17 +78,45 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
         if (button == MINUS__PIN)
         {
             if (p_profile->page_16.travel_mode != 0)
+            {
                 p_profile->page_16.travel_mode -= 8;
-            p_profile->page_16.current_front_gear = 0;
-            //p_profile->page_16.travel_mode=p_profile->common.travel_mode_state;
-            send_page = true;
+                p_profile->page_16.current_front_gear = 0;
+                //p_profile->page_16.travel_mode=p_profile->common.travel_mode_state;
+                send_page = true;
+            }
+            else
+            { //quickly flash led
+                for (int i = 0; i < 10; i++)
+                {
+                    bsp_board_led_on(LED_R__PIN);
+                    nrf_delay_ms(10);
+                    bsp_board_led_off(LED_R__PIN);
+                    nrf_delay_ms(100);
+                }
+                send_page = false;
+            }
         }
         else if (button == PLUS__PIN)
         {
+
             if (p_profile->page_16.travel_mode != 56)
+            {
                 p_profile->page_16.travel_mode += 8;
-            p_profile->page_16.current_front_gear = 0;
-            send_page = true;
+                send_page = true;
+                p_profile->page_16.current_front_gear = 0;
+            }
+            else
+            { //quickly flash led
+                for (int i = 0; i < 10; i++)
+                {
+                    bsp_board_led_on(LED_R__PIN);
+                    nrf_delay_ms(10);
+                    bsp_board_led_off(LED_R__PIN);
+                    nrf_delay_ms(100);
+                }
+                send_page = false;
+            }
+            
         }
         else if (button == ENTER__PIN)
         {
