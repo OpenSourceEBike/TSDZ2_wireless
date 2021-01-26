@@ -116,31 +116,20 @@ F 1 "Brake" V 4125 5300 50  0000 C CNB
 F 2 "" H 4000 5350 50  0001 C CNN
 F 3 "~" H 4000 5350 50  0001 C CNN
 	1    4000 5350
-	-1   0    0    -1  
+	-1   0    0    1   
 $EndComp
 Wire Notes Line
-	3600 5050 3600 5800
+	3600 5050 3600 5600
 Wire Notes Line
-	4400 5050 4400 5800
+	4400 5050 4400 5600
 Text Notes 3600 5000 0    79   ~ 0
 Brake sensor\nconnector
 Wire Notes Line
-	4400 5800 3600 5800
+	4400 5600 3600 5600
 Wire Notes Line
 	4400 5050 3600 5050
 Wire Wire Line
-	4200 5450 5250 5450
-Wire Wire Line
-	5150 5350 4200 5350
-Wire Wire Line
-	5150 3650 5150 5350
-Wire Wire Line
-	5400 3650 5150 3650
-Wire Wire Line
-	5250 4150 5400 4150
-Connection ~ 5250 4150
-Wire Wire Line
-	5250 5450 5250 4150
+	5300 5350 4200 5350
 NoConn ~ 6800 3250
 Wire Wire Line
 	7600 3600 7600 3550
@@ -164,7 +153,7 @@ NoConn ~ 6800 3750
 NoConn ~ 6800 3850
 NoConn ~ 6800 3950
 NoConn ~ 6800 4050
-NoConn ~ 5400 4050
+NoConn ~ 5400 3650
 NoConn ~ 5400 3950
 NoConn ~ 5400 3850
 NoConn ~ 5400 3750
@@ -172,8 +161,6 @@ Wire Notes Line
 	7150 3700 7900 3700
 Wire Notes Line
 	7900 3050 7900 3700
-Wire Wire Line
-	4650 4150 5250 4150
 $Comp
 L Device:Battery_Cell coincell
 U 1 1 600B4826
@@ -215,4 +202,17 @@ Wire Wire Line
 NoConn ~ 5550 3100
 NoConn ~ 6650 3100
 NoConn ~ 6800 4150
+Wire Wire Line
+	4650 4150 5300 4150
+Connection ~ 5300 4150
+Wire Wire Line
+	5300 4150 5400 4150
+Wire Wire Line
+	5300 5350 5300 4150
+Wire Wire Line
+	5200 5250 5200 4050
+Wire Wire Line
+	5200 4050 5400 4050
+Wire Wire Line
+	4200 5250 5200 5250
 $EndSCHEMATC

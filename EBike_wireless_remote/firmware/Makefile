@@ -11,7 +11,7 @@ SD_REQ := 0xB9 #s340 sd is required
 $(OUTPUT_DIRECTORY)/TSDZ2_wireless_remote.out: \
   LINKER_SCRIPT  := TSDZ2_wireless_gcc_nrf52.ld
 
-BOOTLOADER_DIR = $(PROJ_DIR)/bootloader/firmware
+BOOTLOADER_DIR = $(PROJ_DIR)/../../EBike_wireless_bootloader/firmware
 BOOTLOADER_HEX = $(BOOTLOADER_DIR)/_build/TSDZ2_bootloader_with_sd.hex
 
 
@@ -218,7 +218,6 @@ INC_FOLDERS += \
   $(PROJ_DIR)/ant_lev/pages \
   $(PROJ_DIR)/antplus_controls \
   $(PROJ_DIR)/antplus_controls/pages \
-  $(PROJ_DIR)/config \
   $(PROJ_DIR)/ \
   $(PROJ_DIR)/include \
   $(SDK_ROOT)/integration/nrfx/legacy \
@@ -236,7 +235,6 @@ OPT = -O0 -g3
 CFLAGS += $(OPT)
 CFLAGS += -DAPP_TIMER_V2
 CFLAGS += -DAPP_TIMER_V2_RTC1_ENABLED
-#CFLAGS += -DBOARD_CUSTOM -DNRF52840_MDK_USB_DONGLE
 CFLAGS += -DBOARD_PCA10059
 CFLAGS += -DFLOAT_ABI_HARD
 CFLAGS += -DNRF52840_XXAA
@@ -264,7 +262,6 @@ ASMFLAGS += -mthumb -mabi=aapcs
 ASMFLAGS += -mfloat-abi=hard -mfpu=fpv4-sp-d16
 ASMFLAGS += -DAPP_TIMER_V2
 ASMFLAGS += -DAPP_TIMER_V2_RTC1_ENABLED
-#ASMFLAGS += -DBOARD_CUSTOM -DNRF52840_MDK_USB_DONGLE
 ASMFLAGS += -DBOARD_PCA10059
 ASMFLAGS += -DFLOAT_ABI_HARD
 ASMFLAGS += -DNRF52840_XXAA

@@ -183,20 +183,20 @@ Wire Wire Line
 NoConn ~ 6750 3375
 NoConn ~ 8000 3775
 NoConn ~ 9100 3775
-NoConn ~ 9250 4125
+NoConn ~ 9250 4025
 $Comp
 L power:GND #PWR?
 U 1 1 600CCF08
-P 9450 4075
-F 0 "#PWR?" H 9450 3825 50  0001 C CNN
-F 1 "GND" H 9455 3902 50  0000 C CNN
-F 2 "" H 9450 4075 50  0001 C CNN
-F 3 "" H 9450 4075 50  0001 C CNN
-	1    9450 4075
+P 9450 4175
+F 0 "#PWR?" H 9450 3925 50  0001 C CNN
+F 1 "GND" H 9455 4002 50  0000 C CNN
+F 2 "" H 9450 4175 50  0001 C CNN
+F 3 "" H 9450 4175 50  0001 C CNN
+	1    9450 4175
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	9450 4025 9450 4075
+	9450 4125 9450 4175
 $Comp
 L Wireless_eBike:Nordic_nRF52840_USB_Dongle U?
 U 1 1 6003704A
@@ -208,8 +208,6 @@ F 3 "" H 8400 4125 60  0000 C CNN
 	1    8550 4275
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	9250 4025 9450 4025
 Text Notes 8200 3250 0    60   ~ 0
 wireless board
 Wire Wire Line
@@ -247,4 +245,6 @@ Wire Wire Line
 	7525 3575 7525 4525
 Text Notes 6255 2410 0    60   ~ 0
 Generic DC-DC\nmin input allowed 60V, output 5V
+Wire Wire Line
+	9250 4125 9450 4125
 $EndSCHEMATC
