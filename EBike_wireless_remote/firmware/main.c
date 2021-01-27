@@ -700,7 +700,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
       bsp_board_led_off(LED_R__PIN); //briefly display red led
     }
     else
-      {
+    {
       bsp_board_led_on(LED_G__PIN); //briefly display red led
       nrf_delay_ms(5);
       bsp_board_led_off(LED_G__PIN); //briefly display red led
@@ -832,7 +832,21 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
     //pageup on bike computer
     {
       if (garmin)
+      {
+        if (motor_init_state == 1)
+        {
+          bsp_board_led_on(LED_R__PIN); //briefly display red led
+          nrf_delay_ms(5);
+          bsp_board_led_off(LED_R__PIN); //briefly display red led
+        }
+        else
+        {
+          bsp_board_led_on(LED_G__PIN); //briefly display red led
+          nrf_delay_ms(5);
+          bsp_board_led_off(LED_G__PIN); //briefly display red led
+        }
         buttons_send_pag73(&m_antplus_controls, button_pin, 0);
+      }
     }
 
     m_button_long_press = false; //reset the long press timer
