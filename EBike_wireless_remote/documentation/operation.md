@@ -3,8 +3,7 @@ LED Information Signals
 ------
 1. ANT Searching/Connection
    When the remote is searching for either an ANT+ LEV or an ANT+ Controls connection, the RED LED will slowly flash. When a connection is made, the RED LED will quickly flash and then go out.
-2. The GREEN LED will flash once briefly when the PLUS or MINUS keys are pressed to indicate the assist level is changing. if the assist level has reached either 0 or 7, pressing the PLUS or MINUS keys key will cause the led to briefly flash multiple times to indicate the limit has been reached. If the motor is on, the color of the LED will be RED.
-3. 
+2. The GREEN LED will flash once briefly when the PLUS or MINUS keys are pressed to indicate the assist level is changing. if the assist level has reached either 0 or 7, pressing the PLUS or MINUS keys key will cause the led to briefly flash multiple times to indicate the limit has been reached. If the motor is on, the color of the LED will be RED.. 
 4. The RED LED will briefly flash to indicate  that a long press has been made.
 5. The RED LED will turn on for 2 seconds to indicated that the remote is entering DFU mode.
 6. The RED LED will turn on for up to 1 second when the brake lever is pressed, and turn off immediately when the brake lever is released.
