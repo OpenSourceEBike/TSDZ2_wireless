@@ -79,6 +79,7 @@ uint8_t motor_init_state;
 uint8_t motor_error_state;
 uint8_t motor_soc_state;
 bool motor_display_soc = false;
+bool display_assist=false;
 
 #define BUTTON_DETECTION_DELAY APP_TIMER_TICKS(50)           /**< Delay from a GPIOTE event until a button is reported as pushed (in number of timer ticks). */
 #define BUTTON_PRESS_TIMEOUT APP_TIMER_TICKS(60 * 60 * 1000) // 1h to enter low power mode
@@ -111,6 +112,66 @@ bool motor_display_soc = false;
 #define SEC_PARAM_MAX_KEY_SIZE 16                      /**< Maximum encryption key size. */
 
 #define APP_FEATURE_NOT_SUPPORTED BLE_GATT_STATUS_ATTERR_APP_BEGIN + 2 /**< Reply when unsupported features are requested. */
+
+#define CONTROLS_HW_REVISION 2
+#define LEV_HW_REVISION 1
+
+#define CONTROLS_MANUFACTURER_ID 255
+#define LEV_MANUFACTURER_ID 254
+
+#define CONTROLS_MODEL_NUMBER 2
+#define LEV_MODEL_NUMBER 1
+
+#define CONTROLS_SW_REVISION_MAJOR 2
+#define LEV_SW_REVISION_MAJOR 1
+
+#define CONTROLS_SW_REVISION_MINOR 2
+#define LEV_SW_REVISION_MINOR 1
+
+#define CONTROLS_SERIAL_NUMBER 3241
+#define LEV_SERIAL_NUMBER 1234
+
+#define CONTROLS_CHANNEL_NUM 1 //see: NRF_SDH_ANT_TOTAL_CHANNELS_ALLOCATED in sdk_config.sys
+#define LEV_CHANNEL_NUM 0      //LEV on chan 0,CONTROL on chan 1
+
+#define ANT_LEV_ANT_OBSERVER_PRIO 1
+#define ANT_CONTROLS_ANT_OBSERVER_PRIO 1
+
+#define CONTROLS_CHAN_ID_TRANS_TYPE 0 // slave wildcard match
+#define LEV_CHAN_ID_TRANS_TYPE 0
+
+#define CONTROLS_CHAN_ID_DEV_NUM 0 // wildcard match to any master
+#define LEV_CHAN_ID_DEV_NUM 0
+
+#define ANTPLUS_NETWORK_NUM 0
+
+// @snippet [ANT LEV RX Instance]
+void ant_lev_evt_handler(ant_lev_profile_t *p_profile, ant_lev_evt_t event);
+void antplus_controls_evt_handler(antplus_controls_profile_t *p_profile, antplus_controls_evt_t event);
+
+LEV_DISP_CHANNEL_CONFIG_DEF(m_ant_lev,
+                            LEV_CHANNEL_NUM,
+                            LEV_CHAN_ID_TRANS_TYPE,
+                            LEV_CHAN_ID_DEV_NUM,
+                            ANTPLUS_NETWORK_NUM,
+                            LEV_MSG_PERIOD_4Hz);
+
+CONTROLS_SENS_CHANNEL_CONFIG_DEF(m_antplus_controls,
+                                 CONTROLS_CHANNEL_NUM,
+                                 CONTROLS_CHAN_ID_TRANS_TYPE,
+                                 CONTROLS_CHAN_ID_DEV_NUM,
+                                 ANTPLUS_NETWORK_NUM,
+                                 CONTROLS_MSG_PERIOD_4Hz);
+
+CONTROLS_SENS_PROFILE_CONFIG_DEF(m_antplus_controls,
+                                 antplus_controls_evt_handler);
+
+static ant_lev_profile_t m_ant_lev;
+static antplus_controls_profile_t m_antplus_controls;
+
+NRF_SDH_ANT_OBSERVER(m_ant_observer, ANT_LEV_ANT_OBSERVER_PRIO, ant_lev_disp_evt_handler, &m_ant_lev);
+NRF_SDH_ANT_OBSERVER(m_ant_observer_control, ANT_CONTROLS_ANT_OBSERVER_PRIO, antplus_controls_sens_evt_handler, &m_antplus_controls);
+
 uint8_t ebike = 1;                                                     //ebike control as default                                                //ANT LEV ebike as a default
 uint8_t garmin = 0;                                                    //no garmin computer as a default
 uint8_t brake = 0;
@@ -191,9 +252,21 @@ void led_pwm_on(uint32_t mask, uint8_t duty_cycle_max, uint8_t duty_cycle_min, u
     soft_blink = 1; //set the blocking flag
   }
 }
+void disp_assist(void)
+{
+  
+  for (int i = 0; i < m_ant_lev.page_16.travel_mode; i+=8)
+  {
+    led_pwm_on(G_LED, 100, 0, 5, 0);
+    nrf_delay_ms(200);
+    soft_blink = led_softblink_uninit(); // turn off the soft_blink led
+    nrf_delay_ms(300);
+    display_assist=false;
+  }
+}
 void disp_soc(void)
 {
-  nrf_delay_ms(1000);
+  nrf_delay_ms(500);
   for (int i = 0; i < motor_soc_state; i++)
   {
     led_pwm_on(G_LED, 100, 0, 5, 0);
@@ -427,65 +500,6 @@ APP_TIMER_DEF(bluetooth_timer);
 #define BLUETOOTH_TIMEOUT APP_TIMER_TICKS(1000 * 60 * 5) //turn off bluetooth after 5 min
 
 void shutdown(void);
-
-#define CONTROLS_HW_REVISION 2
-#define LEV_HW_REVISION 1
-
-#define CONTROLS_MANUFACTURER_ID 255
-#define LEV_MANUFACTURER_ID 254
-
-#define CONTROLS_MODEL_NUMBER 2
-#define LEV_MODEL_NUMBER 1
-
-#define CONTROLS_SW_REVISION_MAJOR 2
-#define LEV_SW_REVISION_MAJOR 1
-
-#define CONTROLS_SW_REVISION_MINOR 2
-#define LEV_SW_REVISION_MINOR 1
-
-#define CONTROLS_SERIAL_NUMBER 3241
-#define LEV_SERIAL_NUMBER 1234
-
-#define CONTROLS_CHANNEL_NUM 1 //see: NRF_SDH_ANT_TOTAL_CHANNELS_ALLOCATED in sdk_config.sys
-#define LEV_CHANNEL_NUM 0      //LEV on chan 0,CONTROL on chan 1
-
-#define ANT_LEV_ANT_OBSERVER_PRIO 1
-#define ANT_CONTROLS_ANT_OBSERVER_PRIO 1
-
-#define CONTROLS_CHAN_ID_TRANS_TYPE 0 // slave wildcard match
-#define LEV_CHAN_ID_TRANS_TYPE 0
-
-#define CONTROLS_CHAN_ID_DEV_NUM 0 // wildcard match to any master
-#define LEV_CHAN_ID_DEV_NUM 0
-
-#define ANTPLUS_NETWORK_NUM 0
-
-// @snippet [ANT LEV RX Instance]
-void ant_lev_evt_handler(ant_lev_profile_t *p_profile, ant_lev_evt_t event);
-void antplus_controls_evt_handler(antplus_controls_profile_t *p_profile, antplus_controls_evt_t event);
-
-LEV_DISP_CHANNEL_CONFIG_DEF(m_ant_lev,
-                            LEV_CHANNEL_NUM,
-                            LEV_CHAN_ID_TRANS_TYPE,
-                            LEV_CHAN_ID_DEV_NUM,
-                            ANTPLUS_NETWORK_NUM,
-                            LEV_MSG_PERIOD_4Hz);
-
-CONTROLS_SENS_CHANNEL_CONFIG_DEF(m_antplus_controls,
-                                 CONTROLS_CHANNEL_NUM,
-                                 CONTROLS_CHAN_ID_TRANS_TYPE,
-                                 CONTROLS_CHAN_ID_DEV_NUM,
-                                 ANTPLUS_NETWORK_NUM,
-                                 CONTROLS_MSG_PERIOD_4Hz);
-
-CONTROLS_SENS_PROFILE_CONFIG_DEF(m_antplus_controls,
-                                 antplus_controls_evt_handler);
-
-static ant_lev_profile_t m_ant_lev;
-static antplus_controls_profile_t m_antplus_controls;
-
-NRF_SDH_ANT_OBSERVER(m_ant_observer, ANT_LEV_ANT_OBSERVER_PRIO, ant_lev_disp_evt_handler, &m_ant_lev);
-NRF_SDH_ANT_OBSERVER(m_ant_observer_control, ANT_CONTROLS_ANT_OBSERVER_PRIO, antplus_controls_sens_evt_handler, &m_antplus_controls);
 
 uint16_t cnt_1;
 
@@ -831,7 +845,8 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
     else if ((button_pin == ENTER__PIN) && (!m_button_long_press))
     //pageup on bike computer
     {
-      if (garmin)
+      display_assist=true; // display the assist level - needed due to innterrupt priorities
+     /* if (garmin)
       {
         if (motor_init_state == 1)
         {
@@ -847,7 +862,9 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         }
         buttons_send_pag73(&m_antplus_controls, button_pin, 0);
       }
+      */
     }
+    
 
     m_button_long_press = false; //reset the long press timer
 
@@ -1385,6 +1402,7 @@ void ble_init(void)
 void check_interrupt_flags(void)
 {
   check_motor_init(); //check for errors and motor status
+  if (display_assist) disp_assist(); //display the assist level
   //need flags to handle interrupt events for flash write
   //this is required due to interrupt priority
   //see: https://devzone.nordicsemi.com/f/nordic-q-a/57067/calling-fds_record_update-in-isr
