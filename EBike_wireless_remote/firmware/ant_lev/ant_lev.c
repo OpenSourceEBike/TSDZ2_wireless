@@ -113,6 +113,7 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
         {
             if (p_profile->page_16.travel_mode == 56)
             {
+                send_page = false;
                 //quickly flash led
                 for (int i = 0; i < 10; i++)
                 {
