@@ -79,7 +79,7 @@ uint8_t motor_init_state;
 uint8_t motor_error_state;
 uint8_t motor_soc_state;
 bool motor_display_soc = false;
-bool display_assist=false;
+bool display_assist = false;
 
 #define BUTTON_DETECTION_DELAY APP_TIMER_TICKS(50)           /**< Delay from a GPIOTE event until a button is reported as pushed (in number of timer ticks). */
 #define BUTTON_PRESS_TIMEOUT APP_TIMER_TICKS(60 * 60 * 1000) // 1h to enter low power mode
@@ -172,8 +172,8 @@ static antplus_controls_profile_t m_antplus_controls;
 NRF_SDH_ANT_OBSERVER(m_ant_observer, ANT_LEV_ANT_OBSERVER_PRIO, ant_lev_disp_evt_handler, &m_ant_lev);
 NRF_SDH_ANT_OBSERVER(m_ant_observer_control, ANT_CONTROLS_ANT_OBSERVER_PRIO, antplus_controls_sens_evt_handler, &m_antplus_controls);
 
-uint8_t ebike = 1;                                                     //ebike control as default                                                //ANT LEV ebike as a default
-uint8_t garmin = 0;                                                    //no garmin computer as a default
+uint8_t ebike = 1;  //ebike control as default                                                //ANT LEV ebike as a default
+uint8_t garmin = 0; //no garmin computer as a default
 uint8_t brake = 0;
 bool m_button_long_press = false;
 bool shutdown_flag = false;
@@ -254,14 +254,14 @@ void led_pwm_on(uint32_t mask, uint8_t duty_cycle_max, uint8_t duty_cycle_min, u
 }
 void disp_assist(void)
 {
-  
-  for (int i = 0; i < m_ant_lev.page_16.travel_mode; i+=8)
+
+  for (int i = 0; i < m_ant_lev.page_16.travel_mode; i += 8)
   {
     led_pwm_on(G_LED, 100, 0, 5, 0);
     nrf_delay_ms(200);
     soft_blink = led_softblink_uninit(); // turn off the soft_blink led
     nrf_delay_ms(300);
-    display_assist=false;
+    display_assist = false;
   }
 }
 void disp_soc(void)
@@ -686,20 +686,24 @@ static void timer_button_long_press_timeout_handler(void *p_context)
   //stop the long press timer
   err_code = app_timer_stop(m_timer_button_long_press_timeout); //stop the long press timer
   APP_ERROR_CHECK(err_code);
+  led_pwm_on(R_LED, 100, 99 - 1, 1, 25); //flash the red led to indicate long press
+  nrf_delay_ms(50);
+  soft_blink = led_softblink_uninit();
 
   if (nrf_gpio_pin_read(ENTER__PIN) == 0)
   {
+    nrf_delay_ms(2000);
     if (ebike && !soft_blink)
     {
       led_pwm_on(R_LED, 100, 99, 1, 100); //100 ms on
-      nrf_delay_ms(2000);
+      nrf_delay_ms(1000);
       soft_blink = led_softblink_uninit();
     }
 
     if (garmin && !soft_blink)
     {
       led_pwm_on(G_LED, 100, 99, 1, 100); //100 ms on
-      nrf_delay_ms(2000);
+      nrf_delay_ms(1000);
       soft_blink = led_softblink_uninit();
     }
 
@@ -707,14 +711,9 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     if (brake && !soft_blink)
     {
       led_pwm_on(B_LED, 100, 99, 1, 100); //100 ms on
-      nrf_delay_ms(2000);
+      nrf_delay_ms(1000);
       soft_blink = led_softblink_uninit();
     }
-  }
-  else
-  {
-    led_pwm_on(R_LED, 100, 99 - 1, 1, 25); //100 ms on
-    nrf_delay_ms(50);
   }
 
   //pageup/pagedown
@@ -733,6 +732,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
       bsp_board_led_off(LED_G__PIN); //briefly display red led
     }
     buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 0);
+    
   }
   if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && garmin)
   {
@@ -749,6 +749,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
       bsp_board_led_off(LED_G__PIN); //briefly display red led
     }
     buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 1);
+    
   }
   // check for enter bootloader buttons
   if ((nrf_gpio_pin_read(ENTER__PIN) == 0) && (nrf_gpio_pin_read(STANDBY__PIN) == 0))
@@ -804,9 +805,9 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       if (plus_minus_flag)
         shutdown_flag = true; //needed because button release will wake up the board
 
-      if (ebike)
+      if ((ebike)&& (!m_button_long_press))
       {
-        if (motor_init_state == 1)
+        if (motor_init_state == 1) 
         {
           bsp_board_led_on(LED_R__PIN); //briefly display red led
           nrf_delay_ms(5);
@@ -838,9 +839,9 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       if (plus_minus_flag)
         shutdown_flag = true; //needed because button release will wake up the board
 
-      if (ebike)
+      if ((ebike)&& (!m_button_long_press))
       {
-        if (motor_init_state == 1)
+        if (motor_init_state == 1) 
         {
           bsp_board_led_on(LED_R__PIN); //briefly display red led
           nrf_delay_ms(5);
@@ -858,8 +859,8 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
     else if ((button_pin == ENTER__PIN) && (!m_button_long_press))
     //pageup on bike computer
     {
-      display_assist=true; // display the assist level - needed due to innterrupt priorities
-     /* if (garmin)
+      display_assist = true; // display the assist level - needed due to innterrupt priorities
+                             /* if (garmin)
       {
         if (motor_init_state == 1)
         {
@@ -877,7 +878,6 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       }
       */
     }
-    
 
     m_button_long_press = false; //reset the long press timer
 
@@ -1414,7 +1414,8 @@ void ble_init(void)
 void check_interrupt_flags(void)
 {
   check_motor_init(); //check for errors and motor status
-  if (display_assist) disp_assist(); //display the assist level
+  if (display_assist)
+    disp_assist(); //display the assist level
   //need flags to handle interrupt events for flash write
   //this is required due to interrupt priority
   //see: https://devzone.nordicsemi.com/f/nordic-q-a/57067/calling-fds_record_update-in-isr
