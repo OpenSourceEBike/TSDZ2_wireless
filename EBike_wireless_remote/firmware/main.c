@@ -600,6 +600,16 @@ static void ANT_Search_timeout(void *p_context)
   uint8_t LEV_Status;
   uint8_t CTRL_Status;
   ret_code_t err_code;
+  static uint8_t ui8_cnt_ant_search_timeout = 0;
+
+  // keep a counter for the number of ANT search timeouts
+  ui8_cnt_ant_search_timeout++;
+  if (ui8_cnt_ant_search_timeout > 100) // 300ms * 100 = 30 seconds
+  {
+    // if is not connected, shutdown
+    shutdown_flag = true;
+    return;
+  }
 
   err_code = sd_ant_channel_status_get(LEV_CHANNEL_NUM, &LEV_Status);
   APP_ERROR_CHECK(err_code);
@@ -613,6 +623,7 @@ static void ANT_Search_timeout(void *p_context)
       soft_blink = led_softblink_uninit(); // turn off the soft_blink led
       err_code = app_timer_stop(ANT_Search_timer);
       APP_ERROR_CHECK(err_code);
+      ui8_cnt_ant_search_timeout = 0;
       //blink RED fast TO INDICATE CONNECTION
       led_pwm_on(R_LED, 100, 0, 100, 1000); //fast flaSH
     }
@@ -626,6 +637,7 @@ static void ANT_Search_timeout(void *p_context)
       soft_blink = led_softblink_uninit(); // turn off the soft_blink led
       err_code = app_timer_stop(ANT_Search_timer);
       APP_ERROR_CHECK(err_code);
+      ui8_cnt_ant_search_timeout = 0;
       //blink RED fast TO INDICATE CONNECTION
       led_pwm_on(R_LED, 100, 0, 100, 1000); //fast flaSH
     }
@@ -638,6 +650,7 @@ static void ANT_Search_timeout(void *p_context)
       soft_blink = led_softblink_uninit(); // turn off the soft_blink led
       err_code = app_timer_stop(ANT_Search_timer);
       APP_ERROR_CHECK(err_code);
+      ui8_cnt_ant_search_timeout = 0;
       //blink RED fast TO INDICATE CONNECTION
       led_pwm_on(R_LED, 100, 0, 100, 1000); //fast flaSH
     }
@@ -945,7 +958,6 @@ void buttons_init(void)
 }
 void shutdown(void)
 {
-  /*
   nrf_gpio_pin_clear(19); //reset
   nrf_delay_ms(10);
   nrf_gpio_pin_clear(BUTTON_1); //button1
@@ -985,7 +997,7 @@ void shutdown(void)
   nrf_gpio_cfg_default(19);
   sd_clock_hfclk_release();
   nrf_delay_ms(10);
-*/
+
   nrf_delay_ms(1000);
   nrf_pwr_mgmt_shutdown(NRF_PWR_MGMT_SHUTDOWN_GOTO_SYSOFF);
 }
