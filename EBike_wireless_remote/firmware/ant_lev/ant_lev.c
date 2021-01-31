@@ -50,18 +50,12 @@ void send_page16(ant_lev_profile_t *p_profile)
                            &(p_profile->page_16));
 
     uint32_t err_code;
-    int count = 0;
-    do
+    err_code = sd_ant_acknowledge_message_tx(p_profile->channel_number, sizeof(p_message_payload), p_message_payload);
+    /*do
     {
-        count++;
-        if (count >> 1)
-        {
-            count++; //check to see if a resend attempt is needed
-            count--;
-        }
         err_code = sd_ant_acknowledge_message_tx(p_profile->channel_number, sizeof(p_message_payload), p_message_payload);
     } while (err_code == NRF_ANT_ERROR_TRANSFER_IN_PROGRESS);
-
+*/
     //reset the on/off and brake flags
     p_profile->page_16.current_front_gear = 0;
     p_profile->page_16.current_rear_gear = 0;
@@ -279,14 +273,21 @@ void ant_lev_disp_evt_handler(ant_evt_t *p_ant_evt, void *p_context)
         uint8_t p_message_payload[ANT_STANDARD_DATA_PAYLOAD_SIZE];
         ant_lev_disp_cb_t *p_lev_cb = p_profile->_cb.p_sens_cb;
         //  ant_request_controller_disp_evt_handler(&(p_lev_cb->req_controller), p_ant_evt);
-
+        disp_message_decode(p_profile, p_message_payload);
+        if (desired_travel_mode != p_profile->page_16.travel_mode)
+        {
+            //send it again as it was missed with fast button presses
+            p_profile->page_16.travel_mode = desired_travel_mode;
+            send_page16(p_profile);
+        }
         switch (p_ant_evt->event)
         {
+
         case EVENT_TX:
         case EVENT_TRANSFER_TX_FAILED:
         case EVENT_TRANSFER_TX_COMPLETED:
 
-            disp_message_decode(p_profile, p_message_payload);
+            // disp_message_decode(p_profile, p_message_payload);
             if (ant_request_controller_ack_needed(&(p_lev_cb->req_controller)))
             {
                 err_code = sd_ant_acknowledge_message_tx(p_profile->channel_number,
@@ -296,7 +297,7 @@ void ant_lev_disp_evt_handler(ant_evt_t *p_ant_evt, void *p_context)
             }
             if (desired_travel_mode != p_profile->page_16.travel_mode)
             {
-               //send it again it was missed with fast button presses
+                //send it again it was missed with fast button presses
                 p_profile->page_16.travel_mode = desired_travel_mode;
                 send_page16(p_profile);
             }
@@ -317,6 +318,12 @@ void ant_lev_disp_evt_handler(ant_evt_t *p_ant_evt, void *p_context)
             if (p_ant_evt->message.ANT_MESSAGE_ucMesgID == MESG_BROADCAST_DATA_ID || p_ant_evt->message.ANT_MESSAGE_ucMesgID == MESG_ACKNOWLEDGED_DATA_ID || p_ant_evt->message.ANT_MESSAGE_ucMesgID == MESG_BURST_DATA_ID)
             {
                 disp_message_decode(p_profile, p_ant_evt->message.ANT_MESSAGE_aucPayload);
+                if (desired_travel_mode != p_profile->page_16.travel_mode)
+                {
+                    //send it again it was missed with fast button presses
+                    p_profile->page_16.travel_mode = desired_travel_mode;
+                    send_page16(p_profile);
+                }
             }
             break;
         case EVENT_RX_SEARCH_TIMEOUT:

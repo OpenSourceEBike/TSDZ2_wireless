@@ -621,7 +621,12 @@
 //==========================================================
 
 // <h> nRF_Drivers 
+// <q> APP_GPIOTE_ENABLED  - app_gpiote - GPIOTE events dispatcher
+ 
 
+#ifndef APP_GPIOTE_ENABLED
+#define APP_GPIOTE_ENABLED 1
+#endif
 //==========================================================
 // <e> GPIOTE_ENABLED - nrf_drv_gpiote - GPIOTE peripheral driver - legacy layer
 //==========================================================
@@ -647,7 +652,7 @@
 // <7=> 7 
 
 #ifndef GPIOTE_CONFIG_IRQ_PRIORITY
-#define GPIOTE_CONFIG_IRQ_PRIORITY 6
+#define GPIOTE_CONFIG_IRQ_PRIORITY 2
 #endif
 
 // </e>
@@ -674,7 +679,7 @@
 // <7=> 7 
 
 #ifndef NRFX_GPIOTE_CONFIG_IRQ_PRIORITY
-#define NRFX_GPIOTE_CONFIG_IRQ_PRIORITY 6
+#define NRFX_GPIOTE_CONFIG_IRQ_PRIORITY 2
 #endif
 
 // <e> NRFX_GPIOTE_CONFIG_LOG_ENABLED - Enables logging in the module.
