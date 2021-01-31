@@ -34,7 +34,6 @@ The LED will continue a visual cycle spanning 2 seconds when the button is held 
 
 - __RED LED__ (0n for 0.5 seconds) - ANT+ LEV active
 - __GREEN LED__ (0n for 0.5 seconds) - ANT+ CONTROLS active
-- __BLUE LED__ (0n for 0.5 seconds) - brake control active
 - __ALL LEDs OFF__ for 0.5 seconds
 - (__repeat__ while button is pressed)
 

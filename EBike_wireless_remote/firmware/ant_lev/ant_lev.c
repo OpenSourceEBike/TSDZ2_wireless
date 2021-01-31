@@ -7,7 +7,7 @@
  */
 
 #include "sdk_common.h"
-
+#include "ant_error.h"
 #include "nrf_assert.h"
 #include "app_error.h"
 #include "ant_interface.h"
@@ -19,7 +19,7 @@
 #include "nrf_pwr_mgmt.h"
 #include "nrf_delay.h"
 #include "led_softblink.h"
-
+static u_int8_t desired_travel_mode;
 #define COMMON_DATA_INTERVAL 20 /**< Common data page is sent every 20th message. */
 
 void shutdown(void);
@@ -28,6 +28,45 @@ typedef struct
     ant_lev_page_t page_number;
     uint8_t page_payload[7];
 } ant_lev_message_layout_t;
+
+void send_page16(ant_lev_profile_t *p_profile)
+
+{
+
+    static uint8_t p_message_payload[ANT_STANDARD_DATA_PAYLOAD_SIZE] = {
+        ANT_LEV_PAGE_16,
+        0x01,
+        0x00,
+        0x0F,
+        0x00,
+        0x00,
+        0x00,
+        0x00};
+
+    ant_lev_message_layout_t *p_lev_message_payload =
+        (ant_lev_message_layout_t *)p_message_payload;
+
+    ant_lev_page_16_encode(p_lev_message_payload->page_payload,
+                           &(p_profile->page_16));
+
+    uint32_t err_code;
+    err_code = sd_ant_acknowledge_message_tx(p_profile->channel_number, sizeof(p_message_payload), p_message_payload);
+    /*do
+    {
+        err_code = sd_ant_acknowledge_message_tx(p_profile->channel_number, sizeof(p_message_payload), p_message_payload);
+    } while (err_code == NRF_ANT_ERROR_TRANSFER_IN_PROGRESS);
+*/
+    //reset the on/off and brake flags
+    p_profile->page_16.current_front_gear = 0;
+    p_profile->page_16.current_rear_gear = 0;
+    if (err_code != 0)
+    {
+        // nrf_delay_ms(50);
+    }
+    (void)err_code; // ignore
+                    //  nrf_delay_ms(100);
+}
+
 /**@brief Function for initializing the ANT LEV profile instance.
  *
  * @param[in]  p_profile        Pointer to the profile instance.
@@ -35,6 +74,7 @@ typedef struct
  *
  * @retval     NRF_SUCCESS      If initialization was successful. Otherwise, an error code is returned.
  */
+
 static ret_code_t ant_lev_init(ant_lev_profile_t *p_profile,
                                ant_channel_config_t const *p_channel_config)
 {
@@ -70,9 +110,10 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
 {
     ASSERT(p_profile != NULL);
     bool long_press = m_button_long_press;
-    bool send_page = false;
+
     //open if previously closed
     sd_ant_channel_open(p_profile->channel_number);
+
     if (!long_press)
     {
         if (button == MINUS__PIN)
@@ -87,11 +128,13 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
                     bsp_board_led_off(LED_R__PIN);
                     nrf_delay_ms(100);
                 }
-                send_page = false;
+
+                desired_travel_mode = 0;
             }
             else
             {
                 p_profile->page_16.travel_mode -= 8;
+                desired_travel_mode = p_profile->page_16.travel_mode;
                 p_profile->page_16.current_front_gear = 0;
                 if (p_profile->page_16.travel_mode == 0)
                 {
@@ -104,7 +147,6 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
                         nrf_delay_ms(100);
                     }
                 }
-                send_page = true;
             }
 
             //p_profile->page_16.travel_mode=p_profile->common.travel_mode_state;
@@ -113,7 +155,8 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
         {
             if (p_profile->page_16.travel_mode == 56)
             {
-                send_page = false;
+
+                desired_travel_mode = 56;
                 //quickly flash led
                 for (int i = 0; i < 10; i++)
                 {
@@ -127,8 +170,9 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
 
             {
                 p_profile->page_16.travel_mode += 8;
+                desired_travel_mode = p_profile->page_16.travel_mode;
                 p_profile->page_16.current_front_gear = 0;
-                send_page = true;
+
                 if (p_profile->page_16.travel_mode == 56)
                 {
                     //quickly flash led if at limits
@@ -145,19 +189,14 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
         else if (button == ENTER__PIN)
         {
             // p_profile->page_16.wheel_circumference -= 10; //1818 circum
-
-            // send_page = true;
         }
         else if (button == STANDBY__PIN)
         {
             // p_profile->page_16.manufacturer_id += 1;
-
-            //send_page = true;
         }
         else if (button == BRAKE__PIN)
         {
             p_profile->page_16.current_rear_gear = 15;
-            send_page = true;
         }
     }
     else //long press actions
@@ -165,81 +204,14 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
         if (button == STANDBY__PIN)
         {
             p_profile->page_16.current_front_gear = 3;
-            send_page = true;
         }
         else if (button == BRAKE__PIN)
         {
             p_profile->page_16.current_rear_gear = 0;
-            send_page = true;
         }
-        /*
-        if (button == MINUS__PIN)
-        {
-            if (p_profile->page_16.travel_mode != 0)
-                p_profile->page_16.travel_mode -= 8;
-            //p_profile->page_16.travel_mode=p_profile->common.travel_mode_state;
-            send_page = true;
-        }
-        else if (button == PLUS__PIN)
-        {
-            if (p_profile->page_16.travel_mode != 56)
-                p_profile->page_16.travel_mode += 8;
-
-            send_page = true;
-        }
-        
-        if (button == ENTER__PIN)
-        {
-           p_profile->page_16.wheel_circumference += 10; //1818 circum
-
-            send_page = true;
-        }
-        else if (button == STANDBY__PIN)
-        {
-           p_profile->page_16.manufacturer_id -= 1;
-
-            send_page = true;
-        }
-        */
     }
-    // send_page = true;
-    if (send_page)
-    {
-        send_page = false;
-
-        static uint8_t p_message_payload[ANT_STANDARD_DATA_PAYLOAD_SIZE] = {
-            ANT_LEV_PAGE_16,
-            0x01,
-            0x00,
-            0x0F,
-            0x00,
-            0x00,
-            0x00,
-            0x00};
-
-        ant_lev_message_layout_t *p_lev_message_payload =
-            (ant_lev_message_layout_t *)p_message_payload;
-
-        ant_lev_page_16_encode(p_lev_message_payload->page_payload,
-                               &(p_profile->page_16));
-
-        uint32_t err_code;
-        err_code = sd_ant_acknowledge_message_tx(p_profile->channel_number, sizeof(p_message_payload), p_message_payload);
-        //reset the on/off and brake flags
-        p_profile->page_16.current_front_gear = 0;
-        p_profile->page_16.current_rear_gear = 0;
-        if (err_code != 0)
-        {
-            // nrf_delay_ms(50);
-        }
-        (void)err_code; // ignore
-                        //  nrf_delay_ms(100);
-    }
-
-    if (send_page)
-        return true;
-    else
-        return false;
+    send_page16(p_profile);
+    return true;
 }
 
 static void disp_message_decode(ant_lev_profile_t *p_profile, uint8_t *p_message_payload)
@@ -301,14 +273,21 @@ void ant_lev_disp_evt_handler(ant_evt_t *p_ant_evt, void *p_context)
         uint8_t p_message_payload[ANT_STANDARD_DATA_PAYLOAD_SIZE];
         ant_lev_disp_cb_t *p_lev_cb = p_profile->_cb.p_sens_cb;
         //  ant_request_controller_disp_evt_handler(&(p_lev_cb->req_controller), p_ant_evt);
-
+        disp_message_decode(p_profile, p_message_payload);
+        if (desired_travel_mode != p_profile->page_16.travel_mode)
+        {
+            //send it again as it was missed with fast button presses
+            p_profile->page_16.travel_mode = desired_travel_mode;
+            send_page16(p_profile);
+        }
         switch (p_ant_evt->event)
         {
+
         case EVENT_TX:
         case EVENT_TRANSFER_TX_FAILED:
         case EVENT_TRANSFER_TX_COMPLETED:
 
-            disp_message_decode(p_profile, p_message_payload);
+            // disp_message_decode(p_profile, p_message_payload);
             if (ant_request_controller_ack_needed(&(p_lev_cb->req_controller)))
             {
                 err_code = sd_ant_acknowledge_message_tx(p_profile->channel_number,
@@ -316,6 +295,13 @@ void ant_lev_disp_evt_handler(ant_evt_t *p_ant_evt, void *p_context)
                                                          p_message_payload);
                 APP_ERROR_CHECK(err_code);
             }
+            if (desired_travel_mode != p_profile->page_16.travel_mode)
+            {
+                //send it again it was missed with fast button presses
+                p_profile->page_16.travel_mode = desired_travel_mode;
+                send_page16(p_profile);
+            }
+
             /*           else
             {
                err_code = sd_ant_broadcast_message_tx(p_profile->channel_number,
@@ -332,6 +318,12 @@ void ant_lev_disp_evt_handler(ant_evt_t *p_ant_evt, void *p_context)
             if (p_ant_evt->message.ANT_MESSAGE_ucMesgID == MESG_BROADCAST_DATA_ID || p_ant_evt->message.ANT_MESSAGE_ucMesgID == MESG_ACKNOWLEDGED_DATA_ID || p_ant_evt->message.ANT_MESSAGE_ucMesgID == MESG_BURST_DATA_ID)
             {
                 disp_message_decode(p_profile, p_ant_evt->message.ANT_MESSAGE_aucPayload);
+                if (desired_travel_mode != p_profile->page_16.travel_mode)
+                {
+                    //send it again it was missed with fast button presses
+                    p_profile->page_16.travel_mode = desired_travel_mode;
+                    send_page16(p_profile);
+                }
             }
             break;
         case EVENT_RX_SEARCH_TIMEOUT:

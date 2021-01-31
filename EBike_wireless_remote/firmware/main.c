@@ -74,6 +74,7 @@ int8_t mask_number = 0;
 //only one instance may be active at any time
 //softblink is the instance flag 1 means led busy, 0 or 2 means led ready
 uint8_t soft_blink = 0;
+bool config_press = false;
 //motor state control variables
 uint8_t motor_init_state;
 uint8_t motor_error_state;
@@ -81,12 +82,14 @@ uint8_t motor_soc_state;
 bool motor_display_soc = false;
 bool display_assist = false;
 
-#define BUTTON_DETECTION_DELAY APP_TIMER_TICKS(50)           /**< Delay from a GPIOTE event until a button is reported as pushed (in number of timer ticks). */
+#define BUTTON_DETECTION_DELAY APP_TIMER_TICKS(1)            /**< Delay from a GPIOTE event until a button is reported as pushed (in number of timer ticks). */
 #define BUTTON_PRESS_TIMEOUT APP_TIMER_TICKS(60 * 60 * 1000) // 1h to enter low power mode
 //#define BUTTON_PRESS_TIMEOUT APP_TIMER_TICKS(20 * 1000)
-#define BUTTON_LONG_PRESS_TIMEOUT APP_TIMER_TICKS(1000) // 1 seconds for long press
-#define ANT_Search_TIMEOUT APP_TIMER_TICKS(300)         // 300 ms for Ant Search check
-#define DEVICE_NAME "TSDZ2_remote"                      /**< Name of device. Will be included in the advertising data. */
+#define BUTTON_LONG_PRESS_TIMEOUT APP_TIMER_TICKS(1000)   // 1 seconds for long press
+#define BUTTON_CONFIG_PRESS_TIMEOUT APP_TIMER_TICKS(5000) // 5 seconds TO ENTER CONFIG MODE
+
+#define ANT_Search_TIMEOUT APP_TIMER_TICKS(300) // 300 ms for Ant Search check
+#define DEVICE_NAME "TSDZ2_remote"              /**< Name of device. Will be included in the advertising data. */
 
 #define APP_BLE_CONN_CFG_TAG 1 /**< A tag identifying the SoftDevice BLE configuration. */
 
@@ -171,6 +174,9 @@ static antplus_controls_profile_t m_antplus_controls;
 
 NRF_SDH_ANT_OBSERVER(m_ant_observer, ANT_LEV_ANT_OBSERVER_PRIO, ant_lev_disp_evt_handler, &m_ant_lev);
 NRF_SDH_ANT_OBSERVER(m_ant_observer_control, ANT_CONTROLS_ANT_OBSERVER_PRIO, antplus_controls_sens_evt_handler, &m_antplus_controls);
+uint8_t configuration_flag = 0;     // flag to determine configutaion mode 1 config mode/ 0 normal mode
+bool enable_configuration = false;  //used to turn on config mode
+bool disable_configuration = false; //used to turn off config mode
 
 uint8_t ebike = 1;  //ebike control as default                                                //ANT LEV ebike as a default
 uint8_t garmin = 0; //no garmin computer as a default
@@ -187,8 +193,7 @@ static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID; /**< Handle of the curr
 //static uint8_t m_adv_handle = BLE_GAP_ADV_SET_HANDLE_NOT_SET;           /**< Advertising handle used to identify an advertising set. */
 //static uint8_t m_enc_advdata[BLE_GAP_ADV_SET_DATA_SIZE_MAX];            /**< Buffer for storing an encoded advertising set. */
 //static uint8_t m_enc_scan_response_data[BLE_GAP_ADV_SET_DATA_SIZE_MAX]; /**< Buffer for storing an encoded scan data. */
-bool m_turn_bluetooth_on = false; //needs to be a flag to manage flash write events
-bool m_turn_bluetooth_off = false;
+
 uint8_t old_ant_device_id = 0; // initially in pairing mode
 uint8_t new_ant_device_id = 0; // used to check for change of ant id
 
@@ -278,18 +283,21 @@ void disp_soc(void)
 void check_motor_init()
 {
   static bool soc_disp = true;
-  static bool key_disp = false;
+  //static bool key_disp = false;
+
   //display SOC if standby key pressed and motor is on
-  if (motor_display_soc && motor_soc_state && key_disp && (motor_init_state == 1)) // display soc when STANDBY Key is pressed
+  // if (motor_display_soc && motor_soc_state && key_disp && (motor_init_state == 1)) // display soc when STANDBY Key is pressed
+  if (motor_display_soc && motor_init_state == 1) // display soc when STANDBY Key is pressed
   {
     disp_soc();
     motor_display_soc = false;
   }
+
   switch (motor_init_state)
   {
   case 0: //motor off
 
-    key_disp = false;
+    //key_disp = false;
 
     break;
   case 1: //motor on
@@ -302,7 +310,7 @@ void check_motor_init()
       soft_blink = led_softblink_uninit(); // turn off the soft_blink led
       nrf_delay_ms(1000);
       soc_disp = false;
-      key_disp = true;
+      // key_disp = true;
     }
     break;
   case 2: //motor initializing
@@ -487,6 +495,7 @@ static void ble_evt_handler(ble_evt_t const *p_ble_evt, void *p_context)
 //APP_TIMER_DEF(m_lev_send);
 APP_TIMER_DEF(m_timer_button_press_timeout);
 APP_TIMER_DEF(m_timer_button_long_press_timeout);
+APP_TIMER_DEF(m_timer_button_config_press_timeout);
 
 //APP_TIMER_DEF(m_antplus_controls_send);
 
@@ -666,9 +675,24 @@ static void led_timer_timeout(void *p_context)
 static void bluetooth_timer_timeout(void *p_context)
 {
   UNUSED_PARAMETER(p_context);
-  m_turn_bluetooth_off = true; // set the flag for the idle loop
+  disable_configuration = true;
 }
+static void timer_button_config_press_timeout_handler(void *p_context)
+{
+  UNUSED_PARAMETER(p_context);
 
+  led_pwm_on(B_LED, 100, 99, 1, 2000); //100 ms on
+  nrf_delay_ms(4000);
+  soft_blink = led_softblink_uninit();
+  //led_pwm_on(B_LED, 255, 254, 1, 1000); //flash the blue led to indicate long press
+  //nrf_delay_ms(50);
+  config_press = true;
+  // enter configuration mode
+  if (configuration_flag)
+    disable_configuration = true;
+  else
+    enable_configuration = true;
+}
 static void timer_button_press_timeout_handler(void *p_context)
 {
   UNUSED_PARAMETER(p_context);
@@ -690,90 +714,60 @@ static void timer_button_long_press_timeout_handler(void *p_context)
   nrf_delay_ms(50);
   soft_blink = led_softblink_uninit();
 
-  if (nrf_gpio_pin_read(ENTER__PIN) == 0)
+  if (configuration_flag)
   {
-    nrf_delay_ms(2000);
-    if (ebike && !soft_blink)
-    {
-      led_pwm_on(R_LED, 100, 99, 1, 100); //100 ms on
-      nrf_delay_ms(1000);
-      soft_blink = led_softblink_uninit();
-    }
 
-    if (garmin && !soft_blink)
-    {
-      led_pwm_on(G_LED, 100, 99, 1, 100); //100 ms on
-      nrf_delay_ms(1000);
-      soft_blink = led_softblink_uninit();
-    }
+    //CONFIG long press button options
 
-    //led 2 (blue) brake control active
-    if (brake && !soft_blink)
+    if (nrf_gpio_pin_read(STANDBY__PIN) == 0)
     {
-      led_pwm_on(B_LED, 100, 99, 1, 100); //100 ms on
-      nrf_delay_ms(1000);
+
+      //INDICATE ENTERING BOOTLOADER MODE
+      //RED+BLUE MASK
       soft_blink = led_softblink_uninit();
+      led_pwm_on(R_LED | B_LED, 100, 0, 100, 1500); //fast flaSH
+      nrf_delay_ms(2000);
+      new_ant_device_id = 0x99;
+    }
+    if (nrf_gpio_pin_read(PLUS__PIN) == 0)
+    {
+      new_ant_device_id = 0x90;
+    }
+    if (nrf_gpio_pin_read(MINUS__PIN) == 0)
+    {
+      new_ant_device_id = 0x91;
     }
   }
 
   //pageup/pagedown
-  if ((nrf_gpio_pin_read(PLUS__PIN) == 0) && garmin)
+  if ((nrf_gpio_pin_read(ENTER__PIN) == 0) && garmin)
   {
     if (motor_init_state == 1)
+    {
+      bsp_board_led_on(LED_G__PIN); //briefly display red led
+      nrf_delay_ms(50);
+      bsp_board_led_off(LED_G__PIN); //briefly display red led
+    }
+    else
     {
       bsp_board_led_on(LED_R__PIN); //briefly display red led
       nrf_delay_ms(5);
       bsp_board_led_off(LED_R__PIN); //briefly display red led
-    }
-    else
-    {
-      bsp_board_led_on(LED_G__PIN); //briefly display red led
-      nrf_delay_ms(5);
-      bsp_board_led_off(LED_G__PIN); //briefly display red led
-    }
-    buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 0);
-    
-  }
-  if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && garmin)
-  {
-    if (motor_init_state == 1)
-    {
-      bsp_board_led_on(LED_R__PIN); //briefly display red led
-      nrf_delay_ms(5);
-      bsp_board_led_off(LED_R__PIN); //briefly display red led
-    }
-    else
-    {
-      bsp_board_led_on(LED_G__PIN); //briefly display red led
-      nrf_delay_ms(5);
-      bsp_board_led_off(LED_G__PIN); //briefly display red led
     }
     buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 1);
-    
-  }
-  // check for enter bootloader buttons
-  if ((nrf_gpio_pin_read(ENTER__PIN) == 0) && (nrf_gpio_pin_read(STANDBY__PIN) == 0))
-
-  {
-    //INDICATE ENTERING BOOTLOADER MODE
-    //RED+BLUE MASK
-    soft_blink = led_softblink_uninit();
-    led_pwm_on(R_LED, 100, 0, 100, 1000); //fast flaSH
-    nrf_power_gpregret_set(BOOTLOADER_DFU_START);
-    wait_and_reset();
   }
 
   if ((nrf_gpio_pin_read(PLUS__PIN) == 0) && (nrf_gpio_pin_read(STANDBY__PIN) == 0))
 
   {
     // set flag to enable bluetooth on restart - needed because of interrupt priority
-    m_turn_bluetooth_on = true;
+    enable_configuration = true;
   }
 
   if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && (nrf_gpio_pin_read(STANDBY__PIN) == 0))
   {
-    // set flag to enable bluetooth on restart - needed because of interrupt priority
-    m_turn_bluetooth_off = true;
+    // set flag to disable bluetooth on restart - needed because of interrupt priority
+    disable_configuration = true;
   }
 
   if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && (nrf_gpio_pin_read(PLUS__PIN) == 0))
@@ -796,119 +790,199 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
 {
   button_pins_t button_pin = (button_pins_t)pin_no;
   ret_code_t err_code;
-  switch (button_action)
+  if (configuration_flag)
   {
-  case APP_BUTTON_RELEASE: //process the button actions
-
-    if (button_pin == MINUS__PIN)
+    //configuration buttons
+    switch (button_action)
     {
-      if (plus_minus_flag)
-        shutdown_flag = true; //needed because button release will wake up the board
-
-      if ((ebike)&& (!m_button_long_press))
-      {
-        if (motor_init_state == 1) 
-        {
-          bsp_board_led_on(LED_R__PIN); //briefly display red led
-          nrf_delay_ms(5);
-          bsp_board_led_off(LED_R__PIN); //briefly display red led
-        }
-        else
-        {
-          bsp_board_led_on(LED_G__PIN); //briefly display red led
-          nrf_delay_ms(5);
-          bsp_board_led_off(LED_G__PIN); //briefly display red led
-        }
-        buttons_send_page16(&m_ant_lev, button_pin, m_button_long_press);
-      }
-    }
-    else if (button_pin == BRAKE__PIN)
-    {
-      //turn off the brake led
-      soft_blink = led_softblink_uninit();
-      //set the brake flag in the rear gearing to signal that the brake has been pressed
-      m_button_long_press = true;
-      buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
-    }
-    else if (button_pin == STANDBY__PIN)
-    {                           //display the battery SOC
-      motor_display_soc = true; //flag needed due to interrupt priority
-    }
-    else if (button_pin == PLUS__PIN)
-    {
-      if (plus_minus_flag)
-        shutdown_flag = true; //needed because button release will wake up the board
-
-      if ((ebike)&& (!m_button_long_press))
-      {
-        if (motor_init_state == 1) 
-        {
-          bsp_board_led_on(LED_R__PIN); //briefly display red led
-          nrf_delay_ms(5);
-          bsp_board_led_off(LED_R__PIN); //briefly display red led
-        }
-        else
-        {
-          bsp_board_led_on(LED_G__PIN); //briefly display red led
-          nrf_delay_ms(5);
-          bsp_board_led_off(LED_G__PIN); //briefly display red led
-        }
-        buttons_send_page16(&m_ant_lev, button_pin, m_button_long_press);
-      }
-    }
-    else if ((button_pin == ENTER__PIN) && (!m_button_long_press))
-    //pageup on bike computer
-    {
-      display_assist = true; // display the assist level - needed due to innterrupt priorities
-                             /* if (garmin)
-      {
-        if (motor_init_state == 1)
-        {
-          bsp_board_led_on(LED_R__PIN); //briefly display red led
-          nrf_delay_ms(5);
-          bsp_board_led_off(LED_R__PIN); //briefly display red led
-        }
-        else
-        {
-          bsp_board_led_on(LED_G__PIN); //briefly display red led
-          nrf_delay_ms(5);
-          bsp_board_led_off(LED_G__PIN); //briefly display red led
-        }
-        buttons_send_pag73(&m_antplus_controls, button_pin, 0);
-      }
-      */
-    }
-
-    m_button_long_press = false; //reset the long press timer
-
-    //reset the button timers
-    err_code = app_timer_stop(m_timer_button_press_timeout); //1hr timeout for low power
-    APP_ERROR_CHECK(err_code);
-    err_code = app_timer_start(m_timer_button_press_timeout, BUTTON_PRESS_TIMEOUT, NULL);
-    APP_ERROR_CHECK(err_code);
-    err_code = app_timer_stop(m_timer_button_long_press_timeout); //stop the long press timer
-    APP_ERROR_CHECK(err_code);
-
-    break;
-
-  case APP_BUTTON_PUSH:
-    m_button_long_press = false;                                  //button pushed
-    err_code = app_timer_stop(m_timer_button_long_press_timeout); //stop the long press timer
-    APP_ERROR_CHECK(err_code);
-    //send the brake signal on a button push for BRAKE__PIN
-    if (button_pin == BRAKE__PIN)
-    {
-      //set the brake flag in the rear gearing to signal that the brake has been pressed
-      buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
-      //display the red led
-      led_pwm_on(R_LED, 255, 254, 255, 1000); //keep on full brightness for 1 sec
-    }
-    else
-    {
+    case APP_BUTTON_PUSH:
+      m_button_long_press = false;                                                                    //button pushed
       err_code = app_timer_start(m_timer_button_long_press_timeout, BUTTON_LONG_PRESS_TIMEOUT, NULL); //start the long press timer
       APP_ERROR_CHECK(err_code);
+
+      if (button_pin == ENTER__PIN)
+      {
+        //start the config timer
+        err_code = app_timer_start(m_timer_button_config_press_timeout, BUTTON_CONFIG_PRESS_TIMEOUT, NULL); //start the long press timer
+        APP_ERROR_CHECK(err_code);
+      }
+      if (button_pin == PLUS__PIN)
+      {
+        new_ant_device_id = 0x92;
+      }
+      if (button_pin == MINUS__PIN)
+      {
+        new_ant_device_id = 0x93;
+      }
+      break;
+    case APP_BUTTON_RELEASE:                                        //process the button actions
+      err_code = app_timer_stop(m_timer_button_long_press_timeout); //stop the long press timer
+      APP_ERROR_CHECK(err_code);
+
+      if ((button_pin == ENTER__PIN) && (!config_press))
+      {
+        err_code = app_timer_stop(m_timer_button_config_press_timeout); //stop the config  timer
+        APP_ERROR_CHECK(err_code);
+        if (ebike && !soft_blink)
+        {
+          led_pwm_on(R_LED, 100, 99, 1, 100); //100 ms on
+          nrf_delay_ms(1000);
+          soft_blink = led_softblink_uninit();
+        }
+
+        if (garmin && !soft_blink)
+        {
+          led_pwm_on(G_LED, 100, 99, 1, 100); //100 ms on
+          nrf_delay_ms(1000);
+          soft_blink = led_softblink_uninit();
+        }
+        /*
+        //led 2 (blue) brake control active
+        if (brake && !soft_blink)
+        {
+          led_pwm_on(B_LED, 100, 99, 1, 100); //100 ms on
+          nrf_delay_ms(1000);
+          soft_blink = led_softblink_uninit();
+        }
+        */
+      }
+      break;
     }
-    break;
+  }
+  else
+  {
+    switch (button_action)
+    {
+    case APP_BUTTON_RELEASE: //process the button actions
+      if (button_pin == ENTER__PIN)
+      {
+        err_code = app_timer_stop(m_timer_button_config_press_timeout); //stop the config  timer
+        APP_ERROR_CHECK(err_code);
+      }
+      if (button_pin == MINUS__PIN)
+      {
+        if (plus_minus_flag)
+          shutdown_flag = true; //needed because button release will wake up the board
+
+        if ((ebike) && (!m_button_long_press))
+        {
+          if (motor_init_state == 1)
+          {
+            bsp_board_led_on(LED_G__PIN); //briefly display red led
+            nrf_delay_ms(25);
+            bsp_board_led_off(LED_G__PIN); //briefly display red led
+            buttons_send_page16(&m_ant_lev, button_pin, m_button_long_press);
+          }
+          else
+          {
+            bsp_board_led_on(LED_R__PIN); //briefly display red led
+            nrf_delay_ms(5);
+            bsp_board_led_off(LED_R__PIN); //briefly display red led
+          }
+        }
+      }
+      else if (button_pin == BRAKE__PIN)
+      {
+        //turn off the brake led
+        soft_blink = led_softblink_uninit();
+        //set the brake flag in the rear gearing to signal that the brake has been pressed
+        m_button_long_press = true;
+        buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
+      }
+      else if (button_pin == STANDBY__PIN && (motor_init_state == 1))
+      {                           //display the battery SOC
+        motor_display_soc = true; //flag needed due to interrupt priority
+      }
+      else if (button_pin == PLUS__PIN)
+      {
+        if (plus_minus_flag)
+          shutdown_flag = true; //needed because button release will wake up the board
+
+        if ((ebike) && (!m_button_long_press))
+        {
+          if (motor_init_state == 1)
+          {
+            bsp_board_led_on(LED_G__PIN); //briefly display red led
+            nrf_delay_ms(25);
+            bsp_board_led_off(LED_G__PIN); //briefly display red led
+            buttons_send_page16(&m_ant_lev, button_pin, m_button_long_press);
+          }
+          else
+          {
+            bsp_board_led_on(LED_R__PIN); //briefly display red led
+            nrf_delay_ms(5);
+            bsp_board_led_off(LED_R__PIN); //briefly display red led
+          }
+        }
+      }
+      else if ((button_pin == ENTER__PIN) && (!m_button_long_press))
+      //pageup on bike computer
+      {
+        if (garmin)
+        {
+          if (motor_init_state == 1)
+          {
+            bsp_board_led_on(LED_G__PIN); //briefly display red led
+            nrf_delay_ms(50);
+            bsp_board_led_off(LED_G__PIN); //briefly display red led
+          }
+          else
+          {
+            bsp_board_led_on(LED_R__PIN); //briefly display red led
+            nrf_delay_ms(5);
+            bsp_board_led_off(LED_R__PIN); //briefly display red led
+          }
+        }
+        // display_assist = true; // display the assist level - needed due to innterrupt priorities
+        buttons_send_pag73(&m_antplus_controls, button_pin, 0);
+      }
+
+      m_button_long_press = false; //reset the long press timer
+
+      //reset the button timers
+      err_code = app_timer_stop(m_timer_button_press_timeout); //1hr timeout for low power
+      APP_ERROR_CHECK(err_code);
+      err_code = app_timer_start(m_timer_button_press_timeout, BUTTON_PRESS_TIMEOUT, NULL);
+      APP_ERROR_CHECK(err_code);
+      err_code = app_timer_stop(m_timer_button_long_press_timeout); //stop the long press timer
+      APP_ERROR_CHECK(err_code);
+
+      break;
+
+    case APP_BUTTON_PUSH:
+      m_button_long_press = false;                                  //button pushed
+      err_code = app_timer_stop(m_timer_button_long_press_timeout); //stop the long press timer
+      APP_ERROR_CHECK(err_code);
+
+      //send the brake signal on a button push for BRAKE__PIN
+      if (button_pin == ENTER__PIN)
+      {
+        //start the config timer
+        err_code = app_timer_start(m_timer_button_config_press_timeout, BUTTON_CONFIG_PRESS_TIMEOUT, NULL); //start the long press timer
+        APP_ERROR_CHECK(err_code);
+      }
+      if (button_pin == BRAKE__PIN)
+      {
+        //set the brake flag in the rear gearing to signal that the brake has been pressed
+        buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
+        if (motor_init_state == 1) //motor is on
+        {
+          led_pwm_on(G_LED, 255, 254, 255, 1000); //keep on full brightness for 1 sec
+        }
+        else
+        {
+          //display the red led
+          led_pwm_on(R_LED, 255, 254, 255, 1000); //keep on full brightness for 1 sec
+        }
+      }
+
+      else
+      {
+        err_code = app_timer_start(m_timer_button_long_press_timeout, BUTTON_LONG_PRESS_TIMEOUT, NULL); //start the long press timer
+        APP_ERROR_CHECK(err_code);
+      }
+      break;
+    }
   }
 }
 
@@ -950,6 +1024,11 @@ void buttons_init(void)
                               timer_button_long_press_timeout_handler);
 
   APP_ERROR_CHECK(err_code);
+  err_code = app_timer_create(&m_timer_button_config_press_timeout,
+                              APP_TIMER_MODE_SINGLE_SHOT,
+                              timer_button_config_press_timeout_handler);
+
+  APP_ERROR_CHECK(err_code);
 
   err_code = app_timer_start(m_timer_button_press_timeout, BUTTON_PRESS_TIMEOUT, NULL);
   APP_ERROR_CHECK(err_code);
@@ -986,12 +1065,11 @@ void shutdown(void)
   sd_power_dcdc_mode_set(NRF_POWER_DCDC_DISABLE);
   sd_power_pof_enable(0);
   nrf_delay_ms(100);
-  
+
   nrf_gpio_cfg_default(LED1_G);
   nrf_gpio_cfg_default(LED2_R);
   nrf_gpio_cfg_default(LED2_G);
   nrf_gpio_cfg_default(LED2_B);
-
 
   nrf_gpio_cfg_default(BUTTON_1);
   nrf_gpio_cfg_default(19);
@@ -1448,11 +1526,11 @@ void check_interrupt_flags(void)
     case 0x93: //ANT CONTROL off
       garmin = 0;
       break;
-    case 0x94: //brake control on
+    case 0x94: //brake control on - not used for now
       brake = 1;
       break;
 
-    case 0x95: //brake control off
+    case 0x95: //brake control off - not used for now
       brake = 0;
       break;
 
@@ -1465,8 +1543,8 @@ void check_interrupt_flags(void)
       old_ant_device_id = new_ant_device_id;
     }
 
-    // save changes and disable BLUETOOTH on restart
-    eeprom_write_variables(old_ant_device_id, 0, ebike, garmin, brake);
+    // save changes and keep in  configuration mode
+    eeprom_write_variables(old_ant_device_id, 1, ebike, garmin, brake);
     wait_and_reset();
   }
   // check to see if low power mode is requested
@@ -1476,17 +1554,15 @@ void check_interrupt_flags(void)
     shutdown();
   }
   // now check for bluetooth flag on plus button press
-  if (m_turn_bluetooth_on)
+  if (enable_configuration)
   {
-    m_turn_bluetooth_on = false;
     eeprom_write_variables(old_ant_device_id, 1, ebike, garmin, brake); // Enable BLUETOOTH on restart}
     wait_and_reset();
   }
 
   // finally check bluetooth timeout flag and minus button press
-  if (m_turn_bluetooth_off)
+  if (disable_configuration)
   {
-    m_turn_bluetooth_off = false;
     eeprom_write_variables(old_ant_device_id, 0, ebike, garmin, brake); // Disable BLUETOOTH on restart}
     wait_and_reset();
   }
@@ -1558,7 +1634,6 @@ void power_mgt_init(void)
 int main(void)
 {
   ret_code_t err_code;
-  uint8_t enable_bluetooth = 0;
 
   //lfclk_config()
   ram_retention_setup();
@@ -1572,10 +1647,10 @@ int main(void)
   buttons_init();
 
   //read the flash memory and setup the ANT ID and Bluetooth flag
-  eeprom_init(&old_ant_device_id, &enable_bluetooth, &ebike, &garmin, &brake);
+  eeprom_init(&old_ant_device_id, &configuration_flag, &ebike, &garmin, &brake);
   new_ant_device_id = old_ant_device_id; //no change at this time.
 
-  if (enable_bluetooth)
+  if (configuration_flag)
   {
     //signal that bluetooth is active
     led_pwm_on(B_LED, 100, 0, 5, 0); // start soft_blink led, 0 for no timer
