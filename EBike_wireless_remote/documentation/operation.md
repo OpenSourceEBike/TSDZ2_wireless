@@ -10,7 +10,7 @@ The remote has two operating modes, **NORMAL** **MODE** which is the usual mode 
 * Short press the [**PLUS**] button to increase the motor assist level (Wireless TSDZ2 and supported **ANT+ LEV** enabled e-bikes)
 * Short press the [**MINUS**] button to decrease the motor assist level (Wireless TSDZ2 and supported **ANT+ LEV** enabled e-bikes)
 * Long press the [**MINUS**] + [**PLUS**] buttons to put the remote control in 'deep sleep' low power mode.
-  
+* A very long press (more than 5 seconds) of the [**ENTER**] button will enter **CONFIGURATION MODE**   
 -----
 
 ## Button Operation (CONFIGURATION MODE)
