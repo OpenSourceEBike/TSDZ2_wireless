@@ -1,29 +1,28 @@
 # Remote operation
-The remote has two operating modes, **NORMAL** **mode** which is the usual mode of operation, and **CONFIGURATION** **mode**, which is used to set various remote options described below. Pressing the **ENTER** key for more than 5 seconds will toggle between the two modes.
+The remote has two operating modes, **NORMAL** **MODE** which is the usual mode of operation, and **CONFIGURATION** **MODE**, which is used to set various remote operating options described below. Pressing the **ENTER** key for a long press of more than 5 seconds will toggle between NORMAL MODE and CONFIGURATION MODE.
 
-## Short Press buttons (Normal Mode)
+## Button Operation (NORMAL MODE)
 ----
-* Short Press the [**POWER**] button to display the motor battery state of charge. 
-* Short Press the [**ENTER**] button to page up on a connected garmin bike computer
-* Short press the [**PLUS**] button to increase the motor assist level (ANT+ LEV control)
-* Short press the [**MINUS**] button to decrease the motor assist level (ANT+ LEV control)
+* Short Press the [**POWER**] button to display the motor battery state of charge. (works **ONLY** if the motor is ON.)
+*  Long Press the [**POWER**] button to turn on/off the motor. See **LED Signalling** below for a description of operation.
+* Short Press the [**ENTER**] button to **PAGE UP** on a connected garmin bike computer. 
+* Long Press the [**ENTER**] button to **PAGE DOWN** on a garmin bike computer. (Works **ONLY** if garmin control is activated)
+* Short press the [**PLUS**] button to increase the motor assist level (Wireless TSDZ2 and supported **ANT+ LEV** enabled e-bikes)
+* Short press the [**MINUS**] button to decrease the motor assist level (Wireless TSDZ2 and supported **ANT+ LEV** enabled e-bikes)
+* Long press the [**MINUS**] + [**PLUS**] buttons to put the remote control in 'deep sleep' low power mode.
   
-## Long Press Buttons (Normal Mode)
 -----
-* Long Press the [**POWER**] button to turn on/off the motor. See LED Operation Signalling above for a description of operation.
-* Long Press the [**ENTER**] button to pagedown on a garmin bike computer
-* Long press the [**MINUS**] + [**PLUS**] buttons to put the remote control in 'deep sleep' low power mode
 
-
-## Short Press buttons (Configuration Mode)
-1. a short press of the [**ENTER**] key will cycle through the configuration LED display. A **RED LED** indicates support for ANT LEV ebikes, while a to cycle through the configuration LED display. [See Configuration Options](configuration.md) 
-
-## Long Press buttons (Configuration Mode)
-* Long Press  the [**POWER**] button to initate Device Firmware Update (DFU) mode.  Either the remote or bootloader firmware can be updated to a new version using a provided upgrade packet zip file in DFU mode. For more information click [here](dfu.md).
-* Long press the [**PLUS**] button to enable support for a connected garmin bike computer
-* Long press the [**MINUS**] button to disable support for a connected garmin bike computer
-* Long press the [**ENTER**] button to leave configuration mode and returrn to normal operation mode for the remote. Configuration mode will also automatically turn off if no keys are pressed for 5 minutes.
- ## LED Signalling (Normal mode)
+## Button Operation (CONFIGURATION MODE)
+* a short press of the [**ENTER**] key will cycle through the configuration LED display. A **RED LED** indicates support for ANT LEV ebikes, while a BLUE LED indicated support for Garmin bike computers. [See Configuration Options](configuration.md)
+* A Long press the [**ENTER**] button will exit **CONFIGURATION MODE** and return to **NORMAL MODE** . **CONFIGURATION MODE** will also automatically turn off if no keys are pressed for 5 minutes. 
+* Long Press the [**POWER**] button to initate Device Firmware Update (DFU) mode.  Either the remote or bootloader firmware can be updated to a new version using a provided upgrade packet zip file in DFU mode. For more information click [here](dfu.md).
+* Short press the [**PLUS**] button to enable support for either a Wireless TSDZ2 or an ANT LEV enabled ebike.
+* Short press the [**MINUS**] button to disable support for either a Wireless TSDZ2 or an ANT LEV enabled ebike.
+* Short press the [**PLUS**] button to enable support for Garmin bike computers.
+* Short press the [**MINUS**] button to disable support for Garmin bike computers.
+  
+## LED Signalling (Normal mode)
 ------
 
 1. ANT Searching/Connection
@@ -38,6 +37,8 @@ The remote has two operating modes, **NORMAL** **mode** which is the usual mode 
 1. The **BLUE LED** will flash for 2 seconds to indicated configuration mode is active.
 2. The **OFF-WHITE LED** will turn on for 2 seconds to indicated that the remote is entering DFU mode.
 3.  A short press of the ENTER key will display the current remote configuration[See Configuration Options](configuration.md)
+
+
 See controlling a Garmin 1030 bike computer for assist levels and page control using a simulated ANT+ LEV Ebike in this video:
 
 [![video](https://img.youtube.com/vi/s7URIMVzcwc/hqdefault.jpg)](https://www.youtube.com/watch?v=s7URIMVzcwc)
