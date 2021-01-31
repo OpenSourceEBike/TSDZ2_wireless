@@ -721,7 +721,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
 
     if (nrf_gpio_pin_read(STANDBY__PIN) == 0)
     {
-     
+
       //INDICATE ENTERING BOOTLOADER MODE
       //RED+BLUE MASK
       soft_blink = led_softblink_uninit();
@@ -731,11 +731,11 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     }
     if (nrf_gpio_pin_read(PLUS__PIN) == 0)
     {
-      new_ant_device_id = 0x92;
+      new_ant_device_id = 0x90;
     }
     if (nrf_gpio_pin_read(MINUS__PIN) == 0)
     {
-      new_ant_device_id = 0x93;
+      new_ant_device_id = 0x91;
     }
   }
 
@@ -805,6 +805,14 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         //start the config timer
         err_code = app_timer_start(m_timer_button_config_press_timeout, BUTTON_CONFIG_PRESS_TIMEOUT, NULL); //start the long press timer
         APP_ERROR_CHECK(err_code);
+      }
+      if (button_pin == PLUS__PIN)
+      {
+        new_ant_device_id = 0x92;
+      }
+      if (button_pin == MINUS__PIN)
+      {
+        new_ant_device_id = 0x93;
       }
       break;
     case APP_BUTTON_RELEASE:                                        //process the button actions
