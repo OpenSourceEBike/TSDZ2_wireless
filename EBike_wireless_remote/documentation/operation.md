@@ -17,8 +17,8 @@ The remote has two operating modes, **NORMAL** **MODE** which is the usual mode 
 * a short press of the [**ENTER**] key will cycle through the configuration LED display. A **RED LED** indicates support for ANT LEV ebikes, while a BLUE LED indicated support for Garmin bike computers. [See Configuration Options](configuration.md)
 * A Long press the [**ENTER**] button will exit **CONFIGURATION MODE** and return to **NORMAL MODE** . **CONFIGURATION MODE** will also automatically turn off if no keys are pressed for 5 minutes. 
 * Long Press the [**POWER**] button to initate Device Firmware Update (DFU) mode.  Either the remote or bootloader firmware can be updated to a new version using a provided upgrade packet zip file in DFU mode. For more information click [here](dfu.md).
-* Short press the [**PLUS**] button to enable support for either a Wireless TSDZ2 or an ANT LEV enabled ebike.
-* Short press the [**MINUS**] button to disable support for either a Wireless TSDZ2 or an ANT LEV enabled ebike.
+* Long press the [**PLUS**] button to enable support for either a Wireless TSDZ2 or an ANT LEV enabled ebike.
+* Long press the [**MINUS**] button to disable support for either a Wireless TSDZ2 or an ANT LEV enabled ebike.
 * Short press the [**PLUS**] button to enable support for Garmin bike computers.
 * Short press the [**MINUS**] button to disable support for Garmin bike computers.
   
