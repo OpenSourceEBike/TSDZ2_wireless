@@ -713,13 +713,32 @@ static void timer_button_long_press_timeout_handler(void *p_context)
   led_pwm_on(R_LED, 100, 99 - 1, 1, 25); //flash the red led to indicate long press
   nrf_delay_ms(50);
   soft_blink = led_softblink_uninit();
-  /*
-  
-  //CONFIG DISPLAY
-  if (nrf_gpio_pin_read(ENTER__PIN) == 0)
+
+  if (configuration_flag)
   {
+
+    //CONFIG long press button options
+
+    if (nrf_gpio_pin_read(STANDBY__PIN) == 0)
+    {
+     
+      //INDICATE ENTERING BOOTLOADER MODE
+      //RED+BLUE MASK
+      soft_blink = led_softblink_uninit();
+      led_pwm_on(R_LED | B_LED, 100, 0, 100, 1500); //fast flaSH
+      nrf_delay_ms(2000);
+      new_ant_device_id = 0x99;
+    }
+    if (nrf_gpio_pin_read(PLUS__PIN) == 0)
+    {
+      new_ant_device_id = 0x92;
+    }
+    if (nrf_gpio_pin_read(MINUS__PIN) == 0)
+    {
+      new_ant_device_id = 0x93;
+    }
   }
-*/
+
   //pageup/pagedown
   if ((nrf_gpio_pin_read(ENTER__PIN) == 0) && garmin)
   {
@@ -736,18 +755,6 @@ static void timer_button_long_press_timeout_handler(void *p_context)
       bsp_board_led_off(LED_R__PIN); //briefly display red led
     }
     buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 1);
-  }
-
-  // check for enter bootloader buttons
-  if ((nrf_gpio_pin_read(ENTER__PIN) == 0) && (nrf_gpio_pin_read(STANDBY__PIN) == 0))
-
-  {
-    //INDICATE ENTERING BOOTLOADER MODE
-    //RED+BLUE MASK
-    soft_blink = led_softblink_uninit();
-    led_pwm_on(R_LED, 100, 0, 100, 1000); //fast flaSH
-    nrf_power_gpregret_set(BOOTLOADER_DFU_START);
-    wait_and_reset();
   }
 
   if ((nrf_gpio_pin_read(PLUS__PIN) == 0) && (nrf_gpio_pin_read(STANDBY__PIN) == 0))
@@ -789,14 +796,20 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
     switch (button_action)
     {
     case APP_BUTTON_PUSH:
+      m_button_long_press = false;                                                                    //button pushed
+      err_code = app_timer_start(m_timer_button_long_press_timeout, BUTTON_LONG_PRESS_TIMEOUT, NULL); //start the long press timer
+      APP_ERROR_CHECK(err_code);
+
       if (button_pin == ENTER__PIN)
       {
-      //start the config timer
-      err_code = app_timer_start(m_timer_button_config_press_timeout, BUTTON_CONFIG_PRESS_TIMEOUT, NULL); //start the long press timer
-      APP_ERROR_CHECK(err_code);
+        //start the config timer
+        err_code = app_timer_start(m_timer_button_config_press_timeout, BUTTON_CONFIG_PRESS_TIMEOUT, NULL); //start the long press timer
+        APP_ERROR_CHECK(err_code);
       }
       break;
-    case APP_BUTTON_RELEASE: //process the button actions
+    case APP_BUTTON_RELEASE:                                        //process the button actions
+      err_code = app_timer_stop(m_timer_button_long_press_timeout); //stop the long press timer
+      APP_ERROR_CHECK(err_code);
 
       if ((button_pin == ENTER__PIN) && (!config_press))
       {
@@ -1505,11 +1518,11 @@ void check_interrupt_flags(void)
     case 0x93: //ANT CONTROL off
       garmin = 0;
       break;
-    case 0x94: //brake control on
+    case 0x94: //brake control on - not used for now
       brake = 1;
       break;
 
-    case 0x95: //brake control off
+    case 0x95: //brake control off - not used for now
       brake = 0;
       break;
 
