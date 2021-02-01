@@ -757,19 +757,6 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 1);
   }
 
-  if ((nrf_gpio_pin_read(PLUS__PIN) == 0) && (nrf_gpio_pin_read(STANDBY__PIN) == 0))
-
-  {
-    // set flag to enable bluetooth on restart - needed because of interrupt priority
-    enable_configuration = true;
-  }
-
-  if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && (nrf_gpio_pin_read(STANDBY__PIN) == 0))
-  {
-    // set flag to disable bluetooth on restart - needed because of interrupt priority
-    disable_configuration = true;
-  }
-
   if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && (nrf_gpio_pin_read(PLUS__PIN) == 0))
   {
     // shutdown the remote
@@ -778,6 +765,13 @@ static void timer_button_long_press_timeout_handler(void *p_context)
   if (nrf_gpio_pin_read(STANDBY__PIN) == 0)
 
   {
+    if (motor_init_state == 1)
+    {
+      bsp_board_led_on(LED_R__PIN); //briefly display red led
+      nrf_delay_ms(50);
+      bsp_board_led_off(LED_R__PIN); //briefly display red led
+    }
+
     //turn motor power on/off
     m_button_long_press = true;
     buttons_send_page16(&m_ant_lev, STANDBY__PIN, m_button_long_press);
@@ -806,6 +800,12 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         err_code = app_timer_start(m_timer_button_config_press_timeout, BUTTON_CONFIG_PRESS_TIMEOUT, NULL); //start the long press timer
         APP_ERROR_CHECK(err_code);
       }
+
+      break;
+    case APP_BUTTON_RELEASE:                                        //process the button actions
+      err_code = app_timer_stop(m_timer_button_long_press_timeout); //stop the long press timer
+      APP_ERROR_CHECK(err_code);
+      
       if (button_pin == PLUS__PIN)
       {
         new_ant_device_id = 0x92;
@@ -814,11 +814,6 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       {
         new_ant_device_id = 0x93;
       }
-      break;
-    case APP_BUTTON_RELEASE:                                        //process the button actions
-      err_code = app_timer_stop(m_timer_button_long_press_timeout); //stop the long press timer
-      APP_ERROR_CHECK(err_code);
-
       if ((button_pin == ENTER__PIN) && (!config_press))
       {
         err_code = app_timer_stop(m_timer_button_config_press_timeout); //stop the config  timer
@@ -889,9 +884,19 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         m_button_long_press = true;
         buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
       }
-      else if (button_pin == STANDBY__PIN && (motor_init_state == 1))
-      {                           //display the battery SOC
-        motor_display_soc = true; //flag needed due to interrupt priority
+      else if (button_pin == STANDBY__PIN)
+      { //display the battery SOC
+        if (motor_init_state == 1)
+        {
+          motor_display_soc = true; //flag needed due to interrupt priority
+        }
+        else
+        {
+          bsp_board_led_on(LED_R__PIN); //briefly display red led
+          nrf_delay_ms(5);
+          bsp_board_led_off(LED_R__PIN); //briefly display red led
+          motor_display_soc = false;     //flag needed due to interrupt priority
+        }
       }
       else if (button_pin == PLUS__PIN)
       {
@@ -932,6 +937,13 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
             nrf_delay_ms(5);
             bsp_board_led_off(LED_R__PIN); //briefly display red led
           }
+        }
+        else
+        {
+          //garmin not activated, flash red led
+          bsp_board_led_on(LED_R__PIN); //briefly display red led
+          nrf_delay_ms(5);
+          bsp_board_led_off(LED_R__PIN); //briefly display red led
         }
         // display_assist = true; // display the assist level - needed due to innterrupt priorities
         buttons_send_pag73(&m_antplus_controls, button_pin, 0);
