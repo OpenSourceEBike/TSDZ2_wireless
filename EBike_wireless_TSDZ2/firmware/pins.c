@@ -15,6 +15,9 @@ void pins_init(void)
 {
   nrf_gpio_cfg_output(MOTOR_POWER_ENABLE__PIN);
   nrf_gpio_pin_clear(MOTOR_POWER_ENABLE__PIN);
+
+  nrf_gpio_cfg_output(BRAKE__PIN);
+  nrf_gpio_pin_set(BRAKE__PIN);
 }
 
 void motor_power_enable(bool state)

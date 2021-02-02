@@ -203,14 +203,12 @@ INC_FOLDERS += \
 	$(SDK_ROOT)/components/ble/ble_advertising \
   $(SDK_ROOT)/components/ant/ant_state_indicator \
   $(SDK_ROOT)/components/ant/ant_key_manager \
-  $(SDK_ROOT)/components/ant/ant_key_manager/config \
   $(SDK_ROOT)/components/ant/ant_channel_config \
   $(SDK_ROOT)/components/ant/ant_profiles/ant_common/ant_request_controller \
   $(SDK_ROOT)/components/ant/ant_profiles/ant_common/pages \
 	$(PROJ_DIR)/include \
   $(PROJ_DIR)/ant_lev \
   $(PROJ_DIR)/ant_lev/pages \
-  $(PROJ_DIR)/config \
 
 # Libraries common to all targets
 LIB_FILES += \
