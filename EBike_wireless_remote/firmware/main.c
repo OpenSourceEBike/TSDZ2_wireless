@@ -754,7 +754,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
       nrf_delay_ms(5);
       bsp_board_led_off(LED_R__PIN); //briefly display red led
     }
-    buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 1);
+    buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 0);
   }
 
   if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && (nrf_gpio_pin_read(PLUS__PIN) == 0))
@@ -946,7 +946,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
           bsp_board_led_off(LED_R__PIN); //briefly display red led
         }
         // display_assist = true; // display the assist level - needed due to innterrupt priorities
-        buttons_send_pag73(&m_antplus_controls, button_pin, 0);
+        buttons_send_pag73(&m_antplus_controls, button_pin, 1);
       }
 
       m_button_long_press = false; //reset the long press timer
