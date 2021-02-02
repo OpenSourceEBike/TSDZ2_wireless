@@ -119,6 +119,7 @@ SRC_FILES += \
 	$(PROJ_DIR)/uart.c \
 	$(PROJ_DIR)/utils.c \
 	$(PROJ_DIR)/ble_services.c \
+  $(PROJ_DIR)/buttons.c \
   $(PROJ_DIR)/main.c \
   $(SDK_ROOT)/components/boards/boards.c \
  

@@ -3,7 +3,10 @@
         {
             "name": "nRF SDK 16.0.0",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/include/**",
+                "C:/Program Files (x86)/GNU Tools ARM Embedded/7 2018-q2-update/arm-none-eabi/include/**",
+                "../../common_firmware/**"
             ],
             "forcedInclude": [
                 "${workspaceFolder}/nRF5_SDK_16.0.0/sdk_config.h"
@@ -12,12 +15,13 @@
                 "APP_TIMER_V2",
                 "APP_TIMER_V2_RTC1_ENABLED",
                 "BOARD_CUSTOM",
-                "NRF52840_MDK_USB_DONGLE",
+                "BOARD_PCA10059",
                 "FLOAT_ABI_HARD",
                 "NRF52840_XXAA",
                 "NRF_SD_BLE_API_VERSION=6",
                 "S340",
                 "SOFTDEVICE_PRESENT"
+                
             ],
             "compilerPath": "/usr/bin/arm-none-eabi-gcc",
             "cStandard": "c11",

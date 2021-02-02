@@ -51,6 +51,7 @@
 #include <stdbool.h>
 #include "boards.h"
 #include "nrf_bootloader_info.h"
+#include "buttons.h"
 
 extern uint8_t ui8_g_battery_soc;
 ui_vars_t *mp_ui_vars;
@@ -59,6 +60,36 @@ bool brake_flag = false;
 volatile uint8_t ui8_m_enter_bootloader = 0;
 volatile uint8_t ui8_m_ant_device_id = 0;
 volatile uint8_t ui8_m_flash_configurations = 0;
+
+static uint16_t m_assist_level_change_timeout = 0;
+// constants here temporarily - should be getting from screen.h but ifdef not working!
+  #define SCREENFN_FORCE_LABELS false
+  #define SCREENCLICK_START_EDIT ONOFF_CLICK
+  #define SCREENCLICK_STOP_EDIT ONOFF_CLICK
+  #define SCREENCLICK_EXIT_SCROLLABLE ONOFF_LONG_CLICK
+  #define SCREENCLICK_NEXT_SCREEN ONOFF_CLICK
+  #define SCREENCLICK_ENTER_CONFIGURATIONS ONOFFUPDOWN_LONG_CLICK
+  #define SCREENCLICK_START_CUSTOMIZING UPDOWN_LONG_CLICK
+  #define SCREENCLICK_STOP_CUSTOMIZING ONOFF_LONG_CLICK
+  #define SCREENCLICK_ALTERNATE_FIELD_START ONOFFUP_LONG_CLICK
+  #define SCREENCLICK_ALTERNATE_FIELD_STOP ONOFF_LONG_CLICK
+  #define SCREENCLICK_STREET_MODE ONOFFDOWN_LONG_CLICK
+// uint8_t ui8_m_wheel_speed_integer;
+// uint8_t ui8_m_wheel_speed_decimal;
+
+static uint8_t ui8_walk_assist_timeout = 0;
+
+// uint16_t ui16_m_battery_current_filtered_x10;
+// uint16_t ui16_m_motor_current_filtered_x10;
+// uint16_t ui16_m_battery_power_filtered;
+// uint16_t ui16_m_pedal_power_filtered;
+
+// uint8_t g_showNextScreenIndex = 0;
+// uint8_t g_showNextScreenPreviousIndex = 0;
+uint16_t ui16_m_alternate_field_value;
+uint8_t ui8_m_alternate_field_state = 0;
+uint8_t ui8_m_alternate_field_timeout_cnt = 0;
+uint8_t ui8_m_vthrottle_can_increment_decrement = 0;
 
 typedef enum
 {
@@ -1436,6 +1467,293 @@ void TSDZ2_power_manage(void)
   }
 }
 
+// Allow common operations (like walk assist and headlights) button presses to work on any page
+bool anyscreen_onpress(buttons_events_t events) {
+  if ((events & DOWN_LONG_CLICK) && ui_vars.ui8_walk_assist_feature_enabled) {
+    ui_vars.ui8_walk_assist = 1;
+    return true;
+  }
+
+  // long up to turn on headlights
+  if (events & UP_LONG_CLICK) {
+    ui_vars.ui8_lights = !ui_vars.ui8_lights;
+    //set_lcd_backlight();
+
+    return true;
+  }
+
+  return false;
+}
+
+static bool onPressAlternateField(buttons_events_t events) {
+  bool handled = false;
+
+  // start increment throttle only with UP_LONG_CLICK
+  if ((ui8_m_alternate_field_state == 7) &&
+      (events & UP_LONG_CLICK) &&
+      (ui8_m_vthrottle_can_increment_decrement == 0)) {
+    ui8_m_vthrottle_can_increment_decrement = 1;
+    events |= UP_CLICK; // let's increment, consider UP CLICK
+    ui8_m_alternate_field_timeout_cnt = 50; // 50 * 20ms = 1 second
+  }
+
+  if (ui8_m_alternate_field_timeout_cnt == 0) {
+    ui_vars.ui8_throttle_virtual = 0;
+    ui8_m_vthrottle_can_increment_decrement = 0;
+  }
+
+  switch (ui8_m_alternate_field_state) {
+    case 0:
+      if (events & SCREENCLICK_ALTERNATE_FIELD_START) {
+        ui8_m_alternate_field_state = 1;
+        handled = true;
+      }
+      break;
+
+    // max power
+    case 3:
+      if (
+        (
+          ui_vars.ui8_street_mode_function_enabled
+          && ui_vars.ui8_street_mode_enabled
+          && ui_vars.ui8_street_mode_throttle_enabled
+          || !ui_vars.ui8_street_mode_function_enabled
+          || !ui_vars.ui8_street_mode_enabled
+        )
+        && events & SCREENCLICK_ALTERNATE_FIELD_START
+      ) {
+        ui8_m_alternate_field_state = 6;
+        handled = true;
+        break;
+      }
+
+      if (events & SCREENCLICK_ALTERNATE_FIELD_STOP) {
+        ui8_m_alternate_field_state = 4;
+        handled = true;
+        break;
+      }
+
+      if (events & UP_CLICK) {
+        handled = true;
+
+        if (ui_vars.ui8_target_max_battery_power_div25 < 10) {
+          ui_vars.ui8_target_max_battery_power_div25++;
+        } else {
+          ui_vars.ui8_target_max_battery_power_div25 += 2;
+        }
+
+        // limit to 100 * 25 = 2500 Watts
+        if(ui_vars.ui8_target_max_battery_power_div25 > 100) {
+          ui_vars.ui8_target_max_battery_power_div25 = 100;
+        }
+
+        break;
+      }
+
+      if (events & DOWN_CLICK) {
+        handled = true;
+
+        if (ui_vars.ui8_target_max_battery_power_div25 <= 10 &&
+            ui_vars.ui8_target_max_battery_power_div25 > 1) {
+          ui_vars.ui8_target_max_battery_power_div25--;
+        } else if (ui_vars.ui8_target_max_battery_power_div25 > 10) {
+          ui_vars.ui8_target_max_battery_power_div25 -= 2;
+        }
+
+        break;
+      }
+    break;
+
+    // virtual throttle
+    case 7:
+      if (events & SCREENCLICK_ALTERNATE_FIELD_START) {
+        ui8_m_alternate_field_state = 1;
+        handled = true;
+        break;
+      }
+
+      if (events & SCREENCLICK_ALTERNATE_FIELD_STOP) {
+        ui_vars.ui8_throttle_virtual = 0;
+        ui8_m_alternate_field_timeout_cnt = 0;
+        ui8_m_vthrottle_can_increment_decrement = 0;
+        ui8_m_alternate_field_state = 4;
+        handled = true;
+        break;
+      }
+
+      if (events & UP_CLICK) {
+        handled = true;
+
+        if (ui8_m_vthrottle_can_increment_decrement &&
+            ui_vars.ui8_assist_level) {
+          if ((ui_vars.ui8_throttle_virtual + ui_vars.ui8_throttle_virtual_step) <= 100) {
+            ui_vars.ui8_throttle_virtual += ui_vars.ui8_throttle_virtual_step;
+          } else {
+            ui_vars.ui8_throttle_virtual = 100;
+          }
+
+          ui8_m_alternate_field_timeout_cnt = 50;
+        }
+
+        break;
+      }
+
+      if (events & DOWN_CLICK) {
+        handled = true;
+
+        if (ui8_m_vthrottle_can_increment_decrement &&
+            ui_vars.ui8_assist_level) {
+          if (ui_vars.ui8_throttle_virtual >= ui_vars.ui8_throttle_virtual_step) {
+            ui_vars.ui8_throttle_virtual -= ui_vars.ui8_throttle_virtual_step;
+          } else {
+            ui_vars.ui8_throttle_virtual = 0;
+          }
+
+          ui8_m_alternate_field_timeout_cnt = 50;
+        }
+
+        break;
+      }
+    break;
+  }
+
+  if (ui8_m_alternate_field_state == 7) {
+    // user will keep UP DOWN LONG clicks on this state, so, clean them to not pass to next code
+    if ((events & UP_LONG_CLICK) ||
+        (events & DOWN_LONG_CLICK))
+      handled = true;
+  }
+
+  return handled;
+}
+
+static bool onPressStreetMode(buttons_events_t events) {
+  bool handled = false;
+
+  if (events & SCREENCLICK_STREET_MODE)
+  {
+    if (ui_vars.ui8_street_mode_function_enabled && ui_vars.ui8_street_mode_hotkey_enabled)
+    {
+      if (ui_vars.ui8_street_mode_enabled)
+        ui_vars.ui8_street_mode_enabled = 0;
+      else
+        ui_vars.ui8_street_mode_enabled = 1;
+
+      //mainScreenOnDirtyClean();
+    }
+
+    handled = true;
+  }
+
+  return handled;
+}
+
+bool mainScreenOnPress(buttons_events_t events) {
+  bool handled = false;
+
+  handled = onPressAlternateField(events);
+
+  if (handled == false)
+    handled = anyscreen_onpress(events);
+
+  if (handled == false)
+    handled = onPressStreetMode(events);
+
+  if (handled == false &&
+      ui8_m_alternate_field_state == 0) {
+    if (events & UP_CLICK) {
+      ui_vars.ui8_assist_level++;
+
+      if (ui_vars.ui8_assist_level > ui_vars.ui8_number_of_assist_levels) {
+        ui_vars.ui8_assist_level = ui_vars.ui8_number_of_assist_levels;
+      }
+
+      m_assist_level_change_timeout = 20; // 2 seconds
+      handled = true;
+    }
+
+    if (
+      events & DOWN_CLICK
+      && !ui_vars.ui8_walk_assist // do not lower assist level if walk assist is active
+    ) {
+      if (ui_vars.ui8_assist_level > 0)
+        ui_vars.ui8_assist_level--;
+
+      m_assist_level_change_timeout = 20; // 2 seconds
+      handled = true;
+    }
+  }
+
+	return handled;
+}
+
+void streetMode(void) {
+  if (ui_vars.ui8_street_mode_function_enabled)
+  {
+    ui_vars.ui8_street_mode_power_limit_div25 = (ui_vars.ui16_street_mode_power_limit / 25);
+  }
+}
+
+void walk_assist_state(void) {
+// kevinh - note on the sw102 we show WALK in the box normally used for BRAKE display - the display code is handled there now
+  if (ui_vars.ui8_walk_assist_feature_enabled) {
+    // if down button is still pressed
+    if (ui_vars.ui8_walk_assist && buttons_get_down_state()) {
+      ui8_walk_assist_timeout = 2; // 0.2 seconds
+    } else if (buttons_get_down_state() == 0 && --ui8_walk_assist_timeout == 0) {
+      ui_vars.ui8_walk_assist = 0;
+    }
+  } else {
+    ui_vars.ui8_walk_assist = 0;
+  }
+}
+
+/// Called every 20ms to check for wired button events and dispatch to our handlers
+static void handle_buttons() {
+
+  static uint8_t firstTime = 1;
+
+  // keep tracking of first time release of onoff button
+  if(firstTime && buttons_get_onoff_state() == 0) {
+    firstTime = 0;
+    buttons_clear_onoff_click_event();
+    buttons_clear_onoff_long_click_event();
+    buttons_clear_onoff_click_long_click_event();
+  }
+
+   if (ui8_m_alternate_field_state == 7) { // if virtual throttle mode
+    if (buttons_get_up_state() == 0 && // UP and DOWN buttons not pressed
+            buttons_get_down_state() == 0) {
+      if (ui8_m_alternate_field_timeout_cnt) {
+        ui8_m_alternate_field_timeout_cnt--;
+      } else {
+        ui8_m_vthrottle_can_increment_decrement = 0;
+        ui_vars.ui8_throttle_virtual = 0;
+      }
+    } else {
+      ui8_m_alternate_field_timeout_cnt = 50;
+    }
+  }  
+
+  if (buttons_events && firstTime == 0)
+  {
+    bool handled = false;
+
+		//if (!handled)
+		//	handled |= screenOnPress(buttons_events);
+		if (!handled)
+			handled |= mainScreenOnPress(buttons_events);
+		 //Note: this must be after the screen/menu handlers have had their shot
+		//if (!handled)
+		//	handled |= appwide_onpress(buttons_events);
+    ;  
+		if (handled)
+			buttons_clear_all_events();
+	}
+
+	buttons_clock(); // Note: this is done _after_ button events is checked to provide a 20ms debounce
+}
+
 int main(void)
 {
   mp_ui_vars = get_ui_vars();
@@ -1481,6 +1799,7 @@ int main(void)
       ble_send_periodic_data();
       ble_update_configurations_data();
       TSDZ2_power_manage();
+      handle_buttons();
     }
 
     // every 1 second
