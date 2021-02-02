@@ -16,7 +16,7 @@
 #define TIME_3 300
 #define TIME_4 1500
 
-#define BUTTONS_CLOCK_MS 20
+#define BUTTONS_CLOCK_MS 1
 #define MS_TO_TICKS(a) ((a) / (BUTTONS_CLOCK_MS))
 
 static uint32_t ui32_onoff_button_state = 0;

@@ -1744,9 +1744,9 @@ static void handle_buttons() {
 		if (!handled)
 			handled |= mainScreenOnPress(buttons_events);
 		 //Note: this must be after the screen/menu handlers have had their shot
-		//if (!handled)
-		//	handled |= appwide_onpress(buttons_events);
-    ;  
+		// if (!handled)
+		// 	handled |= appwide_onpress(buttons_events);
+     
 		if (handled)
 			buttons_clear_all_events();
 	}
