@@ -16,8 +16,8 @@ BOOTLOADER_HEX = $(BOOTLOADER_DIR)/_build/TSDZ2_bootloader_with_sd.hex
 
 
 
-APP_VER_MAJOR = 1
-APP_VER_MINOR = 0
+APP_VER_MAJOR = 0
+APP_VER_MINOR = 6
 # Source files common to all targets
 SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52840.S \
