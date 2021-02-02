@@ -710,10 +710,12 @@ static void timer_button_long_press_timeout_handler(void *p_context)
   //stop the long press timer
   err_code = app_timer_stop(m_timer_button_long_press_timeout); //stop the long press timer
   APP_ERROR_CHECK(err_code);
-  led_pwm_on(R_LED, 100, 99 - 1, 1, 25); //flash the red led to indicate long press
-  nrf_delay_ms(50);
-  soft_blink = led_softblink_uninit();
-
+  if (nrf_gpio_pin_read(ENTER__PIN) != 0)
+  {
+    led_pwm_on(R_LED, 100, 99 - 1, 1, 25); //flash the red led to indicate long press
+    nrf_delay_ms(50);
+    soft_blink = led_softblink_uninit();
+  }
   if (configuration_flag)
   {
 
@@ -721,7 +723,6 @@ static void timer_button_long_press_timeout_handler(void *p_context)
 
     if (nrf_gpio_pin_read(STANDBY__PIN) == 0)
     {
-
       //INDICATE ENTERING BOOTLOADER MODE
       //RED+BLUE MASK
       soft_blink = led_softblink_uninit();
@@ -740,20 +741,11 @@ static void timer_button_long_press_timeout_handler(void *p_context)
   }
 
   //pageup/pagedown
-  if ((nrf_gpio_pin_read(ENTER__PIN) == 0) && garmin)
+  if ((nrf_gpio_pin_read(ENTER__PIN) == 0) && garmin && !configuration_flag)
   {
-    if (motor_init_state == 1)
-    {
-      bsp_board_led_on(LED_G__PIN); //briefly display red led
-      nrf_delay_ms(50);
-      bsp_board_led_off(LED_G__PIN); //briefly display red led
-    }
-    else
-    {
-      bsp_board_led_on(LED_R__PIN); //briefly display red led
-      nrf_delay_ms(5);
-      bsp_board_led_off(LED_R__PIN); //briefly display red led
-    }
+    bsp_board_led_on(LED_G__PIN); //briefly display red led
+    nrf_delay_ms(50);
+    bsp_board_led_off(LED_G__PIN); //briefly display red led
     buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 0);
   }
 
@@ -784,7 +776,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
 {
   button_pins_t button_pin = (button_pins_t)pin_no;
   ret_code_t err_code;
-  if (configuration_flag)
+  if (configuration_flag) //configuration mode
   {
     //configuration buttons
     switch (button_action)
@@ -800,18 +792,29 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         err_code = app_timer_start(m_timer_button_config_press_timeout, BUTTON_CONFIG_PRESS_TIMEOUT, NULL); //start the long press timer
         APP_ERROR_CHECK(err_code);
       }
-
       break;
     case APP_BUTTON_RELEASE:                                        //process the button actions
       err_code = app_timer_stop(m_timer_button_long_press_timeout); //stop the long press timer
       APP_ERROR_CHECK(err_code);
-      
+      if (button_pin == STANDBY__PIN)
+      {
+        //not assigned
+        bsp_board_led_on(LED_R__PIN); //briefly display red led
+        nrf_delay_ms(25);
+        bsp_board_led_off(LED_R__PIN); //briefly display red led
+      }
       if (button_pin == PLUS__PIN)
       {
+        bsp_board_led_on(LED_G__PIN); //briefly display red led
+        nrf_delay_ms(25);
+        bsp_board_led_off(LED_G__PIN); //briefly display red led
         new_ant_device_id = 0x92;
       }
       if (button_pin == MINUS__PIN)
       {
+        bsp_board_led_on(LED_G__PIN); //briefly display red led
+        nrf_delay_ms(25);
+        bsp_board_led_off(LED_G__PIN); //briefly display red led
         new_ant_device_id = 0x93;
       }
       if ((button_pin == ENTER__PIN) && (!config_press))
@@ -820,7 +823,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         APP_ERROR_CHECK(err_code);
         if (ebike && !soft_blink)
         {
-          led_pwm_on(R_LED, 100, 99, 1, 100); //100 ms on
+          led_pwm_on(G_LED, 100, 99, 1, 100); //100 ms on
           nrf_delay_ms(1000);
           soft_blink = led_softblink_uninit();
         }
@@ -925,18 +928,9 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       {
         if (garmin)
         {
-          if (motor_init_state == 1)
-          {
-            bsp_board_led_on(LED_G__PIN); //briefly display red led
-            nrf_delay_ms(50);
-            bsp_board_led_off(LED_G__PIN); //briefly display red led
-          }
-          else
-          {
-            bsp_board_led_on(LED_R__PIN); //briefly display red led
-            nrf_delay_ms(5);
-            bsp_board_led_off(LED_R__PIN); //briefly display red led
-          }
+          bsp_board_led_on(LED_G__PIN); //briefly display red led
+          nrf_delay_ms(50);
+          bsp_board_led_off(LED_G__PIN); //briefly display red led
         }
         else
         {
