@@ -1,3 +1,9 @@
+NEW UPDATED DOCUMENTATION HERE: https://opensourceebike.github.io/
+
+https://opensourceebike.github.io/
+
+
+
 # TSDZ2 Wireless
 
 - Forum message: [Fully wireless ANT+ BLE TSDZ2 mid drive motor (like Specialized Turbo Levo) -- Flexible OpenSource firmware](https://endless-sphere.com/forums/viewtopic.php?t=106346)
