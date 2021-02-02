@@ -746,7 +746,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     bsp_board_led_on(LED_G__PIN); //briefly display red led
     nrf_delay_ms(50);
     bsp_board_led_off(LED_G__PIN); //briefly display red led
-    buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 1);
+    buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 0);
   }
 
   if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && (nrf_gpio_pin_read(PLUS__PIN) == 0))
