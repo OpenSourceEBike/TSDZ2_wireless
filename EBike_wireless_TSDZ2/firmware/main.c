@@ -433,13 +433,12 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
     if (p_profile->page_16.light)
     {
       //light mode activated
-      nrf_gpio_port_out_set(NRF_P0, 1UL << BRAKE__PIN);
+      
     }
     else
     {
       // light mode  deactivated
 
-      nrf_gpio_port_out_set(NRF_P0, 1UL << BRAKE__PIN);
     }
 
     if (p_profile->page_16.current_rear_gear == 14)
