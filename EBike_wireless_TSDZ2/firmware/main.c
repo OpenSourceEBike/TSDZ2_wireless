@@ -52,6 +52,7 @@
 #include "boards.h"
 #include "nrf_bootloader_info.h"
 #include "buttons.h"
+#include "screen.h"
 
 extern uint8_t ui8_g_battery_soc;
 ui_vars_t *mp_ui_vars;
@@ -62,18 +63,7 @@ volatile uint8_t ui8_m_ant_device_id = 0;
 volatile uint8_t ui8_m_flash_configurations = 0;
 
 static uint16_t m_assist_level_change_timeout = 0;
-// constants here temporarily - should be getting from screen.h but ifdef not working!
-  #define SCREENFN_FORCE_LABELS false
-  #define SCREENCLICK_START_EDIT ONOFF_CLICK
-  #define SCREENCLICK_STOP_EDIT ONOFF_CLICK
-  #define SCREENCLICK_EXIT_SCROLLABLE ONOFF_LONG_CLICK
-  #define SCREENCLICK_NEXT_SCREEN ONOFF_CLICK
-  #define SCREENCLICK_ENTER_CONFIGURATIONS ONOFFUPDOWN_LONG_CLICK
-  #define SCREENCLICK_START_CUSTOMIZING UPDOWN_LONG_CLICK
-  #define SCREENCLICK_STOP_CUSTOMIZING ONOFF_LONG_CLICK
-  #define SCREENCLICK_ALTERNATE_FIELD_START ONOFFUP_LONG_CLICK
-  #define SCREENCLICK_ALTERNATE_FIELD_STOP ONOFF_LONG_CLICK
-  #define SCREENCLICK_STREET_MODE ONOFFDOWN_LONG_CLICK
+
 // uint8_t ui8_m_wheel_speed_integer;
 // uint8_t ui8_m_wheel_speed_decimal;
 
@@ -1687,6 +1677,67 @@ bool mainScreenOnPress(buttons_events_t events) {
 	return handled;
 }
 
+void alternatField(void) {
+  //static const char str_max_power[] = "max power";
+  //static const char str_throttle[] = "throttle";
+
+  switch (ui8_m_alternate_field_state) {
+    case 1:
+// #ifndef SW102
+//       assistLevelField.rw->visibility = FieldTransitionNotVisible;
+// #else
+//       wheelSpeedIntegerField.rw->visibility = FieldTransitionNotVisible;
+// #endif
+      ui8_m_alternate_field_state = 2;
+
+// #ifndef SW102
+//       UG_SetBackcolor(C_BLACK);
+//       UG_SetForecolor(MAIN_SCREEN_FIELD_LABELS_COLOR);
+//       UG_FontSelect(&FONT_10X16);
+//       UG_PutString(15, 46, "      ");
+// #endif
+      break;
+
+    case 2:
+      //updateReadOnlyLabelStr(&fieldAlternate, str_max_power);
+      //fieldAlternate.rw->visibility = FieldTransitionVisible;
+      //mainScreenOnDirtyClean();
+      ui8_m_alternate_field_state = 3;
+      break;
+
+    case 3:
+      // keep updating the variable to show on display
+      ui16_m_alternate_field_value = ((uint16_t) ui_vars.ui8_target_max_battery_power_div25) * 25;
+      break;
+
+    case 4:
+      //fieldAlternate.rw->visibility = FieldTransitionNotVisible;
+      ui8_m_alternate_field_state = 5;
+      break;
+
+    case 5:
+// #ifndef SW102
+//       assistLevelField.rw->visibility = FieldTransitionVisible;
+// #else
+//       wheelSpeedIntegerField.rw->visibility = FieldTransitionVisible;
+// #endif
+      //mainScreenOnDirtyClean();
+      ui8_m_alternate_field_state = 0;
+      break;
+
+    case 6:
+      //updateReadOnlyLabelStr(&fieldAlternate, str_throttle);
+      //mainScreenOnDirtyClean();
+      ui8_m_alternate_field_state = 7;
+      break;
+
+    case 7:
+      // keep updating the variable to show on display
+      ui16_m_alternate_field_value = (uint16_t) ui_vars.ui8_throttle_virtual;
+      break;
+  }
+}
+
 void streetMode(void) {
   if (ui_vars.ui8_street_mode_function_enabled)
   {
@@ -1835,8 +1886,11 @@ int main(void)
       ble_send_periodic_data();
       ble_update_configurations_data();
       TSDZ2_power_manage();
+
       walk_assist_state();
       handle_buttons();
+      alternatField();
+      streetMode();
     }
 
     // every 1 second
