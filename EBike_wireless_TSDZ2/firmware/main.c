@@ -1708,6 +1708,42 @@ void walk_assist_state(void) {
   }
 }
 
+static bool appwide_onpress(buttons_events_t events)
+{
+  // power off only after we release first time the onoff button
+  if (events & ONOFF_LONG_CLICK)
+  {
+    // Toggle power state...
+          if (m_TSDZ2_power_state == TSDZ2_POWER_STATE_OFF)
+      {
+        // turn on TSDZ2 motor controller
+        m_TSDZ2_power_state = TSDZ2_POWER_STATE_ON_START;
+      }
+
+      else if (m_TSDZ2_power_state == TSDZ2_POWER_STATE_ON)
+      {
+        //  turn off TSDZ2 motor controller
+        m_TSDZ2_power_state = TSDZ2_POWER_STATE_OFF_START;
+      }
+    return true;
+  }
+
+/*   if ((events & SCREENCLICK_NEXT_SCREEN) &&
+      ((g_motor_init_state == MOTOR_INIT_READY) ||
+      (g_motor_init_state == MOTOR_INIT_SIMULATING))) {
+    showNextScreen();
+    return true;
+  }
+
+  if (events & SCREENCLICK_ENTER_CONFIGURATIONS) {
+    screenShow(&configScreen);
+    return true;
+  } */
+
+	return false;
+}
+
+
 /// Called every 20ms to check for wired button events and dispatch to our handlers
 static void handle_buttons() {
 
@@ -1744,9 +1780,9 @@ static void handle_buttons() {
 		if (!handled)
 			handled |= mainScreenOnPress(buttons_events);
 		 //Note: this must be after the screen/menu handlers have had their shot
-		// if (!handled)
-		// 	handled |= appwide_onpress(buttons_events);
-     
+		 if (!handled)
+		 	handled |= appwide_onpress(buttons_events);
+
 		if (handled)
 			buttons_clear_all_events();
 	}
@@ -1799,6 +1835,7 @@ int main(void)
       ble_send_periodic_data();
       ble_update_configurations_data();
       TSDZ2_power_manage();
+      walk_assist_state();
       handle_buttons();
     }
 
