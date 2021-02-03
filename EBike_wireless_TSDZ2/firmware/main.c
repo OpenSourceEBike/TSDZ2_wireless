@@ -430,6 +430,22 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
 
   case ANT_LEV_PAGE_16_UPDATED:
 
+    if (p_profile->page_16.light)
+    {
+      //light mode activated
+      
+    }
+    else
+    {
+      // light mode  deactivated
+
+    }
+
+    if (p_profile->page_16.current_rear_gear == 14)
+    {
+      // walk mode is activated
+      
+    }
     if (p_profile->page_16.current_rear_gear == 15)
     {
       // enable brakes: be as fast as possible
@@ -437,6 +453,8 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
     }
     if (p_profile->page_16.current_rear_gear == 0)
     {
+      //this state sshould clear both brakes and walk mode
+      // disable walk mode
       // disable brakes: be as fast as possible
       nrf_gpio_port_out_set(NRF_P0, 1UL << BRAKE__PIN);
     }

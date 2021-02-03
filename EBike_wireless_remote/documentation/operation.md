@@ -10,13 +10,14 @@ In either mode, if the key is pressed while inactive the **RED LED** will briefl
 
 ----
 
-* Short Press the [**POWER**] button to display the motor battery state of charge. (Motor On **ONLY**.)
-  
+* Short Press the [**POWER**] button to display the motor battery state of charge. Battery state is indicated by flashing the **GREEN LED**. The number of flashes will indicate battery charge state from from 1 flash (10% charge) to 10 flashes (100% charge). (Motor On **ONLY**.)  
 * Long Press the [**POWER**] button to turn on/off the motor. See **LED Signalling** below for a description of operation.
-* Short Press the [**ENTER**] button to **PAGE UP** on a connected garmin bike computer. 
+* Short Press the [**ENTER**] button to **PAGE UP** on a connected garmin bike computer. (Works **ONLY** if garmin control is activated)
 * Long Press the [**ENTER**] button to **PAGE DOWN** on a connected garmin bike computer. (Works **ONLY** if garmin control is activated)
 * Short press the [**PLUS**] button to increase the motor assist level (Wireless TSDZ2 and supported **ANT+ LEV** enabled e-bikes)
+* Long press the [**PLUS**] button to toggle the lights on/off (Light support is a planned feature, not yet implemented)
 * Short press the [**MINUS**] button to decrease the motor assist level (Wireless TSDZ2 and supported **ANT+ LEV** enabled e-bikes)
+* Long press and hold the [**MINUS**] button to start the motor walk assist. Releasing the [**MINUS**] button stops walk assist (Wlak assist is a planned feature, not yet implemented)
 * Long press the [**MINUS**] + [**PLUS**] buttons to put the remote control in 'deep sleep' low power mode.
 * A very long press (more than 5 seconds) of the [**ENTER**] button will enter **CONFIGURATION MODE**
   
@@ -46,7 +47,8 @@ In either mode, if the key is pressed while inactive the **RED LED** will briefl
 3. If the motor is off, pressing the [**PLUS**] or [**MINUS**] keys will cause a **RED** LED to flash. The assist level will NOT change with the motor off. 
 4. The **RED LED** will briefly flash to indicate a long press has been made
 5. A very long press (> 5 seconds) of the [**ENTER**] key will flash the BLUE LED for 2 seconds when entering the configuration mode.
-6. A long press of the [**POWER**] key will turn the motor ON or OFF. When the motor is initializing, the leds will flash [**OFF-WHITE**]. When the motor is on, the **OFF-WHITE LED** will rapidly flash, followed 2 seconds later by a display of the motor battery state. If the motor is turning off, the battery state will also be displayed. Battery state is indicated by flashing the **GREEN LED**. The number of flashes will indicate battery charge state from from 1 flash (10% charge) to 10 flashes (100% charge).
+6. A long press of the [**POWER**] key will turn the motor ON or OFF. When the motor is initializing, the leds will flash [**OFF-WHITE**]. When the motor is on, the **OFF-WHITE LED** will rapidly flash. If the motor is turning off, the battery state will be displayed. Battery state is indicated by flashing the **GREEN LED**. The number of flashes will indicate battery charge state from from 1 flash (10% charge) to 10 flashes (100% charge).
+7. When walk mode is active the **BLUE LED** will flash slowly.
 
 ----
 
