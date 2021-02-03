@@ -198,12 +198,28 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
         {
             p_profile->page_16.current_rear_gear = 15;
         }
+        else if (button == 55) //walk mode
+        {
+            p_profile->page_16.current_rear_gear = 14;
+        }
+        else if (button == 54) //light mode
+        {
+            if (p_profile->page_16.light == true)
+                p_profile->page_16.light = false;
+            else
+                p_profile->page_16.light = true;
+        }
     }
     else //long press actions
     {
+
         if (button == STANDBY__PIN)
         {
             p_profile->page_16.current_front_gear = 3;
+        }
+        else if (button == 55) //clear walk_mode command
+        {
+            p_profile->page_16.current_rear_gear = 0;
         }
         else if (button == BRAKE__PIN)
         {

@@ -81,6 +81,8 @@ uint8_t motor_error_state;
 uint8_t motor_soc_state;
 bool motor_display_soc = false;
 bool display_assist = false;
+uint8_t walk_mode = 0;
+uint8_t light_mode = 0;
 
 #define BUTTON_DETECTION_DELAY APP_TIMER_TICKS(1)            /**< Delay from a GPIOTE event until a button is reported as pushed (in number of timer ticks). */
 #define BUTTON_PRESS_TIMEOUT APP_TIMER_TICKS(60 * 60 * 1000) // 1h to enter low power mode
@@ -710,7 +712,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
   //stop the long press timer
   err_code = app_timer_stop(m_timer_button_long_press_timeout); //stop the long press timer
   APP_ERROR_CHECK(err_code);
-  if (nrf_gpio_pin_read(ENTER__PIN) != 0)
+  if ((nrf_gpio_pin_read(ENTER__PIN) != 0) && (nrf_gpio_pin_read(MINUS__PIN) != 0))
   {
     led_pwm_on(R_LED, 100, 99 - 1, 1, 25); //flash the red led to indicate long press
     nrf_delay_ms(50);
@@ -747,6 +749,24 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     nrf_delay_ms(50);
     bsp_board_led_off(LED_G__PIN); //briefly display red led
     buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 0);
+  }
+
+  if (nrf_gpio_pin_read(MINUS__PIN) == 0)
+  {
+    // start walk mode
+    walk_mode = 55; //set walk mode flag to allow button release to work
+    //start blinking blue led
+    led_pwm_on(B_LED, 100, 0, 2, 0);
+    m_button_long_press = false;
+    buttons_send_page16(&m_ant_lev, walk_mode, m_button_long_press);
+  }
+  if (nrf_gpio_pin_read(PLUS__PIN) == 0)
+  {
+    // toggle lights on/off
+    light_mode = 54;
+    m_button_long_press = false;
+    //54 if flag to send light mode command
+    buttons_send_page16(&m_ant_lev, light_mode, m_button_long_press);
   }
 
   if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && (nrf_gpio_pin_read(PLUS__PIN) == 0))
@@ -823,7 +843,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         APP_ERROR_CHECK(err_code);
         if (ebike && !soft_blink)
         {
-          led_pwm_on(G_LED, 100, 99, 1, 100); //100 ms on
+          led_pwm_on(R_LED, 100, 99, 1, 100); //100 ms on
           nrf_delay_ms(1000);
           soft_blink = led_softblink_uninit();
         }
@@ -852,12 +872,21 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
     switch (button_action)
     {
     case APP_BUTTON_RELEASE: //process the button actions
+      if (walk_mode)
+      {
+        //cancel walk_mode
+        soft_blink = led_softblink_uninit();
+        m_button_long_press = true;
+        buttons_send_page16(&m_ant_lev, walk_mode, m_button_long_press);
+        walk_mode = 0;
+      }
       if (button_pin == ENTER__PIN)
       {
         err_code = app_timer_stop(m_timer_button_config_press_timeout); //stop the config  timer
         APP_ERROR_CHECK(err_code);
       }
-      if (button_pin == MINUS__PIN)
+      if ((button_pin == MINUS__PIN) && !light_mode)
+
       {
         if (plus_minus_flag)
           shutdown_flag = true; //needed because button release will wake up the board
@@ -952,7 +981,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       APP_ERROR_CHECK(err_code);
       err_code = app_timer_stop(m_timer_button_long_press_timeout); //stop the long press timer
       APP_ERROR_CHECK(err_code);
-
+      light_mode = 0;
       break;
 
     case APP_BUTTON_PUSH:
