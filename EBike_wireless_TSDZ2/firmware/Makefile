@@ -17,7 +17,7 @@ BOOTLOADER_DIR = $(PROJ_DIR)/../../EBike_wireless_bootloader/firmware
 BOOTLOADER_HEX = $(BOOTLOADER_DIR)/_build/TSDZ2_bootloader_with_sd.hex
 
 APP_VER_MAJOR = 0
-APP_VER_MINOR = 5
+APP_VER_MINOR = 6
 # Source files common to all targets
 SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52840.S \
@@ -29,8 +29,6 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_default_backends.c \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_frontend.c \
   $(SDK_ROOT)/components/libraries/log/src/nrf_log_str_formatter.c \
-  $(SDK_ROOT)/components/libraries/led_softblink/led_softblink.c \
-  $(SDK_ROOT)/components/libraries/low_power_pwm/low_power_pwm.c \
   $(SDK_ROOT)/modules/nrfx/mdk/system_nrf52840.c \
   $(SDK_ROOT)/components/libraries/button/app_button.c \
   $(SDK_ROOT)/components/libraries/util/app_error.c \
@@ -121,15 +119,12 @@ SRC_FILES += \
 	$(PROJ_DIR)/uart.c \
 	$(PROJ_DIR)/utils.c \
 	$(PROJ_DIR)/ble_services.c \
-  $(PROJ_DIR)/buttons.c \
   $(PROJ_DIR)/main.c \
   $(SDK_ROOT)/components/boards/boards.c \
  
 # Include folders common to all targets
 INC_FOLDERS += \
   $(SDK_ROOT)/ \
-  $(SDK_ROOT)/components/libraries/led_softblink \
-  $(SDK_ROOT)/components/libraries/low_power_pwm \
   $(SDK_ROOT)/components/libraries/sensorsim \
   $(SDK_ROOT)/external/fprintf \
   $(SDK_ROOT)/components/softdevice/s340/headers \
@@ -208,14 +203,12 @@ INC_FOLDERS += \
 	$(SDK_ROOT)/components/ble/ble_advertising \
   $(SDK_ROOT)/components/ant/ant_state_indicator \
   $(SDK_ROOT)/components/ant/ant_key_manager \
-  $(SDK_ROOT)/components/ant/ant_key_manager/config \
   $(SDK_ROOT)/components/ant/ant_channel_config \
   $(SDK_ROOT)/components/ant/ant_profiles/ant_common/ant_request_controller \
   $(SDK_ROOT)/components/ant/ant_profiles/ant_common/pages \
 	$(PROJ_DIR)/include \
   $(PROJ_DIR)/ant_lev \
   $(PROJ_DIR)/ant_lev/pages \
-  $(PROJ_DIR)/config \
 
 # Libraries common to all targets
 LIB_FILES += \
@@ -324,7 +317,7 @@ flash: default
 erase:
 	nrfjprog -f nrf52 --eraseall
 
-SDK_CONFIG_FILE := $(PROJ_DIR)/include/sdk_config.h
+SDK_CONFIG_FILE := ../config/sdk_config.h
 CMSIS_CONFIG_TOOL := $(SDK_ROOT)/external_tools/cmsisconfig/CMSIS_Configuration_Wizard.jar
 sdk_config:
 	java -jar $(CMSIS_CONFIG_TOOL) $(SDK_CONFIG_FILE)
