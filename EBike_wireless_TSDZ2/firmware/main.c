@@ -51,13 +51,51 @@
 #include <stdbool.h>
 #include "boards.h"
 #include "nrf_bootloader_info.h"
+#include "buttons.h"
+#include "screen.h"
+#include "led_softblink.h"
+#include "low_power_pwm.h"
+
+// Copied from rananna's wireless remote code for led control
+uint8_t led_duty_cycle = 120;
+//mask_number used for pwm debugging
+int8_t mask_number = 0;
+#define P_LED BSP_LED_0_MASK //green (pwr)
+#define R_LED BSP_LED_1_MASK //red
+#define G_LED BSP_LED_2_MASK //green
+#define B_LED BSP_LED_3_MASK //blue
+//pwm blinking led routine is led_pwm_on
+//only one instance may be active at any time
+//softblink is the instance flag 1 means led busy, 0 or 2 means led ready
+uint8_t soft_blink = 0;
+APP_TIMER_DEF(led_timer);
 
 extern uint8_t ui8_g_battery_soc;
 ui_vars_t *mp_ui_vars;
+bool brake_flag = false;
 
 volatile uint8_t ui8_m_enter_bootloader = 0;
 volatile uint8_t ui8_m_ant_device_id = 0;
 volatile uint8_t ui8_m_flash_configurations = 0;
+
+static uint16_t m_assist_level_change_timeout = 0;
+
+// uint8_t ui8_m_wheel_speed_integer;
+// uint8_t ui8_m_wheel_speed_decimal;
+
+static uint8_t ui8_walk_assist_timeout = 0;
+
+// uint16_t ui16_m_battery_current_filtered_x10;
+// uint16_t ui16_m_motor_current_filtered_x10;
+// uint16_t ui16_m_battery_power_filtered;
+// uint16_t ui16_m_pedal_power_filtered;
+
+// uint8_t g_showNextScreenIndex = 0;
+// uint8_t g_showNextScreenPreviousIndex = 0;
+uint16_t ui16_m_alternate_field_value;
+uint8_t ui8_m_alternate_field_state = 0;
+uint8_t ui8_m_alternate_field_timeout_cnt = 0;
+uint8_t ui8_m_vthrottle_can_increment_decrement = 0;
 
 typedef enum
 {
@@ -430,33 +468,13 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
 
   case ANT_LEV_PAGE_16_UPDATED:
 
-    if (p_profile->page_16.light)
-    {
-      //light mode activated
-      
-    }
-    else
-    {
-      // light mode  deactivated
-
-    }
-
-    if (p_profile->page_16.current_rear_gear == 14)
-    {
-      // walk mode is activated
-      
-    }
     if (p_profile->page_16.current_rear_gear == 15)
     {
-      // enable brakes: be as fast as possible
-      nrf_gpio_port_out_clear(NRF_P0, 1UL << BRAKE__PIN);
+      brake_flag = true;
     }
     if (p_profile->page_16.current_rear_gear == 0)
     {
-      //this state sshould clear both brakes and walk mode
-      // disable walk mode
-      // disable brakes: be as fast as possible
-      nrf_gpio_port_out_set(NRF_P0, 1UL << BRAKE__PIN);
+      brake_flag = false;
     }
     if (p_profile->page_16.current_front_gear == 3)
     {
@@ -1444,6 +1462,7 @@ void TSDZ2_power_manage(void)
     break;
 
   case TSDZ2_POWER_STATE_ON_START:
+    //disp_soc();
     motor_power_enable(true);
     g_motor_init_state = MOTOR_INIT_GET_MOTOR_ALIVE;
     m_TSDZ2_power_state = TSDZ2_POWER_STATE_ON;
@@ -1452,6 +1471,453 @@ void TSDZ2_power_manage(void)
   case TSDZ2_POWER_STATE_ON:
     // do nothing
     break;
+  }
+}
+
+// Allow common operations (like walk assist and headlights) button presses to work on any page
+bool anyscreen_onpress(buttons_events_t events) {
+  if ((events & DOWN_LONG_CLICK) && ui_vars.ui8_walk_assist_feature_enabled) {
+    ui_vars.ui8_walk_assist = 1;
+    return true;
+  }
+
+  // long up to turn on headlights
+  if (events & UP_LONG_CLICK) {
+    ui_vars.ui8_lights = !ui_vars.ui8_lights;
+    //set_lcd_backlight();
+
+    return true;
+  }
+
+  return false;
+}
+
+static bool onPressAlternateField(buttons_events_t events) {
+  bool handled = false;
+
+  // start increment throttle only with UP_LONG_CLICK
+  if ((ui8_m_alternate_field_state == 7) &&
+      (events & UP_LONG_CLICK) &&
+      (ui8_m_vthrottle_can_increment_decrement == 0)) {
+    ui8_m_vthrottle_can_increment_decrement = 1;
+    events |= UP_CLICK; // let's increment, consider UP CLICK
+    ui8_m_alternate_field_timeout_cnt = 50; // 50 * 20ms = 1 second
+  }
+
+  if (ui8_m_alternate_field_timeout_cnt == 0) {
+    ui_vars.ui8_throttle_virtual = 0;
+    ui8_m_vthrottle_can_increment_decrement = 0;
+  }
+
+  switch (ui8_m_alternate_field_state) {
+    case 0:
+      if (events & SCREENCLICK_ALTERNATE_FIELD_START) {
+        ui8_m_alternate_field_state = 1;
+        handled = true;
+      }
+      break;
+
+    // max power
+    case 3:
+      if (
+        (
+          ui_vars.ui8_street_mode_function_enabled
+          && ui_vars.ui8_street_mode_enabled
+          && ui_vars.ui8_street_mode_throttle_enabled
+          || !ui_vars.ui8_street_mode_function_enabled
+          || !ui_vars.ui8_street_mode_enabled
+        )
+        && events & SCREENCLICK_ALTERNATE_FIELD_START
+      ) {
+        ui8_m_alternate_field_state = 6;
+        handled = true;
+        break;
+      }
+
+      if (events & SCREENCLICK_ALTERNATE_FIELD_STOP) {
+        ui8_m_alternate_field_state = 4;
+        handled = true;
+        break;
+      }
+
+      if (events & UP_CLICK) {
+        handled = true;
+
+        if (ui_vars.ui8_target_max_battery_power_div25 < 10) {
+          ui_vars.ui8_target_max_battery_power_div25++;
+        } else {
+          ui_vars.ui8_target_max_battery_power_div25 += 2;
+        }
+
+        // limit to 100 * 25 = 2500 Watts
+        if(ui_vars.ui8_target_max_battery_power_div25 > 100) {
+          ui_vars.ui8_target_max_battery_power_div25 = 100;
+        }
+
+        break;
+      }
+
+      if (events & DOWN_CLICK) {
+        handled = true;
+
+        if (ui_vars.ui8_target_max_battery_power_div25 <= 10 &&
+            ui_vars.ui8_target_max_battery_power_div25 > 1) {
+          ui_vars.ui8_target_max_battery_power_div25--;
+        } else if (ui_vars.ui8_target_max_battery_power_div25 > 10) {
+          ui_vars.ui8_target_max_battery_power_div25 -= 2;
+        }
+
+        break;
+      }
+    break;
+
+    // virtual throttle
+    // From what I can see - for VT to work- you need street mode enabled, you need throttle enabled for street mode.
+    // up+onoff long press then gets you into alternate state 3
+    // up+onoff long press 2nd time then gets you into alternate state 7
+    // onoff long press seems to get you out of alternate state (back to 0) and back to normal assist
+    // Having said all that - i cannot get the motor to spin when in either 3 or 7 state - 
+    // not sure if this lack of something implemented here - or that I'm not activating VT properly.
+    case 7:
+      if (events & SCREENCLICK_ALTERNATE_FIELD_START) {
+        ui8_m_alternate_field_state = 1;
+        handled = true;
+        break;
+      }
+
+      if (events & SCREENCLICK_ALTERNATE_FIELD_STOP) {
+        ui_vars.ui8_throttle_virtual = 0;
+        ui8_m_alternate_field_timeout_cnt = 0;
+        ui8_m_vthrottle_can_increment_decrement = 0;
+        ui8_m_alternate_field_state = 4;
+        handled = true;
+        break;
+      }
+
+      if (events & UP_CLICK) {
+        handled = true;
+
+        if (ui8_m_vthrottle_can_increment_decrement &&
+            ui_vars.ui8_assist_level) {
+          if ((ui_vars.ui8_throttle_virtual + ui_vars.ui8_throttle_virtual_step) <= 100) {
+            ui_vars.ui8_throttle_virtual += ui_vars.ui8_throttle_virtual_step;
+          } else {
+            ui_vars.ui8_throttle_virtual = 100;
+          }
+
+          ui8_m_alternate_field_timeout_cnt = 50;
+        }
+
+        break;
+      }
+
+      if (events & DOWN_CLICK) {
+        handled = true;
+
+        if (ui8_m_vthrottle_can_increment_decrement &&
+            ui_vars.ui8_assist_level) {
+          if (ui_vars.ui8_throttle_virtual >= ui_vars.ui8_throttle_virtual_step) {
+            ui_vars.ui8_throttle_virtual -= ui_vars.ui8_throttle_virtual_step;
+          } else {
+            ui_vars.ui8_throttle_virtual = 0;
+          }
+
+          ui8_m_alternate_field_timeout_cnt = 50;
+        }
+
+        break;
+      }
+    break;
+  }
+
+  if (ui8_m_alternate_field_state == 7) {
+    // user will keep UP DOWN LONG clicks on this state, so, clean them to not pass to next code
+    if ((events & UP_LONG_CLICK) ||
+        (events & DOWN_LONG_CLICK))
+      handled = true;
+  }
+
+  return handled;
+}
+
+static bool onPressStreetMode(buttons_events_t events) {
+  bool handled = false;
+
+  if (events & SCREENCLICK_STREET_MODE)
+  {
+    if (ui_vars.ui8_street_mode_function_enabled && ui_vars.ui8_street_mode_hotkey_enabled)
+    {
+      if (ui_vars.ui8_street_mode_enabled)
+        ui_vars.ui8_street_mode_enabled = 0;
+      else
+        ui_vars.ui8_street_mode_enabled = 1;
+
+      //mainScreenOnDirtyClean();
+    }
+
+    handled = true;
+  }
+
+  return handled;
+}
+
+bool mainScreenOnPress(buttons_events_t events) {
+  bool handled = false;
+
+  handled = onPressAlternateField(events);
+
+  if (handled == false)
+    handled = anyscreen_onpress(events);
+
+  if (handled == false)
+    handled = onPressStreetMode(events);
+
+  if (handled == false &&
+      ui8_m_alternate_field_state == 0) {
+    if (events & UP_CLICK) {
+      ui_vars.ui8_assist_level++;
+
+      if (ui_vars.ui8_assist_level > ui_vars.ui8_number_of_assist_levels) {
+        ui_vars.ui8_assist_level = ui_vars.ui8_number_of_assist_levels;
+      }
+
+      m_assist_level_change_timeout = 20; // 2 seconds
+      handled = true;
+    }
+
+    if (
+      events & DOWN_CLICK
+      && !ui_vars.ui8_walk_assist // do not lower assist level if walk assist is active
+    ) {
+      if (ui_vars.ui8_assist_level > 0)
+        ui_vars.ui8_assist_level--;
+
+      m_assist_level_change_timeout = 20; // 2 seconds
+      handled = true;
+    }
+  }
+
+	return handled;
+}
+
+void alternatField(void) {
+  //static const char str_max_power[] = "max power";
+  //static const char str_throttle[] = "throttle";
+
+  switch (ui8_m_alternate_field_state) {
+    case 1:
+// #ifndef SW102
+//       assistLevelField.rw->visibility = FieldTransitionNotVisible;
+// #else
+//       wheelSpeedIntegerField.rw->visibility = FieldTransitionNotVisible;
+// #endif
+      ui8_m_alternate_field_state = 2;
+
+// #ifndef SW102
+//       UG_SetBackcolor(C_BLACK);
+//       UG_SetForecolor(MAIN_SCREEN_FIELD_LABELS_COLOR);
+//       UG_FontSelect(&FONT_10X16);
+//       UG_PutString(15, 46, "      ");
+// #endif
+      break;
+
+    case 2:
+      //updateReadOnlyLabelStr(&fieldAlternate, str_max_power);
+      //fieldAlternate.rw->visibility = FieldTransitionVisible;
+      //mainScreenOnDirtyClean();
+      ui8_m_alternate_field_state = 3;
+      break;
+
+    case 3:
+      // keep updating the variable to show on display
+      ui16_m_alternate_field_value = ((uint16_t) ui_vars.ui8_target_max_battery_power_div25) * 25;
+      break;
+
+    case 4:
+      //fieldAlternate.rw->visibility = FieldTransitionNotVisible;
+      ui8_m_alternate_field_state = 5;
+      break;
+
+    case 5:
+// #ifndef SW102
+//       assistLevelField.rw->visibility = FieldTransitionVisible;
+// #else
+//       wheelSpeedIntegerField.rw->visibility = FieldTransitionVisible;
+// #endif
+      //mainScreenOnDirtyClean();
+      ui8_m_alternate_field_state = 0;
+      break;
+
+    case 6:
+      //updateReadOnlyLabelStr(&fieldAlternate, str_throttle);
+      //mainScreenOnDirtyClean();
+      ui8_m_alternate_field_state = 7;
+      break;
+
+    case 7:
+      // keep updating the variable to show on display
+      ui16_m_alternate_field_value = (uint16_t) ui_vars.ui8_throttle_virtual;
+      break;
+  }
+}
+
+void streetMode(void) {
+  if (ui_vars.ui8_street_mode_function_enabled)
+  {
+    ui_vars.ui8_street_mode_power_limit_div25 = (ui_vars.ui16_street_mode_power_limit / 25);
+  }
+}
+
+void walk_assist_state(void) {
+// kevinh - note on the sw102 we show WALK in the box normally used for BRAKE display - the display code is handled there now
+  if (ui_vars.ui8_walk_assist_feature_enabled) {
+    // if down button is still pressed
+    if (ui_vars.ui8_walk_assist && buttons_get_down_state()) {
+      ui8_walk_assist_timeout = 2; // 0.2 seconds
+    } else if (buttons_get_down_state() == 0 && --ui8_walk_assist_timeout == 0) {
+      ui_vars.ui8_walk_assist = 0;
+    }
+  } else {
+    ui_vars.ui8_walk_assist = 0;
+  }
+}
+
+static bool appwide_onpress(buttons_events_t events)
+{
+  // power off only after we release first time the onoff button
+  if (events & ONOFF_LONG_CLICK)
+  {
+    // Toggle power state...
+          if (m_TSDZ2_power_state == TSDZ2_POWER_STATE_OFF)
+      {
+        // turn on TSDZ2 motor controller
+        m_TSDZ2_power_state = TSDZ2_POWER_STATE_ON_START;
+      }
+
+      else if (m_TSDZ2_power_state == TSDZ2_POWER_STATE_ON)
+      {
+        //  turn off TSDZ2 motor controller
+        m_TSDZ2_power_state = TSDZ2_POWER_STATE_OFF_START;
+      }
+    return true;
+  }
+
+/*   if ((events & SCREENCLICK_NEXT_SCREEN) &&
+      ((g_motor_init_state == MOTOR_INIT_READY) ||
+      (g_motor_init_state == MOTOR_INIT_SIMULATING))) {
+    showNextScreen();
+    return true;
+  }
+
+  if (events & SCREENCLICK_ENTER_CONFIGURATIONS) {
+    screenShow(&configScreen);
+    return true;
+  } */
+
+	return false;
+}
+
+
+/// Called every 20ms to check for wired button events and dispatch to our handlers
+static void handle_buttons() {
+
+  static uint8_t firstTime = 1;
+
+  // keep tracking of first time release of onoff button
+  if(firstTime && buttons_get_onoff_state() == 0) {
+    firstTime = 0;
+    buttons_clear_onoff_click_event();
+    buttons_clear_onoff_long_click_event();
+    buttons_clear_onoff_click_long_click_event();
+  }
+
+   if (ui8_m_alternate_field_state == 7) { // if virtual throttle mode
+    if (buttons_get_up_state() == 0 && // UP and DOWN buttons not pressed
+            buttons_get_down_state() == 0) {
+      if (ui8_m_alternate_field_timeout_cnt) {
+        ui8_m_alternate_field_timeout_cnt--;
+      } else {
+        ui8_m_vthrottle_can_increment_decrement = 0;
+        ui_vars.ui8_throttle_virtual = 0;
+      }
+    } else {
+      ui8_m_alternate_field_timeout_cnt = 50;
+    }
+  }  
+
+  if (buttons_events && firstTime == 0)
+  {
+    bool handled = false;
+
+		//if (!handled)
+		//	handled |= screenOnPress(buttons_events);
+		if (!handled)
+			handled |= mainScreenOnPress(buttons_events);
+		 //Note: this must be after the screen/menu handlers have had their shot
+		 if (!handled)
+		 	handled |= appwide_onpress(buttons_events);
+
+		if (handled)
+			buttons_clear_all_events();
+	}
+
+	buttons_clock(); // Note: this is done _after_ button events is checked to provide a 20ms debounce
+}
+
+void led_pwm_on(uint32_t mask, uint8_t duty_cycle_max, uint8_t duty_cycle_min, uint8_t duty_cycle_step, uint32_t led_on_ms)
+{
+  //mask can be ORed to turn on R &B colors
+  //ie: R_LED || B_LED
+  //not G_LED as it is on a diffderent gpio port
+  ret_code_t err_code;
+  NRF_GPIO_Type *port;
+  uint32_t ON_TICKS = 0;
+  ON_TICKS = APP_TIMER_TICKS(led_on_ms);
+
+  if (soft_blink == 0) //ok to start another pwm instance
+  {
+
+    //fix for port number problem with green led
+    port = NRF_P0;
+    if (mask == G_LED)
+      port = NRF_P1;
+
+#define LED_PWM_PARAMS(mask)                             \
+  {                                                      \
+    .active_high = false,                                \
+    .duty_cycle_max = duty_cycle_max,                    \
+    .duty_cycle_min = duty_cycle_min,                    \
+    .duty_cycle_step = duty_cycle_step,                  \
+    .off_time_ticks = 3000,                              \
+    .on_time_ticks = 0,                                  \
+    .leds_pin_bm = LED_SB_INIT_PARAMS_LEDS_PIN_BM(mask), \
+    .p_leds_port = port                                  \
+  }
+    const led_sb_init_params_t led_pwm_init_param = LED_PWM_PARAMS(mask);
+
+    err_code = led_softblink_init(&led_pwm_init_param);
+    APP_ERROR_CHECK(err_code);
+
+    if (led_on_ms)
+    {
+      err_code = app_timer_start(led_timer, ON_TICKS, NULL);
+      APP_ERROR_CHECK(err_code);
+    }
+    err_code = led_softblink_start(mask);
+    APP_ERROR_CHECK(err_code);
+    soft_blink = 1; //set the blocking flag
+  }
+}
+
+void disp_soc(void)
+{
+  nrf_delay_ms(1000);
+  for (int i = 0; i < (ui8_g_battery_soc/10); i++)
+  {
+    led_pwm_on(G_LED, 100, 0, 5, 0);
+    nrf_delay_ms(200);
+    soft_blink = led_softblink_uninit(); // turn off the soft_blink led
+    nrf_delay_ms(300);
   }
 }
 
@@ -1500,6 +1966,11 @@ int main(void)
       ble_send_periodic_data();
       ble_update_configurations_data();
       TSDZ2_power_manage();
+
+      walk_assist_state();
+      handle_buttons();
+      //alternatField(); // Removed until we can resolve what to do with the alternate state display requirements
+      streetMode();
     }
 
     // every 1 second
