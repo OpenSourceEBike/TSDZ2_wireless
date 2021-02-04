@@ -15,14 +15,12 @@ void pins_init(void)
 {
   nrf_gpio_cfg_output(MOTOR_POWER_ENABLE__PIN);
   nrf_gpio_pin_clear(MOTOR_POWER_ENABLE__PIN);
-
   nrf_gpio_cfg_output(BRAKE__PIN);
   nrf_gpio_pin_set(BRAKE__PIN);
   nrf_gpio_cfg_sense_input(PLUS__PIN, GPIO_PIN_CNF_PULL_Pullup, GPIO_PIN_CNF_SENSE_Low);
   nrf_gpio_cfg_sense_input(MINUS__PIN, GPIO_PIN_CNF_PULL_Pullup, GPIO_PIN_CNF_SENSE_Low);
   nrf_gpio_cfg_sense_input(ENTER__PIN, GPIO_PIN_CNF_PULL_Pullup, GPIO_PIN_CNF_SENSE_Low);
   nrf_gpio_cfg_sense_input(STANDBY__PIN, GPIO_PIN_CNF_PULL_Pullup, GPIO_PIN_CNF_SENSE_Low);
-
 }
 
 void motor_power_enable(bool state)
