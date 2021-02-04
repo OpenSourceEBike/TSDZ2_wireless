@@ -53,6 +53,22 @@
 #include "nrf_bootloader_info.h"
 #include "buttons.h"
 #include "screen.h"
+#include "led_softblink.h"
+#include "low_power_pwm.h"
+
+// Copied from rananna's wireless remote code for led control
+uint8_t led_duty_cycle = 120;
+//mask_number used for pwm debugging
+int8_t mask_number = 0;
+#define P_LED BSP_LED_0_MASK //green (pwr)
+#define R_LED BSP_LED_1_MASK //red
+#define G_LED BSP_LED_2_MASK //green
+#define B_LED BSP_LED_3_MASK //blue
+//pwm blinking led routine is led_pwm_on
+//only one instance may be active at any time
+//softblink is the instance flag 1 means led busy, 0 or 2 means led ready
+uint8_t soft_blink = 0;
+APP_TIMER_DEF(led_timer);
 
 extern uint8_t ui8_g_battery_soc;
 ui_vars_t *mp_ui_vars;
@@ -1171,14 +1187,14 @@ void ble_send_periodic_data(void)
   tx_data[5] = (uint8_t)((ui_vars.ui8_braking & 1) | ((ui_vars.ui8_lights & 1) << 1));
   tx_data[6] = ui_vars.ui8_motor_hall_sensors;
   tx_data[7] = ui_vars.ui8_pas_pedal_right;
-  tx_data[8] = ui_vars.ui8_adc_throttle;
+  tx_data[8] = ui16_m_alternate_field_value;//ui_vars.ui8_adc_throttle;
   tx_data[9] = ui_vars.ui8_motor_temperature;
-  tx_data[10] = ui_vars.ui8_throttle;
+  tx_data[10] = ui_vars.ui8_throttle_virtual;//ui_vars.ui8_throttle
   tx_data[11] = (uint8_t)(ui_vars.ui16_adc_pedal_torque_sensor & 0xff);
   tx_data[12] = (uint8_t)(ui_vars.ui16_adc_pedal_torque_sensor >> 8);
   tx_data[13] = ui_vars.ui8_pedal_weight_with_offset;
   tx_data[14] = ui_vars.ui8_pedal_weight;
-  tx_data[15] = ui_vars.ui8_pedal_cadence_filtered;
+  tx_data[15] = ui8_m_alternate_field_state;//ui_vars.ui8_pedal_cadence_filtered;
   tx_data[16] = ui_vars.ui8_duty_cycle;
   tx_data[17] = (uint8_t)(ui_vars.ui16_motor_speed_erps & 0xff);
   tx_data[18] = (uint8_t)(ui_vars.ui16_motor_speed_erps >> 8);
@@ -1446,6 +1462,7 @@ void TSDZ2_power_manage(void)
     break;
 
   case TSDZ2_POWER_STATE_ON_START:
+    //disp_soc();
     motor_power_enable(true);
     g_motor_init_state = MOTOR_INIT_GET_MOTOR_ALIVE;
     m_TSDZ2_power_state = TSDZ2_POWER_STATE_ON;
@@ -1555,6 +1572,12 @@ static bool onPressAlternateField(buttons_events_t events) {
     break;
 
     // virtual throttle
+    // From what I can see - for VT to work- you need street mode enabled, you need throttle enabled for street mode.
+    // up+onoff long press then gets you into alternate state 3
+    // up+onoff long press 2nd time then gets you into alternate state 7
+    // onoff long press seems to get you out of alternate state (back to 0) and back to normal assist
+    // Having said all that - i cannot get the motor to spin when in either 3 or 7 state - 
+    // not sure if this lack of something implemented here - or that I'm not activating VT properly.
     case 7:
       if (events & SCREENCLICK_ALTERNATE_FIELD_START) {
         ui8_m_alternate_field_state = 1;
@@ -1841,6 +1864,63 @@ static void handle_buttons() {
 	buttons_clock(); // Note: this is done _after_ button events is checked to provide a 20ms debounce
 }
 
+void disp_soc(void)
+{
+  nrf_delay_ms(1000);
+  for (int i = 0; i < (ui8_g_battery_soc/10); i++)
+  {
+    led_pwm_on(G_LED, 100, 0, 5, 0);
+    nrf_delay_ms(200);
+    soft_blink = led_softblink_uninit(); // turn off the soft_blink led
+    nrf_delay_ms(300);
+  }
+}
+
+void led_pwm_on(uint32_t mask, uint8_t duty_cycle_max, uint8_t duty_cycle_min, uint8_t duty_cycle_step, uint32_t led_on_ms)
+{
+  //mask can be ORed to turn on R &B colors
+  //ie: R_LED || B_LED
+  //not G_LED as it is on a diffderent gpio port
+  ret_code_t err_code;
+  NRF_GPIO_Type *port;
+  uint32_t ON_TICKS = 0;
+  ON_TICKS = APP_TIMER_TICKS(led_on_ms);
+
+  if (soft_blink == 0) //ok to start another pwm instance
+  {
+
+    //fix for port number problem with green led
+    port = NRF_P0;
+    if (mask == G_LED)
+      port = NRF_P1;
+
+#define LED_PWM_PARAMS(mask)                             \
+  {                                                      \
+    .active_high = false,                                \
+    .duty_cycle_max = duty_cycle_max,                    \
+    .duty_cycle_min = duty_cycle_min,                    \
+    .duty_cycle_step = duty_cycle_step,                  \
+    .off_time_ticks = 3000,                              \
+    .on_time_ticks = 0,                                  \
+    .leds_pin_bm = LED_SB_INIT_PARAMS_LEDS_PIN_BM(mask), \
+    .p_leds_port = port                                  \
+  }
+    const led_sb_init_params_t led_pwm_init_param = LED_PWM_PARAMS(mask);
+
+    err_code = led_softblink_init(&led_pwm_init_param);
+    APP_ERROR_CHECK(err_code);
+
+    if (led_on_ms)
+    {
+      err_code = app_timer_start(led_timer, ON_TICKS, NULL);
+      APP_ERROR_CHECK(err_code);
+    }
+    err_code = led_softblink_start(mask);
+    APP_ERROR_CHECK(err_code);
+    soft_blink = 1; //set the blocking flag
+  }
+}
+
 int main(void)
 {
   mp_ui_vars = get_ui_vars();
@@ -1889,7 +1969,7 @@ int main(void)
 
       walk_assist_state();
       handle_buttons();
-      alternatField();
+      //alternatField(); // Removed until we can resolve what to do with the alternate state display requirements
       streetMode();
     }
 
