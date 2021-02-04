@@ -13,8 +13,8 @@
 #include <stdbool.h>
 #include "boards.h"
 
-#define MOTOR_POWER_ENABLE__PIN             NRF_GPIO_PIN_MAP(1,0)
-#define BRAKE__PIN                          9
+#define MOTOR_POWER_ENABLE__PIN   NRF_GPIO_PIN_MAP(1,0)
+#define BRAKE__PIN                9
 
 // UART pins
 #define RX_PIN_NUMBER 24
