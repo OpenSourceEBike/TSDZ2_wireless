@@ -557,6 +557,7 @@ void ant_lev_evt_handler(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
 
   case ANT_LEV_PAGE_34_UPDATED:
 
+
     break;
 
   case ANT_LEV_PAGE_16_UPDATED:
