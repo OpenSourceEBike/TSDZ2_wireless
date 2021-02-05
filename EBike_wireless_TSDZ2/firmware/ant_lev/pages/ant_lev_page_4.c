@@ -20,16 +20,16 @@ typedef struct
     uint8_t distance_on_current_charge_msb;
 } ant_lev_page_4_data_layout_t;
 
-void ant_lev_page_4_encode(uint8_t                    * p_page_buffer,
-                           ant_lev_page_4_data_t const * p_page_data)
+void ant_lev_page_4_encode(uint8_t *p_page_buffer,
+                           ant_lev_page_4_data_t const *p_page_data)
 {
-    ant_lev_page_4_data_layout_t * p_outcoming_data = (ant_lev_page_4_data_layout_t *)p_page_buffer;
+    ant_lev_page_4_data_layout_t *p_outcoming_data = (ant_lev_page_4_data_layout_t *)p_page_buffer;
 
-    p_outcoming_data->charging_cycle_count_lsb = ((uint8_t) p_page_data->charging_cycle_count) & 0xff;
-    p_outcoming_data->charging_cycle_count__fuel_consumption = ((uint8_t) (p_page_data->charging_cycle_count >> 8)) & 0x0f;
-    p_outcoming_data->fuel_consumption_lsb = ((uint8_t) p_page_data->fuel_consumption) & 0xff;
-    p_outcoming_data->charging_cycle_count__fuel_consumption |= ((uint8_t) (p_page_data->fuel_consumption >> 12)) & 0x0f;
+    p_outcoming_data->charging_cycle_count_lsb = ((uint8_t)p_page_data->charging_cycle_count) & 0xff;
+    p_outcoming_data->charging_cycle_count__fuel_consumption = ((uint8_t)(p_page_data->charging_cycle_count >> 8)) & 0x0f;
+    p_outcoming_data->fuel_consumption_lsb = ((uint8_t)p_page_data->fuel_consumption) & 0xff;
+    p_outcoming_data->charging_cycle_count__fuel_consumption |= (((uint8_t)(p_page_data->fuel_consumption >> 8)) & 0x0f) << 4;
     p_outcoming_data->battery_voltage = p_page_data->battery_voltage;
-    p_outcoming_data->distance_on_current_charge_lsb = ((uint8_t) p_page_data->distance_on_current_charge) & 0xff;
-    p_outcoming_data->distance_on_current_charge_msb = ((uint8_t) (p_page_data->distance_on_current_charge >> 8)) & 0x0f;
+    p_outcoming_data->distance_on_current_charge_lsb = ((uint8_t)p_page_data->distance_on_current_charge) & 0xff;
+    p_outcoming_data->distance_on_current_charge_msb = ((uint8_t)(p_page_data->distance_on_current_charge >> 8)) & 0xff;
 }

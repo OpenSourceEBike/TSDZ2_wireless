@@ -345,22 +345,53 @@ void ant_lev_evt_handler_pre(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
   default:
     break;
   }
-  //set variables for ANT transmission
-
-  // battery voltage
-  p_profile->page_4.battery_voltage = ui_vars.ui16_battery_voltage_filtered_x10;
-
-  // assist level
-  p_profile->common.travel_mode_state |= (mp_ui_vars->ui8_assist_level << 3) & 0x38;
-
-  // lights
-  p_profile->common.system_state |= (mp_ui_vars->ui8_lights << 3) & 0x08;
-
-  // lev speed
+  //set variables for ANT transmission in order of connectIQ fields
+  // 1. lev speed
   p_profile->common.lev_speed = ui_vars.ui16_wheel_speed_x10 / 10;
 
-  //state of charge
+  //2.  assist level
+  p_profile->common.travel_mode_state |= (mp_ui_vars->ui8_assist_level << 3) & 0x38;
+
+  // 3. lights
+  //set by the remote control page 16 command
+  p_profile->common.system_state = p_profile->common.system_state && 0xf7; //lights off
+
+  p_profile->common.system_state |= (mp_ui_vars->ui8_lights << 3);
+
+  //4. state of charge
   p_profile->page_3.battery_soc = ui8_g_battery_soc;
+
+  // 5. battery voltage
+  //p_profile->page_4.battery_voltage = (ui_vars.ui16_battery_voltage_filtered_x10)/2.5;
+  //battery voltage for ANT_LEV is 0.25V/bit
+  p_profile->page_4.battery_voltage = 55 / 0.25;
+
+  //6. odometer
+  //3 bytes -0.01km/bit max value 167772.15km
+  //p_profile->common.odometer = ui_vars.ui32_odometer_x10 / 100;
+  p_profile->common.odometer = 167772; //1677.72 km
+
+  //7. remaining range
+  //1 km/bit, max value 4095km
+  //p_profile->page_2.remaining_range = ui_vars.battery_energy_km_value_x100 / 100;
+  p_profile->page_2.remaining_range = 4095; //km
+
+  //8. motor temperature
+  //one byte, bits 4-6
+  //000 unknown
+  //001  cold
+  //010 cold/warm
+  //011 warm
+  //100 warm/hot
+  //101 hot
+
+  // p_profile->page_1.temperature_state = ui_vars.ui8_motor_temperature;
+  p_profile->page_1.temperature_state = 32; //warm
+
+  //9. fuel consumption
+  //max value 0.1 wh/km per bit, max value=409.5 Wh/km
+  // p_profile->page_4.fuel_consumption = ui_vars.ui32_wh_x10;
+  p_profile->page_4.fuel_consumption = 3000;
 
   switch (event)
   {
@@ -433,18 +464,15 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
     if (p_profile->page_16.light)
     {
       //light mode activated
-      
     }
     else
     {
       // light mode  deactivated
-
     }
 
     if (p_profile->page_16.current_rear_gear == 14)
     {
       // walk mode is activated
-      
     }
     if (p_profile->page_16.current_rear_gear == 15)
     {
@@ -479,7 +507,7 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
     mp_ui_vars->ui8_assist_level = p_profile->page_16.travel_mode >> 3;
 
     // lights
-    p_profile->common.system_state |= ((((uint8_t)p_profile->page_16.light) << 3) & 0x08);
+    p_profile->common.system_state |= ((((uint8_t)p_profile->page_16.light) << 3));
     mp_ui_vars->ui8_lights = ((uint8_t)p_profile->page_16.light);
     break;
 
