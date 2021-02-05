@@ -9,7 +9,7 @@
 #include "stdio.h"
 #include <string.h>
 #include "eeprom.h"
-#include "main_screen.h"
+//#include "main_screen.h"
 #include "state.h"
 #include "nrf_sdh.h"
 #include "nrf_sdh_ble.h"
