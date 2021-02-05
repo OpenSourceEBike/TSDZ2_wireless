@@ -1,8 +1,30 @@
+
 # **Remote operation**
+## Getting started with your new remote 
 
-The remote has two operating modes, **NORMAL** **MODE** which is the usual mode of operation, and **CONFIGURATION** **MODE**, which is used to set various remote operating options described below. Pressing the **ENTER** key for a long press of more than 5 seconds will toggle between **NORMAL MODE** and **CONFIGURATION MODE**.<br>
+**To get started with the remote, follow this 4 step process:**
 
-In either mode, if the key is pressed while inactive the **RED LED** will briefly flash.
+1. Ensure that the second wireless board is powered up and connected to the TSDZ2 motor controller.
+2. To turn on the motor, press and hold the **POWER** key on the remote control.
+A **RED** LED will briefly flash, followed by a flashing **RED+BLUE** LED. This LED will continue flashing until a connected is established with the wireless controller.
+3. press the **PLUS/MINUS** keys briefly to increase/decrease the motor assist level
+4. To turn off the motor, press and hold the **POWER** key on the remote control.
+A **RED** LED will briefly flash, followed by a flashing **GREEN** LED. This LED will indicate the current state of charge of the battery by one flash for every 10% of charge.
+
+That's basically all you need to use the remote for basic operation. 
+Read the "**Button Operation**" section below for more details on the remote's operation.
+If you would like to configure the remote, please read the "**Remote Operating Modes**" section next. 
+Enjoy!!
+
+## Remote Operating Modes
+
+The remote has a 2 configuration options, namely specifying a specific ANT ID for the ebike and setting ANT LEV control options 
+
+1. The ANT ID allows you to pair the remote to a specific TSDZ2 motor. The default ANT ID of 0 will allow the remote to pair with any TSDZ2 motor within range. This is a useful option if you have multiple ebikes. The ANT ID can be changed by a bluetooth connection to the remote.
+2. The ANT LEV control options allow you to pair the remote to an ebike and/or a garmin bike computer simultaneously.
+The remote has two operating modes, **NORMAL** **MODE** which is the usual mode of operation, and **CONFIGURATION** **MODE**, which is used to set the remote operating options described above. Pressing the **ENTER** key for a long press of more than 5 seconds will toggle between **NORMAL MODE** and **CONFIGURATION MODE**.<br>
+
+In either mode, if a key is pressed while inactive the **RED LED** will briefly flash.
 
 ----
 
