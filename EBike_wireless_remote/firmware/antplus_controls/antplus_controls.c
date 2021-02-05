@@ -200,12 +200,14 @@ void antplus_controls_sens_evt_handler(ant_evt_t *p_ant_evt, void *p_context)
     case EVENT_CHANNEL_CLOSED:
       //communication has been lost
       //try restarting up to 12 times if connection cannot be made (3 min total search time)
+      /*
       restart_count += 1;
       if (restart_count < 12)
       {
         sd_ant_channel_open(p_profile->channel_number);
         ANT_Search_Start();
       }
+      */
       break;
     case EVENT_RX_FAIL_GO_TO_SEARCH:
       ANT_Search_Start();

@@ -76,7 +76,7 @@ int8_t mask_number = 0;
 uint8_t soft_blink = 0;
 bool config_press = false;
 //motor state control variables
-uint8_t motor_init_state;
+uint8_t motor_init_state = 0;
 uint8_t motor_error_state;
 uint8_t motor_soc_state;
 bool motor_display_soc = false;
@@ -557,7 +557,6 @@ void ant_lev_evt_handler(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
 
   case ANT_LEV_PAGE_34_UPDATED:
 
-
     break;
 
   case ANT_LEV_PAGE_16_UPDATED:
@@ -752,7 +751,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 0);
   }
 
-  if (nrf_gpio_pin_read(MINUS__PIN) == 0)
+  if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && (!configuration_flag))
   {
     // start walk mode
     walk_mode = 55; //set walk mode flag to allow button release to work
@@ -845,14 +844,14 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         if (ebike && !soft_blink)
         {
           led_pwm_on(R_LED, 100, 99, 1, 100); //100 ms on
-          nrf_delay_ms(1000);
+          nrf_delay_ms(3000);
           soft_blink = led_softblink_uninit();
         }
 
         if (garmin && !soft_blink)
         {
           led_pwm_on(G_LED, 100, 99, 1, 100); //100 ms on
-          nrf_delay_ms(1000);
+          nrf_delay_ms(3000);
           soft_blink = led_softblink_uninit();
         }
         /*
@@ -1688,16 +1687,28 @@ int main(void)
 
   if (configuration_flag)
   {
-    //signal that bluetooth is active
-    led_pwm_on(B_LED, 100, 0, 5, 0); // start soft_blink led, 0 for no timer
-    nrf_delay_ms(2000);
+    soft_blink = led_softblink_uninit();
+    if (ebike && !soft_blink)
+    {
+      led_pwm_on(R_LED, 100, 99, 1, 0); //100 ms on
+      nrf_delay_ms(3000);
+      soft_blink = led_softblink_uninit();
+    }
+
+    if (garmin && !soft_blink)
+    {
+      led_pwm_on(G_LED, 100, 99, 1, 0); //100 ms on
+      nrf_delay_ms(3000);
+      soft_blink = led_softblink_uninit();
+    }
+    
     //start the bluetooth 5 min timer
     err_code = app_timer_start(bluetooth_timer, BLUETOOTH_TIMEOUT, NULL);
     APP_ERROR_CHECK(err_code);
     ble_init();
   }
-  // set up the ANT profiles
-  profile_setup();
+  else
+    profile_setup();
   power_mgt_init();
 
   // idle loop
