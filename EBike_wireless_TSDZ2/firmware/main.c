@@ -52,7 +52,7 @@
 #include "boards.h"
 #include "nrf_bootloader_info.h"
 #include "buttons.h"
-#include "screen.h"
+//#include "screen.h"
 #include "led_softblink.h"
 #include "low_power_pwm.h"
 

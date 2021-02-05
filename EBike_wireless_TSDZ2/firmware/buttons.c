@@ -30,45 +30,7 @@ static uint32_t ui32_m_button_state_counter = 0;
 static uint32_t ui32_m_clear_event = 0;
 buttons_events_t buttons_events = 0;
 
-#if defined(DISPLAY_850C) || defined(DISPLAY_860C)
-#include "stm32f10x.h"
-#include "stm32f10x_gpio.h"
-#include "pins.h"
-
-uint32_t buttons_get_up_state(void) {
-	if (ui_vars.ui8_buttons_up_down_invert) {
-		return GPIO_ReadInputDataBit(BUTTON_DOWN__PORT, BUTTON_DOWN__PIN) != 0 ?
-				0 : 1;
-	} else {
-		return GPIO_ReadInputDataBit(BUTTON_UP__PORT, BUTTON_UP__PIN) != 0 ?
-				0 : 1;
-	}
-}
-
-uint32_t buttons_get_down_state(void) {
-	if (ui_vars.ui8_buttons_up_down_invert) {
-		return GPIO_ReadInputDataBit(BUTTON_UP__PORT, BUTTON_UP__PIN) != 0 ?
-				0 : 1;
-	} else {
-		return GPIO_ReadInputDataBit(BUTTON_DOWN__PORT, BUTTON_DOWN__PIN) != 0 ?
-				0 : 1;
-	}
-}
-
-uint32_t buttons_get_onoff_state(void) {
-	return GPIO_ReadInputDataBit(BUTTON_ONOFF__PORT, BUTTON_ONOFF__PIN) != 0 ?
-			0 : 1;
-}
-
-uint32_t buttons_get_m_state(void) {
-#ifdef DISPLAY_850C
-	return 0; // no M button on 850C
-#elif DISPLAY_860C
-  return GPIO_ReadInputDataBit(BUTTON_M__PORT, BUTTON_M__PIN) != 0 ?
-      0 : 1;
-#endif
-}
-#elif defined(BOARD_PCA10059)
+#if defined(BOARD_PCA10059)
 #include "pins.h"
 // Read buttons for NRF Blue Dongle
 
