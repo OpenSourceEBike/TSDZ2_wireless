@@ -18,7 +18,6 @@
 #include "app_button.h"
 #include "nrf_pwr_mgmt.h"
 #include "nrf_delay.h"
-#include "led_softblink.h"
 static u_int8_t desired_travel_mode;
 #define COMMON_DATA_INTERVAL 20 /**< Common data page is sent every 20th message. */
 
