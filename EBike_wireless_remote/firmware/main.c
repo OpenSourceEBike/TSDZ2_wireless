@@ -281,24 +281,15 @@ void fast_flash(uint8_t led_idx)
     nrf_delay_ms(100);
   }
 }
-void disp_assist(void)
-{
 
-  for (int i = 0; i < m_ant_lev.page_16.travel_mode; i += 8)
-  {
-    bsp_board_led_on(LED_G__PIN);
-    nrf_delay_ms(500);
-    display_assist = false;
-  }
-}
 void disp_soc(void)
 {
   nrf_delay_ms(500);
   for (int i = 0; i < motor_soc_state; i++)
   {
-    bsp_board_led_on(LED_G__PIN);
+    bsp_board_led_on(LED_B__PIN);
     nrf_delay_ms(300);
-    bsp_board_led_off(LED_G__PIN);
+    bsp_board_led_off(LED_B__PIN);
     nrf_delay_ms(300);
   }
 }
@@ -328,7 +319,7 @@ void check_motor_init()
     {
       ////indicate the motor SOC when motor turns on
 
-      nrf_delay_ms(300);
+      nrf_delay_ms(500);
       fast_flash(LED_B__PIN);
 
       /* slow flash
@@ -621,7 +612,7 @@ void wait_and_reset(void)
   nrf_delay_ms(WAIT_TIME);
   sd_nvic_SystemReset(); // reset and start again
 }
-void ANT_Search_Stop(void)
+void ANT_Search_Stop(void) //ant search has timed out without finding a device
 {
   ret_code_t err_code;
   err_code = app_timer_stop(ANT_Search_timer);
@@ -637,7 +628,7 @@ void ANT_Search_Start(void)
   slow_flash(500, true);
   //start slow flash
 }
-static void ANT_Search_timeout(void *p_context)
+static void ANT_Search_timeout(void *p_context)  //check every 300 ms
 {
   UNUSED_PARAMETER(p_context);
   // first see if ANT pairing is completed
@@ -669,6 +660,7 @@ static void ANT_Search_timeout(void *p_context)
       slow_flash(500, false); //turn off the red led flashing
       err_code = app_timer_stop(ANT_Search_timer);
       APP_ERROR_CHECK(err_code);
+      nrf_delay_ms(300);
       //blink BLUE fast TO INDICATE CONNECTION
       fast_flash(LED_B__PIN);
     }
@@ -683,6 +675,7 @@ static void ANT_Search_timeout(void *p_context)
       ui8_cnt_ant_search_timeout = 0;
       slow_flash(500, false); //turn off the red led flashing
       err_code = app_timer_stop(ANT_Search_timer);
+      nrf_delay_ms(300);
       //blink Blue fast TO INDICATE CONNECTION
       fast_flash(LED_B__PIN);
     }
@@ -696,6 +689,7 @@ static void ANT_Search_timeout(void *p_context)
       //blink RED fast TO INDICATE CONNECTION
       slow_flash(500, false); //turn off the red led flashing
       err_code = app_timer_stop(ANT_Search_timer);
+      nrf_delay_ms(300);
       fast_flash(LED_B__PIN);
     }
     return;
@@ -745,7 +739,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
   //stop the long press timer
   err_code = app_timer_stop(m_timer_button_long_press_timeout); //stop the long press timer
   APP_ERROR_CHECK(err_code);
-  if ((nrf_gpio_pin_read(ENTER__PIN) != 0) && (nrf_gpio_pin_read(MINUS__PIN) != 0))
+  if ((nrf_gpio_pin_read(ENTER__PIN) != 0) && (nrf_gpio_pin_read(MINUS__PIN) != 0) && (nrf_gpio_pin_read(STANDBY__PIN) != 0)) //if none of these are pressed
   {
     bsp_board_led_on(LED_G__PIN); //flash the green led to indicate long press
     nrf_delay_ms(50);
@@ -781,9 +775,9 @@ static void timer_button_long_press_timeout_handler(void *p_context)
   //pageup/pagedown
   if ((nrf_gpio_pin_read(ENTER__PIN) == 0) && garmin && !configuration_flag)
   {
-    bsp_board_led_on(LED_G__PIN); //briefly display red led
+    bsp_board_led_on(LED_G__PIN); //briefly display green led
     nrf_delay_ms(50);
-    bsp_board_led_off(LED_G__PIN); //briefly display red led
+    bsp_board_led_off(LED_G__PIN); //briefly display green led
     buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 0);
   }
 
@@ -813,14 +807,14 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     // shutdown the remote
     plus_minus_flag = true; // reset and start again;
   }
-  if (nrf_gpio_pin_read(STANDBY__PIN) == 0)
+  if (nrf_gpio_pin_read(STANDBY__PIN) == 0) //if motor on/off requested
 
   {
-    if (motor_init_state == 1)
+    if (motor_init_state == 1) //motor is turning off
     {
-      bsp_board_led_on(LED_R__PIN); //briefly display red led
-      nrf_delay_ms(50);
-      bsp_board_led_off(LED_R__PIN); //briefly display red led
+      fast_flash(LED_R__PIN);
+      fast_flash(LED_R__PIN);
+
     }
 
     //turn motor power on/off
@@ -864,9 +858,9 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       }
       if (button_pin == PLUS__PIN)
       {
-        bsp_board_led_on(LED_G__PIN); //briefly display red led
+        bsp_board_led_on(LED_G__PIN); //briefly display green led
         nrf_delay_ms(25);
-        bsp_board_led_off(LED_G__PIN); //briefly display red led
+        bsp_board_led_off(LED_G__PIN); //briefly display green led
         new_ant_device_id = 0x92;
       }
       if (button_pin == MINUS__PIN)
@@ -947,7 +941,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
           }
         }
       }
-      else if (button_pin == BRAKE__PIN)
+      else if ((button_pin == BRAKE__PIN) && (motor_init_state == 1))
       {
         //turn off the brake led
         bsp_board_led_off(LED_R__PIN);
@@ -959,13 +953,11 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       { //display the battery SOC
         if (motor_init_state == 1)
         {
-          motor_display_soc = true; //flag needed due to interrupt priority
+          motor_display_soc = true; //display charge state when turning off
         }
         else
         {
-          bsp_board_led_on(LED_R__PIN); //briefly display red led
-          nrf_delay_ms(5);
-          bsp_board_led_off(LED_R__PIN); //briefly display red led
+    
           motor_display_soc = false;     //flag needed due to interrupt priority
         }
       }
@@ -978,9 +970,9 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         {
           if (motor_init_state == 1)
           {
-            bsp_board_led_on(LED_G__PIN); //briefly display red led
+            bsp_board_led_on(LED_G__PIN); //briefly display green led
             nrf_delay_ms(25);
-            bsp_board_led_off(LED_G__PIN); //briefly display red led
+            bsp_board_led_off(LED_G__PIN); //briefly display green led
             buttons_send_page16(&m_ant_lev, button_pin, m_button_long_press);
           }
           else
@@ -996,9 +988,9 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       {
         if (garmin)
         {
-          bsp_board_led_on(LED_G__PIN); //briefly display red led
+          bsp_board_led_on(LED_G__PIN); //briefly display green led
           nrf_delay_ms(50);
-          bsp_board_led_off(LED_G__PIN); //briefly display red led
+          bsp_board_led_off(LED_G__PIN); //briefly display green led
         }
         else
         {
@@ -1035,19 +1027,11 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         err_code = app_timer_start(m_timer_button_config_press_timeout, BUTTON_CONFIG_PRESS_TIMEOUT, NULL); //start the long press timer
         APP_ERROR_CHECK(err_code);
       }
-      if (button_pin == BRAKE__PIN)
+      if ((button_pin == BRAKE__PIN) && (motor_init_state == 1)) //motor is on
       {
         //set the brake flag in the rear gearing to signal that the brake has been pressed
         buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
-        if (motor_init_state == 1) //motor is on
-        {
-          bsp_board_led_on(LED_G__PIN); //keep on full brightness for 1 sec
-        }
-        else
-        {
-          //display the red led
-          bsp_board_led_on(LED_R__PIN); //keep on full brightness for 1 sec
-        }
+        bsp_board_led_on(LED_R__PIN);
       }
 
       else
@@ -1566,8 +1550,7 @@ void ble_init(void)
 void check_interrupt_flags(void)
 {
   check_motor_init(); //check for errors and motor status
-  if (display_assist)
-    disp_assist(); //display the assist level
+
   //need flags to handle interrupt events for flash write
   //this is required due to interrupt priority
   //see: https://devzone.nordicsemi.com/f/nordic-q-a/57067/calling-fds_record_update-in-isr
