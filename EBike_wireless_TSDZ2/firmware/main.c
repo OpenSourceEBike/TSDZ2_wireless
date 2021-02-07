@@ -400,9 +400,9 @@ void ant_lev_evt_handler_pre(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
   p_profile->page_3.battery_soc = ui8_g_battery_soc;
 
   // 5. battery voltage
-  //p_profile->page_4.battery_voltage = (ui_vars.ui16_battery_voltage_filtered_x10)/2.5;
+  p_profile->page_4.battery_voltage = (ui_vars.ui16_battery_voltage_filtered_x10)/2.5;
   //battery voltage for ANT_LEV is 0.25V/bit
-  p_profile->page_4.battery_voltage = 55 / 0.25;
+  //p_profile->page_4.battery_voltage = 55 / 0.25;
 
   //6. odometer
   //3 bytes -0.01km/bit max value 167772.15km
@@ -411,8 +411,8 @@ void ant_lev_evt_handler_pre(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
 
   //7. remaining range
   //1 km/bit, max value 4095km
-  //p_profile->page_2.remaining_range = ui_vars.battery_energy_km_value_x100 / 100;
-  p_profile->page_2.remaining_range = 4095; //km
+  p_profile->page_2.remaining_range = ui_vars.battery_energy_km_value_x100 / 100;
+  //p_profile->page_2.remaining_range = 4095; //km
 
   //8. motor temperature
   //one byte, bits 4-6
@@ -423,13 +423,13 @@ void ant_lev_evt_handler_pre(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
   //100 warm/hot
   //101 hot
 
-  // p_profile->page_1.temperature_state = ui_vars.ui8_motor_temperature;
-  p_profile->page_1.temperature_state = 32; //warm
+  p_profile->page_1.temperature_state = ui_vars.ui8_motor_temperature;
+  //p_profile->page_1.temperature_state = 32; //warm
 
   //9. fuel consumption
   //max value 0.1 wh/km per bit, max value=409.5 Wh/km
-  // p_profile->page_4.fuel_consumption = ui_vars.ui32_wh_x10;
-  p_profile->page_4.fuel_consumption = 3000;
+   p_profile->page_4.fuel_consumption = ui_vars.ui32_wh_x10;
+  //p_profile->page_4.fuel_consumption = 3000;
 
   switch (event)
   {
@@ -502,10 +502,12 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
     if (p_profile->page_16.light)
     {
       //light mode activated
+      
     }
     else
     {
       // light mode  deactivated
+    
     }
 
     if (p_profile->page_16.current_rear_gear == 14)

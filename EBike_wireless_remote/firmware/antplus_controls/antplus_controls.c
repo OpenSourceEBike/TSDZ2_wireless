@@ -139,7 +139,7 @@ void antplus_controls_sens_evt_handler(ant_evt_t *p_ant_evt, void *p_context)
 {
   ASSERT(p_context != NULL);
   ASSERT(p_ant_evt != NULL);
-  static int8_t restart_count = 0;
+  //static int8_t restart_count = 0;
 
   antplus_controls_profile_t *p_profile = (antplus_controls_profile_t *)p_context;
 

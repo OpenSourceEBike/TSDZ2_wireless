@@ -44,7 +44,6 @@ SRC_FILES += \
   $(SDK_ROOT)/components/libraries/atomic_fifo/nrf_atfifo.c \
   $(SDK_ROOT)/components/libraries/atomic/nrf_atomic.c \
   $(SDK_ROOT)/components/libraries/balloc/nrf_balloc.c \
-  $(SDK_ROOT)/components/libraries/low_power_pwm/low_power_pwm.c \
   $(SDK_ROOT)/external/fprintf/nrf_fprintf.c \
   $(SDK_ROOT)/external/fprintf/nrf_fprintf_format.c \
   $(SDK_ROOT)/components/libraries/memobj/nrf_memobj.c \
@@ -64,7 +63,6 @@ SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/drivers/src/prs/nrfx_prs.c \
 	$(SDK_ROOT)/modules/nrfx/hal/nrf_nvmc.c \
   $(SDK_ROOT)/components/libraries/bsp/bsp.c \
-  $(SDK_ROOT)/components/libraries/led_softblink/led_softblink.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_Syscalls_GCC.c \
   $(SDK_ROOT)/external/segger_rtt/SEGGER_RTT_printf.c \
@@ -169,8 +167,7 @@ INC_FOLDERS += \
   $(SDK_ROOT)/components \
   $(SDK_ROOT)/external/segger_rtt \
   $(SDK_ROOT)/components/libraries/ringbuf \
-  $(SDK_ROOT)/components/libraries/led_softblink \
-  $(SDK_ROOT)/components/libraries/memobj \
+   $(SDK_ROOT)/components/libraries/memobj \
   $(SDK_ROOT)/components/libraries/atomic \
   $(SDK_ROOT)/components/libraries/delay \
   $(SDK_ROOT)/components/toolchain/cmsis/include \
