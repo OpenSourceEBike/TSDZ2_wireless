@@ -73,6 +73,7 @@ bool display_assist = false;
 uint8_t walk_mode = 0;
 uint8_t light_mode = 0;
 uint8_t slow_flash_led = 0;
+bool searching_flag = false;
 
 #define BUTTON_DETECTION_DELAY APP_TIMER_TICKS(1)            /**< Delay from a GPIOTE event until a button is reported as pushed (in number of timer ticks). */
 #define BUTTON_PRESS_TIMEOUT APP_TIMER_TICKS(60 * 60 * 1000) // 1h to enter low power mode
@@ -318,9 +319,11 @@ void check_motor_init()
     if (soc_disp && motor_soc_state) //display if soc>0
     {
       ////indicate the motor SOC when motor turns on
-
-      nrf_delay_ms(500);
-      fast_flash(LED_B__PIN);
+      if (!searching_flag) //needed if you have a garmin bike computer
+      {
+        nrf_delay_ms(500);
+        fast_flash(LED_B__PIN);
+      }
 
       /* slow flash
       led_pwm_on(R_LED | B_LED, 100, 0, 100, 0); // start soft_blink led, 0 for no timer
@@ -618,17 +621,19 @@ void ANT_Search_Stop(void) //ant search has timed out without finding a device
   err_code = app_timer_stop(ANT_Search_timer);
   APP_ERROR_CHECK(err_code);
   slow_flash(500, false);
+  searching_flag = false;
 }
 void ANT_Search_Start(void)
 {
   ret_code_t err_code;
   err_code = app_timer_start(ANT_Search_timer, ANT_Search_TIMEOUT, NULL);
+  searching_flag = true;
   APP_ERROR_CHECK(err_code);
   slow_flash_led = LED_R__PIN;
   slow_flash(500, true);
   //start slow flash
 }
-static void ANT_Search_timeout(void *p_context)  //check every 300 ms
+static void ANT_Search_timeout(void *p_context) //check every 300 ms
 {
   UNUSED_PARAMETER(p_context);
   // first see if ANT pairing is completed
@@ -663,6 +668,7 @@ static void ANT_Search_timeout(void *p_context)  //check every 300 ms
       nrf_delay_ms(300);
       //blink BLUE fast TO INDICATE CONNECTION
       fast_flash(LED_B__PIN);
+      searching_flag = false;
     }
     return;
   }
@@ -678,6 +684,7 @@ static void ANT_Search_timeout(void *p_context)  //check every 300 ms
       nrf_delay_ms(300);
       //blink Blue fast TO INDICATE CONNECTION
       fast_flash(LED_B__PIN);
+      searching_flag = false;
     }
     return;
   }
@@ -691,6 +698,7 @@ static void ANT_Search_timeout(void *p_context)  //check every 300 ms
       err_code = app_timer_stop(ANT_Search_timer);
       nrf_delay_ms(300);
       fast_flash(LED_B__PIN);
+      searching_flag = false;
     }
     return;
   }
@@ -812,9 +820,10 @@ static void timer_button_long_press_timeout_handler(void *p_context)
   {
     if (motor_init_state == 1) //motor is turning off
     {
-      fast_flash(LED_R__PIN);
-      fast_flash(LED_R__PIN);
-
+      for (int i = 0; i < 3; i++)
+      {
+        fast_flash(LED_R__PIN);
+      }
     }
 
     //turn motor power on/off
@@ -957,8 +966,8 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         }
         else
         {
-    
-          motor_display_soc = false;     //flag needed due to interrupt priority
+
+          motor_display_soc = false; //flag needed due to interrupt priority
         }
       }
       else if (button_pin == PLUS__PIN)

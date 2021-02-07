@@ -1,21 +1,21 @@
 # **Remote operation**
 ## Getting started with the Wireless remote 
 
-**To get started , follow this simple four step process (or five steps if you have connected the brakes):**
+**To get started , follow this simple four step process (or five steps if you have connected the e-brakes):**
 (Please note that buttons will briefly flash **RED** if they are inactive)
 
 1. Ensure that the second wireless board is powered up and connected to the TSDZ2 motor controller. Ensure that the remote has a battery connected and press any button to start the pairing process with the motor controller. When the remote is searching for an ANT connection, the **RED LED** will slowly flash. When a connection is made with the motor, the **BLUE LED** will quickly flash and then go out.
 2. To turn on the motor from the remote control, press and hold the **POWER** key on the remote control. A  **WHITE** LED will start flashing, and will continue flashing until the motor is on, at which time a **BLUE** LED will briefly flash.
 3. press the **PLUS/MINUS** keys briefly to increase/decrease the motor assist level. The **GREEN** LED will briefly flash on every press of the key. There are 7 levels of assist. When you reach level 7 (maximum assist) or level 0 (motor off) the **RED** LED will rapidly flash.
-4. To turn off the motor, press and hold the **POWER** key on the remote control. A **GREEN** LED will briefly flash, followed by a flashing **BLUE** LED. This LED will indicate the current state of charge of the battery by one flash for every 10% of charge. When the motor is off, pressing the PLUS or MINUS keys will do nothing and they will briefly flash **RED** when pressed.
+4. To turn off the motor, press and hold the **POWER** key on the remote control. The **RED** LED will briefly flash, and the motor will turn off. The **BLUE** LED will then flash one flash for every 10% of charge remaining in the battery.(ie:5 flashes=50% charge remaining). 
 5. (Optional step needed you have connected the e-brakes) Depress either the right or left brake lever. The **RED** LED will light and the motor assist will stop. Release the brake lever and the **RED** led will turn off and the motor assist will resume.
 
 
-**That's basically all you need to use the remote for basic operation**.
+### **That's basically all you need to use the remote for basic operation.**
 
 Read the "**Button Operation (NORMAL MODE)**" section below for more details on the remote's operation when riding your e-bike.
 
-If you would like to configure the remote, please read the "**Remote Operating Modes**" section next. Please not that the remote will control the motor "out of the box" and no configuration is necessary unless you would like to pair a specific bike computer, set specific ANT configurations, or wirelessly update the remote firmware . Most people can safely ignore **CONFIGURATION MODE** and still enjoy full functionality from their remote.
+If you would like to configure the remote, please read the "**Remote Operating Modes**" section next. Please note that the remote will control the motor "out of the box" and no configuration is necessary unless you would like to pair a specific bike computer, set specific ANT configurations, or wirelessly update the remote firmware . Most people can safely ignore **CONFIGURATION MODE** and still enjoy full functionality from their remote.
 
 Have Fun!!
 
@@ -30,9 +30,9 @@ The remote has two modes of operation; **CONFIGURATION MODE** and **NORMAL MODE*
 
 **General LED button signals:**
 
-please note that when the motor is off, inactive buttons will briefly flash a **RED** LED when pressed.
+* When the motor is off, inactive buttons will briefly flash a **RED** LED when pressed.
 
-* Long Pressing a button will briefly flash a RED LED to indicate that the button has been pressed
+* Long Pressing a button will briefly flash a **GREEN** LED to indicate that the button has been pressed
   
 ----
 **Short Press Button Actions:**
