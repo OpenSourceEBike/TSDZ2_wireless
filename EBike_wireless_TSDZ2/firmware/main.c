@@ -2025,6 +2025,7 @@ int main(void)
     }
 
     // every 1 second
+   ui32_time_now = get_time_base_counter_1ms();
    if ((ui32_time_now - ui32_dfucheck_last_run_time) >= 1000)
     {
       ui32_dfucheck_last_run_time = ui32_time_now;
