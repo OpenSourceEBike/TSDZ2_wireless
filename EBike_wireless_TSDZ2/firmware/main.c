@@ -1997,12 +1997,16 @@ int main(void)
 
   // setup this member variable ui8_m_ant_device_id
   ui8_m_ant_device_id = mp_ui_vars->ui8_ant_device_id;
-
+  uint32_t ui32_rt_last_run_time = 0;
+  uint32_t ui32_dfucheck_last_run_time = 0;
+  
   while (1)
   {
     // every 50 ms
-    if (main_ticks % (50 / MSEC_PER_TICK) == 0)
+    uint32_t ui32_time_now = get_time_base_counter_1ms();
+    if ((ui32_time_now - ui32_rt_last_run_time) >= 50)
     {
+      ui32_rt_last_run_time = ui32_time_now;
       // exchange data from realtime layer to UI layer
       // do this in atomic way, disabling the real time layer (should be no problem as
       // copy_rt_to_ui_vars() should be fast and take a small piece of the 50ms periodic realtime layer processing
@@ -2021,8 +2025,9 @@ int main(void)
     }
 
     // every 1 second
-    if (main_ticks % (1000 / MSEC_PER_TICK) == 0)
+   if ((ui32_time_now - ui32_dfucheck_last_run_time) >= 1000)
     {
+      ui32_dfucheck_last_run_time = ui32_time_now;
       //see if DFU reboot is needed
 
       // see if there was a change to the ANT ID
