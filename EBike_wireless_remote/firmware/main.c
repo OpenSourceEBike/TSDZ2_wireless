@@ -56,6 +56,7 @@
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
 #include "nrf_drv_gpiote.h"
+#include "common.h"
 
 #include "nordic_common.h"
 
@@ -283,17 +284,6 @@ void fast_flash(uint8_t led_idx)
   }
 }
 
-void disp_soc(void)
-{
-  nrf_delay_ms(500);
-  for (int i = 0; i < motor_soc_state; i++)
-  {
-    bsp_board_led_on(LED_B__PIN);
-    nrf_delay_ms(300);
-    bsp_board_led_off(LED_B__PIN);
-    nrf_delay_ms(300);
-  }
-}
 void check_motor_init()
 {
   static bool soc_disp = true;
@@ -303,7 +293,7 @@ void check_motor_init()
   // if (motor_display_soc && motor_soc_state && key_disp && (motor_init_state == 1)) // display soc when STANDBY Key is pressed
   if (motor_display_soc && motor_init_state == 1) // display soc when STANDBY Key is pressed
   {
-    disp_soc();
+    disp_soc(motor_soc_state);
     motor_display_soc = false;
   }
 

@@ -272,8 +272,8 @@ typedef struct ui_vars_struct {
 	uint32_t ui32_trip_b_distance_x1000;
 	uint32_t ui32_trip_b_distance_x100;
 	uint32_t ui32_trip_b_time;
-  	uint16_t ui16_trip_b_avg_speed_x10;
-  	uint16_t ui16_trip_b_max_speed_x10;
+  uint16_t ui16_trip_b_avg_speed_x10;
+  uint16_t ui16_trip_b_max_speed_x10;
 
 	uint32_t battery_energy_km_value_x100;
 

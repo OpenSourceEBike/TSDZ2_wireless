@@ -400,19 +400,18 @@ void ant_lev_evt_handler_pre(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
   p_profile->page_3.battery_soc = ui8_g_battery_soc;
 
   // 5. battery voltage
-  p_profile->page_4.battery_voltage = (ui_vars.ui16_battery_voltage_filtered_x10)/2.5;
   //battery voltage for ANT_LEV is 0.25V/bit
-  //p_profile->page_4.battery_voltage = 55 / 0.25;
+  p_profile->page_4.battery_voltage = (ui_vars.ui16_battery_voltage_filtered_x10)/2.5;
 
   //6. odometer
   //3 bytes -0.01km/bit max value 167772.15km
   //p_profile->common.odometer = ui_vars.ui32_odometer_x10 / 100;
-  p_profile->common.odometer = 167772; //1677.72 km
+  p_profile->common.odometer = 0; // not yet implemented
 
   //7. remaining range
   //1 km/bit, max value 4095km
-  p_profile->page_2.remaining_range = ui_vars.battery_energy_km_value_x100 / 100;
-  //p_profile->page_2.remaining_range = 4095; //km
+  // p_profile->page_2.remaining_range = ui_vars.battery_energy_km_value_x100 / 100;
+  p_profile->page_2.remaining_range = 0; // not yet implemented
 
   //8. motor temperature
   //one byte, bits 4-6
@@ -423,13 +422,26 @@ void ant_lev_evt_handler_pre(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
   //100 warm/hot
   //101 hot
 
-  p_profile->page_1.temperature_state = ui_vars.ui8_motor_temperature;
-  //p_profile->page_1.temperature_state = 32; //warm
+  uint8_t temp = ui_vars.ui8_motor_temperature;
+  uint8_t temp_max = ui_vars.ui8_motor_temperature_max_value_to_limit;
+  uint8_t temp_min = ui_vars.ui8_motor_temperature_min_value_to_limit;
+  uint8_t lev_temp;
+  if (temp < 20) // cold
+    lev_temp = 0b001;
+  else if (temp < 50) // cold/warm
+    lev_temp = 0b010;
+  else if (temp < temp_min) // warm
+    lev_temp = 0b011;
+  else if (temp < temp_max) // warm/hot
+    lev_temp = 0b100;
+  else // hot
+    lev_temp = 0b101;
+  
+  p_profile->page_1.temperature_state = lev_temp;
 
   //9. fuel consumption
   //max value 0.1 wh/km per bit, max value=409.5 Wh/km
-   p_profile->page_4.fuel_consumption = ui_vars.ui32_wh_x10;
-  //p_profile->page_4.fuel_consumption = 3000;
+  p_profile->page_4.fuel_consumption = 0; // not yet implemented
 
   switch (event)
   {
@@ -521,7 +533,7 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
     }
     if (p_profile->page_16.current_rear_gear == 0)
     {
-      //this state sshould clear both brakes and walk mode
+      //this state should clear both brakes and walk mode
       // disable walk mode
       // disable brakes: be as fast as possible
       nrf_gpio_port_out_set(NRF_P0, 1UL << BRAKE__PIN);
@@ -835,6 +847,10 @@ static void tsdz2_write_handler_configurations(uint8_t *p_data, uint16_t len)
     ui_vars.ui8_temperature_limit_feature_enabled = data[58];
     ui_vars.ui8_motor_temperature_min_value_to_limit = data[59];
     ui_vars.ui8_motor_temperature_max_value_to_limit = data[60];
+
+    // min temperature can not be equal or superior to max
+    if (ui_vars.ui8_motor_temperature_min_value_to_limit >= ui_vars.ui8_motor_temperature_max_value_to_limit)
+      ui_vars.ui8_motor_temperature_min_value_to_limit = (ui_vars.ui8_motor_temperature_max_value_to_limit - 1);
 
     ui_vars.ui8_coast_brake_enable = data[61];
     ui_vars.ui8_coast_brake_adc = data[62];
@@ -1955,18 +1971,6 @@ void led_pwm_on(uint32_t mask, uint8_t duty_cycle_max, uint8_t duty_cycle_min, u
     err_code = led_softblink_start(mask);
     APP_ERROR_CHECK(err_code);
     soft_blink = 1; //set the blocking flag
-  }
-}
-
-void disp_soc(void)
-{
-  nrf_delay_ms(1000);
-  for (int i = 0; i < (ui8_g_battery_soc/10); i++)
-  {
-    led_pwm_on(G_LED, 100, 0, 5, 0);
-    nrf_delay_ms(200);
-    soft_blink = led_softblink_uninit(); // turn off the soft_blink led
-    nrf_delay_ms(300);
   }
 }
 
