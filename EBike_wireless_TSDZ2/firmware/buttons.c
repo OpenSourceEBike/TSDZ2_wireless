@@ -10,6 +10,7 @@
 
 #include "buttons.h"
 #include "state.h"
+#include "timer.h"
 
 #define TIME_1 1500 // changed to 1.5 sec because 2 secs seems too long to me and a user asked for it also
 #define TIME_2 200
@@ -34,24 +35,97 @@ buttons_events_t buttons_events = 0;
 #include "pins.h"
 // Read buttons for NRF Blue Dongle
 
+uint32_t ui32_up_presstime = 0;
+uint32_t ui32_down_presstime = 0;
+uint32_t ui32_onoff_presstime = 0;
+uint32_t ui32_m_presstime = 0;
+
 uint32_t buttons_get_up_state (void)
 {
-  return (nrf_gpio_pin_read(PLUS__PIN) != 0) ? 0:1;
+  uint8_t ui8_up_state = (nrf_gpio_pin_read(PLUS__PIN) != 0) ? 0:1;
+  uint32_t ui32_now = get_time_base_counter_1ms();
+
+  if (ui8_up_state == 0)
+  {
+    ui32_up_presstime = 0;
+    return 0;
+  }
+  else if ((ui8_up_state == 1) && (ui32_up_presstime == 0)) 
+  {
+    ui32_up_presstime = ui32_now;
+    return 0;
+  }
+  else if ((ui8_up_state == 1) && ((ui32_now - ui32_up_presstime)> BUTTONS_CLOCK_MS))
+  {
+    return 1;
+  }
+  else return 0;
 }
 
 uint32_t buttons_get_down_state (void)
 {
-  return (nrf_gpio_pin_read(MINUS__PIN) != 0) ? 0:1;
+  uint8_t ui8_down_state = (nrf_gpio_pin_read(MINUS__PIN) != 0) ? 0:1;
+  uint32_t ui32_now = get_time_base_counter_1ms();
+
+  if (ui8_down_state == 0)
+  {
+    ui32_down_presstime = 0;
+    return 0;
+  }
+  else if ((ui8_down_state == 1) && (ui32_down_presstime == 0)) 
+  {
+    ui32_down_presstime = ui32_now;
+    return 0;
+  }
+  else if ((ui8_down_state == 1) && ((ui32_now - ui32_down_presstime)> BUTTONS_CLOCK_MS))
+  {
+    return 1;
+  }
+  else return 0;
 }
 
 uint32_t buttons_get_onoff_state (void)
 {
-  return (nrf_gpio_pin_read(STANDBY__PIN) != 0) ? 0:1;
+  uint8_t ui8_onoff_state = (nrf_gpio_pin_read(STANDBY__PIN) != 0) ? 0:1;
+  uint32_t ui32_now = get_time_base_counter_1ms();
+
+  if (ui8_onoff_state == 0)
+  {
+    ui32_onoff_presstime = 0;
+    return 0;
+  }
+  else if ((ui8_onoff_state == 1) && (ui32_onoff_presstime == 0)) 
+  {
+    ui32_onoff_presstime = ui32_now;
+    return 0;
+  }
+  else if ((ui8_onoff_state == 1) && ((ui32_now - ui32_onoff_presstime)> BUTTONS_CLOCK_MS))
+  {
+    return 1;
+  }
+  else return 0;
 }
 
 uint32_t buttons_get_m_state (void)
 {
-  return (nrf_gpio_pin_read(ENTER__PIN) != 0) ? 0:1;
+  uint8_t ui8_m_state = (nrf_gpio_pin_read(ENTER__PIN) != 0) ? 0:1;
+  uint32_t ui32_now = get_time_base_counter_1ms();
+
+  if (ui8_m_state == 0)
+  {
+    ui32_m_presstime = 0;
+    return 0;
+  }
+  else if ((ui8_m_state == 1) && (ui32_m_presstime == 0)) 
+  {
+    ui32_m_presstime = ui32_now;
+    return 0;
+  }
+  else if ((ui8_m_state == 1) && ((ui32_now - ui32_m_presstime)> BUTTONS_CLOCK_MS))
+  {
+    return 1;
+  }
+  else return 0;
 }
 
 #else
