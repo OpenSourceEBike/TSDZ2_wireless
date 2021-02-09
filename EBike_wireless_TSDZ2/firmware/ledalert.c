@@ -93,7 +93,10 @@ void led_clock(void)
                 if (ui8_led_sequence_repeat_counter == 0)
                 {
                     ui8_led_sequence_repeat_counter = (ui8_led_sequence_current_parameter >> 4);
-                    ui8_led_sequence_repeat_goto_index = ui8_led_sequence_current_sequence_command_index - (2 *((ui8_led_sequence_current_parameter & 0xf)+1)); // Bug here -need to check that we're not going back too far
+                    if (ui8_led_sequence_current_sequence_command_index <= (2 *((ui8_led_sequence_current_parameter & 0xf)+1)))
+                        ui8_led_sequence_repeat_goto_index = 0;
+                    else
+                        ui8_led_sequence_repeat_goto_index = ui8_led_sequence_current_sequence_command_index - (2 *((ui8_led_sequence_current_parameter & 0xf)+1));
                 }
 
                 ui8_led_sequence_repeat_counter--;

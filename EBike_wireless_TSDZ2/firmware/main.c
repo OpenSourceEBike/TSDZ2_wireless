@@ -1519,7 +1519,6 @@ void TSDZ2_power_manage(void)
     motor_power_enable(true);
     g_motor_init_state = MOTOR_INIT_GET_MOTOR_ALIVE;
     m_TSDZ2_power_state = TSDZ2_POWER_STATE_ON;
-    //led_alert(LED_SEQUENCE_YELLOW_SLOWFLASH_5);
     break;
 
   case TSDZ2_POWER_STATE_ON:
@@ -1532,13 +1531,15 @@ void TSDZ2_power_manage(void)
 bool anyscreen_onpress(buttons_events_t events) {
   if ((events & DOWN_LONG_CLICK) && ui_vars.ui8_walk_assist_feature_enabled) {
     ui_vars.ui8_walk_assist = 1;
-    //led_alert(LED_SEQUENCE_BLUEFLASH_1);
     return true;
   }
 
   // long up to turn on headlights
   if (events & UP_LONG_CLICK) {
     ui_vars.ui8_lights = !ui_vars.ui8_lights;
+    if (ui_vars.ui8_lights) led_alert(LED_SEQUENCE_WHITE_SLOWFLASH_2_LONGGREEN);
+      else led_alert(LED_SEQUENCE_WHITE_SLOWFLASH_2_LONGRED);
+
     //set_lcd_backlight();
 
     return true;
@@ -1749,7 +1750,7 @@ bool mainScreenOnPress(buttons_events_t events) {
       if (ui_vars.ui8_assist_level > 0)
       {
         ui_vars.ui8_assist_level--;
-        led_alert(LED_SEQUENCE_SHORT_GREEN);
+        led_alert(LED_SEQUENCE_SHORT_YELLOW);
       }
       else led_alert(LED_SEQUENCE_SHORT_RED);
 
@@ -1834,7 +1835,7 @@ void walk_assist_state(void) {
   if (ui_vars.ui8_walk_assist_feature_enabled) {
     // if down button is still pressed
     if (ui_vars.ui8_walk_assist && buttons_get_down_state()) {
-      led_alert(LED_SEQUENCE_BLUEFLASH_1);
+      led_alert(LED_SEQUENCE_GREENFLASH_1);
       ui8_walk_assist_timeout = 2; // 0.2 seconds
     } else if (buttons_get_down_state() == 0 && --ui8_walk_assist_timeout == 0) {
       ui_vars.ui8_walk_assist = 0;
@@ -2015,9 +2016,9 @@ int main(void)
   ui8_m_ant_device_id = mp_ui_vars->ui8_ant_device_id;
   uint32_t ui32_rt_last_run_time = 0;
   uint32_t ui32_dfucheck_last_run_time = 0;
-  uint8_t ui8_ble_connectled_shown = 0;
+  uint8_t ui8_ble_connected_shown = 0;
   
-  led_alert(LED_SEQUENCE_SHORT_BLUE);
+  led_alert(LED_SEQUENCE_RED_YELLOW_LONGGREEN);
 
   while (1)
   {
@@ -2043,17 +2044,16 @@ int main(void)
       streetMode();
       led_clock();
 
-      if ((m_conn_handle != BLE_CONN_HANDLE_INVALID) && (!ui8_ble_connectled_shown))
+      if ((m_conn_handle != BLE_CONN_HANDLE_INVALID) && (!ui8_ble_connected_shown))
       {
-        ui8_ble_connectled_shown = 1;
-        led_alert(LED_SEQUENCE_BLUEFLASH_5);
+        ui8_ble_connected_shown = 1;
+        led_alert(LED_SEQUENCE_BLUE_SLOWFLASH_2_LONGGREEN);
       }
       
-      if ((m_conn_handle == BLE_CONN_HANDLE_INVALID) && (ui8_ble_connectled_shown == 1))
+      if ((m_conn_handle == BLE_CONN_HANDLE_INVALID) && (ui8_ble_connected_shown == 1))
       {
-        ui8_ble_connectled_shown = 0;
-        led_alert(LED_SEQUENCE_BLUEFLASH_3);
-        led_alert(LED_SEQUENCE_SHORT_RED);
+        ui8_ble_connected_shown = 0;
+        led_alert(LED_SEQUENCE_BLUE_SLOWFLASH_2_LONGRED);
       }
     }
   

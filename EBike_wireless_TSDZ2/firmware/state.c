@@ -471,7 +471,7 @@ static void motor_init(void) {
         ui16_motor_init_command_error_cnt = 2000;
         g_motor_init_state = MOTOR_INIT_WAIT_MOTOR_ALIVE;
         // not break here to follow for next case
-        led_alert(LED_SEQUENCE_YELLOW_SLOWFLASH_5);
+        led_alert(LED_SEQUENCE_YELLOW_SLOWFLASH_10);
 
       case MOTOR_INIT_WAIT_MOTOR_ALIVE:
         // check timeout
