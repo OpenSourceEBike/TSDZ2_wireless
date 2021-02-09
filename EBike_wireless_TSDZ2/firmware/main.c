@@ -55,6 +55,7 @@
 //#include "screen.h"
 #include "led_softblink.h"
 #include "low_power_pwm.h"
+#include "ledalert.h"
 
 // Copied from rananna's wireless remote code for led control
 uint8_t led_duty_cycle = 120;
@@ -1498,12 +1499,15 @@ void TSDZ2_power_manage(void)
     if (counter == 0)
     {
       // reset state variables
+      if (g_motor_init_state != MOTOR_INIT_OFF) led_alert(LED_SEQUENCE_RED_SLOWFLASH_2_LONGRED);
+
       uart_reset_rx_buffer();
       g_motor_init_state = MOTOR_INIT_OFF;
       g_motor_init_state_conf = MOTOR_INIT_CONFIG_SEND_CONFIG;
       ui8_g_motor_init_status = MOTOR_INIT_STATUS_RESET;
 
       m_TSDZ2_power_state = TSDZ2_POWER_STATE_OFF;
+      
     }
     break;
 
@@ -1515,6 +1519,7 @@ void TSDZ2_power_manage(void)
     motor_power_enable(true);
     g_motor_init_state = MOTOR_INIT_GET_MOTOR_ALIVE;
     m_TSDZ2_power_state = TSDZ2_POWER_STATE_ON;
+    //led_alert(LED_SEQUENCE_YELLOW_SLOWFLASH_5);
     break;
 
   case TSDZ2_POWER_STATE_ON:
@@ -1527,6 +1532,7 @@ void TSDZ2_power_manage(void)
 bool anyscreen_onpress(buttons_events_t events) {
   if ((events & DOWN_LONG_CLICK) && ui_vars.ui8_walk_assist_feature_enabled) {
     ui_vars.ui8_walk_assist = 1;
+    //led_alert(LED_SEQUENCE_BLUEFLASH_1);
     return true;
   }
 
@@ -1728,7 +1734,9 @@ bool mainScreenOnPress(buttons_events_t events) {
 
       if (ui_vars.ui8_assist_level > ui_vars.ui8_number_of_assist_levels) {
         ui_vars.ui8_assist_level = ui_vars.ui8_number_of_assist_levels;
+        led_alert(LED_SEQUENCE_SHORT_RED);
       }
+      else led_alert(LED_SEQUENCE_SHORT_GREEN);
 
       m_assist_level_change_timeout = 20; // 2 seconds
       handled = true;
@@ -1739,7 +1747,11 @@ bool mainScreenOnPress(buttons_events_t events) {
       && !ui_vars.ui8_walk_assist // do not lower assist level if walk assist is active
     ) {
       if (ui_vars.ui8_assist_level > 0)
+      {
         ui_vars.ui8_assist_level--;
+        led_alert(LED_SEQUENCE_SHORT_GREEN);
+      }
+      else led_alert(LED_SEQUENCE_SHORT_RED);
 
       m_assist_level_change_timeout = 20; // 2 seconds
       handled = true;
@@ -1822,6 +1834,7 @@ void walk_assist_state(void) {
   if (ui_vars.ui8_walk_assist_feature_enabled) {
     // if down button is still pressed
     if (ui_vars.ui8_walk_assist && buttons_get_down_state()) {
+      led_alert(LED_SEQUENCE_BLUEFLASH_1);
       ui8_walk_assist_timeout = 2; // 0.2 seconds
     } else if (buttons_get_down_state() == 0 && --ui8_walk_assist_timeout == 0) {
       ui_vars.ui8_walk_assist = 0;
@@ -1841,6 +1854,7 @@ static bool appwide_onpress(buttons_events_t events)
       {
         // turn on TSDZ2 motor controller
         m_TSDZ2_power_state = TSDZ2_POWER_STATE_ON_START;
+        
       }
 
       else if (m_TSDZ2_power_state == TSDZ2_POWER_STATE_ON)
@@ -2001,7 +2015,10 @@ int main(void)
   ui8_m_ant_device_id = mp_ui_vars->ui8_ant_device_id;
   uint32_t ui32_rt_last_run_time = 0;
   uint32_t ui32_dfucheck_last_run_time = 0;
+  uint8_t ui8_ble_connectled_shown = 0;
   
+  led_alert(LED_SEQUENCE_SHORT_BLUE);
+
   while (1)
   {
     // every 50 ms
@@ -2024,7 +2041,23 @@ int main(void)
       handle_buttons();
       //alternatField(); // Removed until we can resolve what to do with the alternate state display requirements
       streetMode();
+      led_clock();
+
+      if ((m_conn_handle != BLE_CONN_HANDLE_INVALID) && (!ui8_ble_connectled_shown))
+      {
+        ui8_ble_connectled_shown = 1;
+        led_alert(LED_SEQUENCE_BLUEFLASH_5);
+      }
+      
+      if ((m_conn_handle == BLE_CONN_HANDLE_INVALID) && (ui8_ble_connectled_shown == 1))
+      {
+        ui8_ble_connectled_shown = 0;
+        led_alert(LED_SEQUENCE_BLUEFLASH_3);
+        led_alert(LED_SEQUENCE_SHORT_RED);
+      }
     }
+  
+  
 
     // every 1 second
    ui32_time_now = get_time_base_counter_1ms();
