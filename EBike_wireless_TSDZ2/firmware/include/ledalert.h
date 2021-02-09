@@ -94,6 +94,6 @@ static const uint8_t ui8_led_sequences [LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_S
 #define LED_SEQUENCE_RED_SLOWFLASH_5                16
 #define LED_SEQUENCE_RED_SLOWFLASH_2_LONGRED        17
 
-void led_clock(void);
-void led_alert(uint8_t ui8_sequence);
+void led_clock(void);                   // Call this every LED_CLOCK_MS mS.
+void led_alert(uint8_t ui8_sequence);   // call this to play a sequence - e.g. led_alert(LED_SEQUENCE_SHORT_GREEN);
 
