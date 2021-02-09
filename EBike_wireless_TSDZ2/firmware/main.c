@@ -2050,7 +2050,7 @@ int main(void)
         led_alert(LED_SEQUENCE_BLUE_SLOWFLASH_2_LONGGREEN);
       }
       
-      if ((m_conn_handle == BLE_CONN_HANDLE_INVALID) && (ui8_ble_connected_shown == 1))
+      if ((m_conn_handle == BLE_CONN_HANDLE_INVALID) && (ui8_ble_connected_shown))
       {
         ui8_ble_connected_shown = 0;
         led_alert(LED_SEQUENCE_BLUE_SLOWFLASH_2_LONGRED);
