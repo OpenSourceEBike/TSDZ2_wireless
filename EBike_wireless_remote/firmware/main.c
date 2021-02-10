@@ -9,10 +9,6 @@
 
 #include <stdio.h>
 #include <stdint.h>
-
-//#include "nrf.h"
-//#include "hardfault.h"
-//#include "app_error.h"
 #include "app_timer.h"
 #include "nrf_pwr_mgmt.h"
 #include "nrf_sdh.h"
@@ -81,9 +77,8 @@ bool searching_flag = false;
 
 #define BUTTON_DETECTION_DELAY APP_TIMER_TICKS(1)            /**< Delay from a GPIOTE event until a button is reported as pushed (in number of timer ticks). */
 #define BUTTON_PRESS_TIMEOUT APP_TIMER_TICKS(60 * 60 * 1000) // 1h to enter low power mode
-//#define BUTTON_PRESS_TIMEOUT APP_TIMER_TICKS(20 * 1000)
-#define BUTTON_LONG_PRESS_TIMEOUT APP_TIMER_TICKS(1000)   // 1 seconds for long press
-#define BUTTON_CONFIG_PRESS_TIMEOUT APP_TIMER_TICKS(5000) // 5 seconds TO ENTER CONFIG MODE
+#define BUTTON_LONG_PRESS_TIMEOUT APP_TIMER_TICKS(1000)      // 1 seconds for long press
+#define BUTTON_CONFIG_PRESS_TIMEOUT APP_TIMER_TICKS(5000)    // 5 seconds TO ENTER CONFIG MODE
 
 #define ANT_Search_TIMEOUT APP_TIMER_TICKS(300) // 300 ms for Ant Search check
 #define DEVICE_NAME "TSDZ2_remote"              /**< Name of device. Will be included in the advertising data. */
@@ -340,7 +335,7 @@ void check_motor_init()
       ////indicate the motor SOC when motor turns on
       if (!searching_flag) //needed if you have a garmin bike computer
       {
-          pwm_fast_flash(LED_B__PIN);
+        pwm_fast_flash(LED_B__PIN);
       }
 
       soc_disp = false;
@@ -799,12 +794,12 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     if (nrf_gpio_pin_read(STANDBY__PIN) == 0)
     {
       //INDICATE ENTERING BOOTLOADER MODE
-      //RED+BLUE MASK
+
       for (int i = 0; i < 6; i++)
       {
         pwm_fast_flash(LED_G__PIN);
       }
-        new_ant_device_id = 0x99;
+      new_ant_device_id = 0x99;
     }
     if (nrf_gpio_pin_read(PLUS__PIN) == 0)
     {
@@ -1236,13 +1231,7 @@ static void lfclk_config(void)
   nrf_drv_clock_lfclk_request(NULL);
 }
 */
-/*
-static void timer_init(void)
-{
-  ret_code_t err_code = app_timer_init();
-  APP_ERROR_CHECK(err_code);
-}
-*/
+
 /**@brief Function for initializing the BLE stack.
  *
  * @details Initializes the SoftDevice and the BLE event interrupt.
