@@ -8,6 +8,10 @@
 
 #include "boards.h"
 #include "ledalert.h"
+#include "app_timer.h"
+
+APP_TIMER_DEF(led_timer);
+#define LED_PWM_INTERVAL APP_TIMER_TICKS(3) // 16/3 = 5khz approx - seems to be the slowest without too much flicker 
 
 #define LED_PWM_TABLE_LEN 4   
 
@@ -71,6 +75,23 @@ volatile uint8_t ui8_led_sequence_isplaying_now = 0;
 volatile uint8_t ui8_led_sequence_repeat_counter = 0;
 volatile uint8_t ui8_led_sequence_repeat_goto_index = 0;
 
+
+uint32_t ui32_sequencer_last_run_time = 0;
+
+static void led_timer_timeout(void *p_context)
+{
+    UNUSED_PARAMETER(p_context);
+
+    do_led_pwm();
+
+    uint32_t ui32_time_now = get_time_base_counter_1ms();
+    if ((ui32_time_now - ui32_sequencer_last_run_time) >= 50)
+    {
+      ui32_sequencer_last_run_time = ui32_time_now;
+      led_clock();
+    }
+}
+
 void led_init(void)
 {
     ui8_led_red_intensity = 0;
@@ -79,6 +100,14 @@ void led_init(void)
     ui8_led_on = 0;
     ui8_led_sequence_queue_read_position = 0;
     ui8_led_sequence_queue_write_position = 0;
+    
+    ret_code_t err_code; // Should really check this!
+
+    err_code = app_timer_create(&led_timer, APP_TIMER_MODE_REPEATED, led_timer_timeout);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = app_timer_start(led_timer, LED_PWM_INTERVAL, NULL);
+    APP_ERROR_CHECK(err_code);
 }
 
 void led_alert(uint8_t ui8_sequence)

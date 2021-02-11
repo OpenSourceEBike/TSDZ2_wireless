@@ -115,9 +115,6 @@ APP_TIMER_DEF(main_timer);
 volatile uint32_t main_ticks;
 uint32_t ui32_seconds_since_startup = 0;
 
-APP_TIMER_DEF(led_timer);
-#define LED_PWM_INTERVAL APP_TIMER_TICKS(3) // 16/3 = 5khz approx - seems to be the slowest without too much flicker 
-
 bool m_rt_processing_stop = false;
 
 void rt_processing_stop(void)
@@ -617,12 +614,7 @@ static void main_timer_timeout(void *p_context)
     rt_processing();
 }
 
-static void led_timer_timeout(void *p_context)
-{
-  UNUSED_PARAMETER(p_context);
 
-   do_led_pwm();
-}
 
 /// msecs since boot (note: will roll over every 50 days)
 uint32_t get_time_base_counter_1ms()
@@ -656,11 +648,6 @@ static void init_app_timers(void)
   err_code = app_timer_start(main_timer, MAIN_INTERVAL, NULL);
   APP_ERROR_CHECK(err_code);
 
-  err_code = app_timer_create(&led_timer, APP_TIMER_MODE_REPEATED, led_timer_timeout);
-  APP_ERROR_CHECK(err_code);
-
-  err_code = app_timer_start(led_timer, LED_PWM_INTERVAL, NULL);
-  APP_ERROR_CHECK(err_code);
 }
 
 /**@brief Function for initializing the BLE stack.
@@ -2061,7 +2048,6 @@ int main(void)
       handle_buttons();
       //alternatField(); // Removed until we can resolve what to do with the alternate state display requirements
       streetMode();
-      led_clock();
 
       if ((m_conn_handle != BLE_CONN_HANDLE_INVALID) && (!ui8_ble_connected_shown))
       {
