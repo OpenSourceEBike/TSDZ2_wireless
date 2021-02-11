@@ -55,6 +55,7 @@
 //#include "screen.h"
 #include "led_softblink.h"
 #include "low_power_pwm.h"
+#include "ledalert.h"
 
 // Copied from rananna's wireless remote code for led control
 uint8_t led_duty_cycle = 120;
@@ -1514,6 +1515,8 @@ void TSDZ2_power_manage(void)
     if (counter == 0)
     {
       // reset state variables
+      if (g_motor_init_state != MOTOR_INIT_OFF) led_alert(LED_EVENT_MOTOR_OFF);
+
       uart_reset_rx_buffer();
       g_motor_init_state = MOTOR_INIT_OFF;
       g_motor_init_state_conf = MOTOR_INIT_CONFIG_SEND_CONFIG;
@@ -1549,6 +1552,9 @@ bool anyscreen_onpress(buttons_events_t events) {
   // long up to turn on headlights
   if (events & UP_LONG_CLICK) {
     ui_vars.ui8_lights = !ui_vars.ui8_lights;
+    if (ui_vars.ui8_lights) led_alert(LED_EVENT_LIGHTS_ON);
+      else led_alert(LED_EVENT_LIGHTS_OFF);
+
     //set_lcd_backlight();
 
     return true;
@@ -1744,7 +1750,9 @@ bool mainScreenOnPress(buttons_events_t events) {
 
       if (ui_vars.ui8_assist_level > ui_vars.ui8_number_of_assist_levels) {
         ui_vars.ui8_assist_level = ui_vars.ui8_number_of_assist_levels;
+        led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
       }
+      else led_alert(LED_EVENT_ASSIST_LEVEL_INCREASE);
 
       m_assist_level_change_timeout = 20; // 2 seconds
       handled = true;
@@ -1755,7 +1763,11 @@ bool mainScreenOnPress(buttons_events_t events) {
       && !ui_vars.ui8_walk_assist // do not lower assist level if walk assist is active
     ) {
       if (ui_vars.ui8_assist_level > 0)
+      {
         ui_vars.ui8_assist_level--;
+        led_alert(LED_EVENT_ASSIST_LEVEL_DECREASE);
+      }
+      else led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
 
       m_assist_level_change_timeout = 20; // 2 seconds
       handled = true;
@@ -1838,6 +1850,7 @@ void walk_assist_state(void) {
   if (ui_vars.ui8_walk_assist_feature_enabled) {
     // if down button is still pressed
     if (ui_vars.ui8_walk_assist && buttons_get_down_state()) {
+      led_alert(LED_EVENT_WALK_ASSIST_ACTIVE);
       ui8_walk_assist_timeout = 2; // 0.2 seconds
     } else if (buttons_get_down_state() == 0 && --ui8_walk_assist_timeout == 0) {
       ui_vars.ui8_walk_assist = 0;
@@ -2000,12 +2013,17 @@ int main(void)
   ble_init();
   ant_setup();
   uart_init();
+  led_init();
 
   // setup this member variable ui8_m_ant_device_id
   ui8_m_ant_device_id = mp_ui_vars->ui8_ant_device_id;
   uint32_t ui32_rt_last_run_time = 0;
   uint32_t ui32_dfucheck_last_run_time = 0;
+  //uint32_t ui32_led_pwm_last_run_time = 0;
+  uint8_t ui8_ble_connected_shown = 0;
   
+  led_alert(LED_EVENT_WIRELESS_BOARD_POWER_ON);
+
   while (1)
   {
     // every 50 ms
@@ -2028,6 +2046,18 @@ int main(void)
       handle_buttons();
       //alternatField(); // Removed until we can resolve what to do with the alternate state display requirements
       streetMode();
+
+      if ((m_conn_handle != BLE_CONN_HANDLE_INVALID) && (!ui8_ble_connected_shown))
+      {
+        ui8_ble_connected_shown = 1;
+        led_alert(LED_EVENT_BLUETOOTH_CONNECT);
+      }
+      
+      if ((m_conn_handle == BLE_CONN_HANDLE_INVALID) && (ui8_ble_connected_shown))
+      {
+        ui8_ble_connected_shown = 0;
+        led_alert(LED_EVENT_BLUETOOTH_DISCONNECT);
+      }
     }
 
     // every 1 second
