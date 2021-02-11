@@ -471,7 +471,7 @@ static void motor_init(void) {
         ui16_motor_init_command_error_cnt = 2000;
         g_motor_init_state = MOTOR_INIT_WAIT_MOTOR_ALIVE;
         // not break here to follow for next case
-        led_alert(LED_SEQUENCE_YELLOW_SLOWFLASH_10);
+        led_alert(LED_EVENT_MOTOR_ON_WAIT);
 
       case MOTOR_INIT_WAIT_MOTOR_ALIVE:
         // check timeout
@@ -553,7 +553,7 @@ static void motor_init(void) {
             } else if (ui8_g_motor_init_status == MOTOR_INIT_STATUS_INIT_OK) {
 
               g_motor_init_state = MOTOR_INIT_READY; // finally
-              led_alert(LED_SEQUENCE_GREEN_SLOWFLASH_2_LONGGREEN);
+              led_alert(LED_EVENT_MOTOR_ON_COMPLETE);
               // reset state vars
               g_motor_init_state_conf = MOTOR_INIT_CONFIG_SEND_CONFIG;
               ui8_g_motor_init_status = MOTOR_INIT_STATUS_RESET;
