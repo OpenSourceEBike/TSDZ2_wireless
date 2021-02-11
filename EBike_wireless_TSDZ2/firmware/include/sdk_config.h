@@ -6025,6 +6025,21 @@
 #define POWER_CONFIG_SOC_OBSERVER_PRIO 0
 #endif
 
+// <q> LOW_POWER_PWM_ENABLED  - low_power_pwm - low_power_pwm module
+ 
+
+#ifndef LOW_POWER_PWM_ENABLED
+#define LOW_POWER_PWM_ENABLED 1
+#endif
+// </e>
+
+// <q> LED_SOFTBLINK_ENABLED  - led_softblink - led_softblink module
+ 
+
+#ifndef LED_SOFTBLINK_ENABLED
+#define LED_SOFTBLINK_ENABLED 1
+#endif
+
 // </h> 
 //==========================================================
 

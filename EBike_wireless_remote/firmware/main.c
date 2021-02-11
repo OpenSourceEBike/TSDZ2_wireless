@@ -52,6 +52,7 @@
 #include "nrf_log.h"
 #include "nrf_log_ctrl.h"
 #include "nrf_drv_gpiote.h"
+#include "common.h"
 
 #include "nordic_common.h"
 
@@ -317,7 +318,7 @@ void check_motor_init()
   // if (motor_display_soc && motor_soc_state && key_disp && (motor_init_state == 1)) // display soc when STANDBY Key is pressed
   if (motor_display_soc && motor_init_state == 1) // display soc when STANDBY Key is pressed
   {
-    disp_soc();
+    disp_soc(motor_soc_state);
     motor_display_soc = false;
   }
 
