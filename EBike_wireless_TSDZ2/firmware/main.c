@@ -57,19 +57,19 @@
 #include "low_power_pwm.h"
 #include "ledalert.h"
 
-// Copied from rananna's wireless remote code for led control
-uint8_t led_duty_cycle = 120;
-//mask_number used for pwm debugging
-int8_t mask_number = 0;
-#define P_LED BSP_LED_0_MASK //green (pwr)
-#define R_LED BSP_LED_1_MASK //red
-#define G_LED BSP_LED_2_MASK //green
-#define B_LED BSP_LED_3_MASK //blue
+// // Copied from rananna's wireless remote code for led control
+// uint8_t led_duty_cycle = 120;
+// //mask_number used for pwm debugging
+// int8_t mask_number = 0;
+// #define P_LED BSP_LED_0_MASK //green (pwr)
+// #define R_LED BSP_LED_1_MASK //red
+// #define G_LED BSP_LED_2_MASK //green
+// #define B_LED BSP_LED_3_MASK //blue
 //pwm blinking led routine is led_pwm_on
 //only one instance may be active at any time
 //softblink is the instance flag 1 means led busy, 0 or 2 means led ready
-uint8_t soft_blink = 0;
-APP_TIMER_DEF(led_timer);
+//uint8_t soft_blink = 0;
+//APP_TIMER_DEF(led_timer);
 
 extern uint8_t ui8_g_battery_soc;
 ui_vars_t *mp_ui_vars;
@@ -114,6 +114,9 @@ APP_TIMER_DEF(main_timer);
 #define MAIN_INTERVAL APP_TIMER_TICKS(MSEC_PER_TICK)
 volatile uint32_t main_ticks;
 uint32_t ui32_seconds_since_startup = 0;
+
+APP_TIMER_DEF(led_timer);
+#define LED_PWM_INTERVAL APP_TIMER_TICKS(3) // 10khz approx - seems to be teh slowest without too much flicker 
 
 bool m_rt_processing_stop = false;
 
@@ -614,6 +617,13 @@ static void main_timer_timeout(void *p_context)
     rt_processing();
 }
 
+static void led_timer_timeout(void *p_context)
+{
+  UNUSED_PARAMETER(p_context);
+
+   do_led_pwm();
+}
+
 /// msecs since boot (note: will roll over every 50 days)
 uint32_t get_time_base_counter_1ms()
 {
@@ -644,6 +654,12 @@ static void init_app_timers(void)
   APP_ERROR_CHECK(err_code);
 
   err_code = app_timer_start(main_timer, MAIN_INTERVAL, NULL);
+  APP_ERROR_CHECK(err_code);
+
+  err_code = app_timer_create(&led_timer, APP_TIMER_MODE_REPEATED, led_timer_timeout);
+  APP_ERROR_CHECK(err_code);
+
+  err_code = app_timer_start(led_timer, LED_PWM_INTERVAL, NULL);
   APP_ERROR_CHECK(err_code);
 }
 
@@ -1928,62 +1944,62 @@ static void handle_buttons() {
 	buttons_clock(); // Note: this is done _after_ button events is checked to provide a 20ms debounce
 }
 
-void led_pwm_on(uint32_t mask, uint8_t duty_cycle_max, uint8_t duty_cycle_min, uint8_t duty_cycle_step, uint32_t led_on_ms)
-{
-  //mask can be ORed to turn on R &B colors
-  //ie: R_LED || B_LED
-  //not G_LED as it is on a diffderent gpio port
-  ret_code_t err_code;
-  NRF_GPIO_Type *port;
-  uint32_t ON_TICKS = 0;
-  ON_TICKS = APP_TIMER_TICKS(led_on_ms);
+// void led_pwm_on(uint32_t mask, uint8_t duty_cycle_max, uint8_t duty_cycle_min, uint8_t duty_cycle_step, uint32_t led_on_ms)
+// {
+//   //mask can be ORed to turn on R &B colors
+//   //ie: R_LED || B_LED
+//   //not G_LED as it is on a diffderent gpio port
+//   ret_code_t err_code;
+//   NRF_GPIO_Type *port;
+//   uint32_t ON_TICKS = 0;
+//   ON_TICKS = APP_TIMER_TICKS(led_on_ms);
 
-  if (soft_blink == 0) //ok to start another pwm instance
-  {
+//   if (soft_blink == 0) //ok to start another pwm instance
+//   {
 
-    //fix for port number problem with green led
-    port = NRF_P0;
-    if (mask == G_LED)
-      port = NRF_P1;
+//     //fix for port number problem with green led
+//     port = NRF_P0;
+//     if (mask == G_LED)
+//       port = NRF_P1;
 
-#define LED_PWM_PARAMS(mask)                             \
-  {                                                      \
-    .active_high = false,                                \
-    .duty_cycle_max = duty_cycle_max,                    \
-    .duty_cycle_min = duty_cycle_min,                    \
-    .duty_cycle_step = duty_cycle_step,                  \
-    .off_time_ticks = 3000,                              \
-    .on_time_ticks = 0,                                  \
-    .leds_pin_bm = LED_SB_INIT_PARAMS_LEDS_PIN_BM(mask), \
-    .p_leds_port = port                                  \
-  }
-    const led_sb_init_params_t led_pwm_init_param = LED_PWM_PARAMS(mask);
+// #define LED_PWM_PARAMS(mask)                             \
+//   {                                                      \
+//     .active_high = false,                                \
+//     .duty_cycle_max = duty_cycle_max,                    \
+//     .duty_cycle_min = duty_cycle_min,                    \
+//     .duty_cycle_step = duty_cycle_step,                  \
+//     .off_time_ticks = 3000,                              \
+//     .on_time_ticks = 0,                                  \
+//     .leds_pin_bm = LED_SB_INIT_PARAMS_LEDS_PIN_BM(mask), \
+//     .p_leds_port = port                                  \
+//   }
+//     const led_sb_init_params_t led_pwm_init_param = LED_PWM_PARAMS(mask);
 
-    err_code = led_softblink_init(&led_pwm_init_param);
-    APP_ERROR_CHECK(err_code);
+//     err_code = led_softblink_init(&led_pwm_init_param);
+//     APP_ERROR_CHECK(err_code);
 
-    if (led_on_ms)
-    {
-      err_code = app_timer_start(led_timer, ON_TICKS, NULL);
-      APP_ERROR_CHECK(err_code);
-    }
-    err_code = led_softblink_start(mask);
-    APP_ERROR_CHECK(err_code);
-    soft_blink = 1; //set the blocking flag
-  }
-}
+//     if (led_on_ms)
+//     {
+//       err_code = app_timer_start(led_timer, ON_TICKS, NULL);
+//       APP_ERROR_CHECK(err_code);
+//     }
+//     err_code = led_softblink_start(mask);
+//     APP_ERROR_CHECK(err_code);
+//     soft_blink = 1; //set the blocking flag
+//   }
+// }
 
-void disp_soc(void)
-{
-  nrf_delay_ms(1000);
-  for (int i = 0; i < (ui8_g_battery_soc/10); i++)
-  {
-    led_pwm_on(G_LED, 100, 0, 5, 0);
-    nrf_delay_ms(200);
-    soft_blink = led_softblink_uninit(); // turn off the soft_blink led
-    nrf_delay_ms(300);
-  }
-}
+// void disp_soc(void)
+// {
+//   nrf_delay_ms(1000);
+//   for (int i = 0; i < (ui8_g_battery_soc/10); i++)
+//   {
+//     led_pwm_on(G_LED, 100, 0, 5, 0);
+//     nrf_delay_ms(200);
+//     soft_blink = led_softblink_uninit(); // turn off the soft_blink led
+//     nrf_delay_ms(300);
+//   }
+// }
 
 int main(void)
 {
@@ -1993,6 +2009,7 @@ int main(void)
   lfclk_config(); // needed by the APP_TIMER
   init_app_timers();
   eeprom_init();
+ 
 
   //below is what I had to do to get NVIC_SystemReset() not to hangup.
   //the s340 sd if what is preventing the restart into the bootloader, so it is important to reset before bluetooth starts.
@@ -2011,11 +2028,13 @@ int main(void)
   ble_init();
   ant_setup();
   uart_init();
+  led_init();
 
   // setup this member variable ui8_m_ant_device_id
   ui8_m_ant_device_id = mp_ui_vars->ui8_ant_device_id;
   uint32_t ui32_rt_last_run_time = 0;
   uint32_t ui32_dfucheck_last_run_time = 0;
+  //uint32_t ui32_led_pwm_last_run_time = 0;
   uint8_t ui8_ble_connected_shown = 0;
   
   led_alert(LED_SEQUENCE_RED_YELLOW_LONGGREEN);

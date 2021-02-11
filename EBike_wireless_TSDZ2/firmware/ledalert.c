@@ -9,18 +9,54 @@
 #include "boards.h"
 #include "ledalert.h"
 
-#define LED_NOCOMMAND                           255
+#define LED_PWM_TABLE_LEN 4   
+
+uint16_t ui16_pwm_table_red [LED_PWM_TABLE_LEN] =
+{   0b0000000000000000,
+    0b1000010000100000,
+    0b1001001001001000,
+    0b1010101010101010
+};
+
+uint16_t ui16_pwm_table_green [LED_PWM_TABLE_LEN] =
+{   0b0000000000000000,
+    0b1000000100000000,
+    0b1000010000010000,
+    0b1000100010001000
+};
+
+uint16_t ui16_pwm_table_blue [LED_PWM_TABLE_LEN] =
+{   0b0000000000000000,
+    0b1000010000100000,
+    0b1001001001001000,
+    0b1010101010101010
+};
+uint16_t ui16_pwm_mask = 32768;
 
 #if defined(BOARD_PCA10059)
 #include "pins.h"
+void do_led_pwm(void)
+{
+    ui16_pwm_mask = ui16_pwm_mask>> 1;
+    if (ui16_pwm_mask == 0) ui16_pwm_mask = 32768;
+    
+    if (ui16_pwm_table_red[ui8_led_red_intensity & 3] & ui16_pwm_mask) bsp_board_led_on(LED_R__PIN); else bsp_board_led_off(LED_R__PIN);
+    if (ui16_pwm_table_green[ui8_led_green_intensity & 3] & ui16_pwm_mask) bsp_board_led_on(LED_G__PIN); else bsp_board_led_off(LED_G__PIN);
+    if (ui16_pwm_table_blue[ui8_led_blue_intensity & 3] & ui16_pwm_mask) bsp_board_led_on(LED_B__PIN); else bsp_board_led_off(LED_B__PIN);
+
+}
+
 void set_led(uint8_t rgb)
 {
-    if (rgb & 1) bsp_board_led_on(LED_R__PIN); else bsp_board_led_off(LED_R__PIN);
-    if (rgb & 2) bsp_board_led_on(LED_G__PIN); else bsp_board_led_off(LED_G__PIN);
-    if (rgb & 4) bsp_board_led_on(LED_B__PIN); else bsp_board_led_off(LED_B__PIN);
+    ui8_led_on = (rgb!=0);
+
+    ui8_led_red_intensity = (rgb & 1);   // Only use the lowest intensity
+    ui8_led_green_intensity = (rgb & 2); // Only use the lowest intensity
+    ui8_led_blue_intensity = (rgb & 4);  // Only use the lowest intensity
+
 }
 #endif
-
+#define LED_NOCOMMAND                           255
 #define LED_SEQUENCE_BUFFER_SIZE                16
 
 volatile uint8_t ui8_led_sequence_queue[LED_SEQUENCE_BUFFER_SIZE];
@@ -33,6 +69,16 @@ volatile uint8_t ui8_led_sequence_current_sequence = 0;
 volatile uint8_t ui8_led_sequence_isplaying_now = 0;
 volatile uint8_t ui8_led_sequence_repeat_counter = 0;
 volatile uint8_t ui8_led_sequence_repeat_goto_index = 0;
+
+void led_init(void)
+{
+    ui8_led_red_intensity = 0;
+    ui8_led_green_intensity = 0;
+    ui8_led_blue_intensity = 0;
+    ui8_led_on = 0;
+    ui8_led_sequence_queue_read_position = 0;
+    ui8_led_sequence_queue_write_position = 0;
+}
 
 void led_alert(uint8_t ui8_sequence)
 {
