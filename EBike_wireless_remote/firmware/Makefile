@@ -120,6 +120,7 @@ SRC_FILES += \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_34.c \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_16.c \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_common_data.c \
+  $(PROJ_DIR)/../../common_firmware/ledalert.c \
   $(PROJ_DIR)/main.c \
   $(PROJ_DIR)/eeprom.c \
   $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_clock.c \

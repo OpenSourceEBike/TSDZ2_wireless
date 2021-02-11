@@ -18,6 +18,7 @@
 #include "app_button.h"
 #include "nrf_pwr_mgmt.h"
 #include "nrf_delay.h"
+#include "ledalert.h"
 static u_int8_t desired_travel_mode;
 #define COMMON_DATA_INTERVAL 20 /**< Common data page is sent every 20th message. */
 
@@ -122,10 +123,7 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
                 //quickly flash led if at limits
                 for (int i = 0; i < 10; i++)
                 {
-                    bsp_board_led_on(LED_R__PIN);
-                    nrf_delay_ms(10);
-                    bsp_board_led_off(LED_R__PIN);
-                    nrf_delay_ms(100);
+                    led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
                 }
 
                 desired_travel_mode = 0;
@@ -140,10 +138,7 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
                     //quickly flash led if at limits
                     for (int i = 0; i < 10; i++)
                     {
-                        bsp_board_led_on(LED_R__PIN);
-                        nrf_delay_ms(10);
-                        bsp_board_led_off(LED_R__PIN);
-                        nrf_delay_ms(100);
+                        led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
                     }
                 }
             }
