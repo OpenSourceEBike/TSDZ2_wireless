@@ -66,11 +66,12 @@ to enter and exit **CONFIGURATION MODE**, Press the **ENTER** key for a more tha
 
 ----
 
-* Short press the **PLUS/MINUS** keys to enable/disable garmin control. (The **GREEN** LED will light for 3 seconds to indicate that garmin control is active)
-* Long Press PLUS/MINUS keys\ will enable/disable TSDZ2 motor control(The **RED** LED will light for 3 seconds to indicate that motor control is active)
 * Short press the ENTER key to display configuration options.The **GREEN** LED will light for 3 seconds to indicate that garmin control is active and the **RED** LED will light for 3 seconds to indicate that motor control is active
-* A Long Press of the [**POWER**] button will initate Device Firmware Update (DFU) mode.  The **WHITE** LED will display for 2 seconds, and the board will enter DFU mode.Either the remote or bootloader firmware can be updated to a new version using a provided upgrade packet zip file in DFU mode. For more information click [here](dfu.md).
 * Long press the ENTER key to leave **CONFIGURATION**  mode. The **BLUE** LED will light for 3 seconds to indicate you are entering **NORMAL** mode
+* Short press the **PLUS/MINUS** keys to enable/disable garmin control. (The **GREEN** LED will light for 3 seconds to indicate that garmin control is active)
+* Long Press PLUS/MINUS keys will enable/disable TSDZ2 motor control(The **RED** LED will light for 3 seconds to indicate that motor control is active)
+* A Long Press of the [**POWER**] button will initate Device Firmware Update (DFU) mode.  The **GREEN** LED will flash rapidly for 2 seconds, and the board will enter DFU mode.Either the remote or bootloader firmware can be updated to a new version using a provided upgrade packet zip file in DFU mode. For more information click [here](dfu.md).
+
 
 
 ----
