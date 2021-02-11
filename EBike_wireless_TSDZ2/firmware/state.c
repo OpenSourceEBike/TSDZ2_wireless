@@ -12,6 +12,7 @@
 #include "uart.h"
 #include "utils.h"
 #include "state.h"
+#include "ledalert.h"
 
 typedef enum {
   FRAME_TYPE_ALIVE = 0,
@@ -470,6 +471,7 @@ static void motor_init(void) {
         ui16_motor_init_command_error_cnt = 2000;
         g_motor_init_state = MOTOR_INIT_WAIT_MOTOR_ALIVE;
         // not break here to follow for next case
+        led_alert(LED_EVENT_MOTOR_ON_WAIT);
 
       case MOTOR_INIT_WAIT_MOTOR_ALIVE:
         // check timeout
@@ -551,7 +553,7 @@ static void motor_init(void) {
             } else if (ui8_g_motor_init_status == MOTOR_INIT_STATUS_INIT_OK) {
 
               g_motor_init_state = MOTOR_INIT_READY; // finally
-
+              led_alert(LED_EVENT_MOTOR_ON_COMPLETE);
               // reset state vars
               g_motor_init_state_conf = MOTOR_INIT_CONFIG_SEND_CONFIG;
               ui8_g_motor_init_status = MOTOR_INIT_STATUS_RESET;
@@ -808,7 +810,7 @@ uint8_t rt_first_time_management(void) {
       ui8_g_motorVariablesStabilized) {
 
     ui8_motor_controller_init = 0;
-
+    
     // reset Wh value if battery voltage is over ui16_battery_voltage_reset_wh_counter_x10 (value configured by user)
     if (((uint32_t) ui_vars.ui16_adc_battery_voltage * ADC_BATTERY_VOLTAGE_PER_ADC_STEP_X10000)
         > ((uint32_t) ui_vars.ui16_battery_voltage_reset_wh_counter_x10
