@@ -116,7 +116,7 @@ volatile uint32_t main_ticks;
 uint32_t ui32_seconds_since_startup = 0;
 
 APP_TIMER_DEF(led_timer);
-#define LED_PWM_INTERVAL APP_TIMER_TICKS(3) // 10khz approx - seems to be teh slowest without too much flicker 
+#define LED_PWM_INTERVAL APP_TIMER_TICKS(3) // 16/3 = 5khz approx - seems to be the slowest without too much flicker 
 
 bool m_rt_processing_stop = false;
 

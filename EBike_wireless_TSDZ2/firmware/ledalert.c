@@ -18,7 +18,7 @@ uint16_t ui16_pwm_table_red [LED_PWM_TABLE_LEN] =
     0b1010101010101010
 };
 
-uint16_t ui16_pwm_table_green [LED_PWM_TABLE_LEN] =
+uint16_t ui16_pwm_table_green [LED_PWM_TABLE_LEN] = //Make green less bright
 {   0b0000000000000000,
     0b1000000100000000,
     0b1000010000010000,
@@ -31,7 +31,8 @@ uint16_t ui16_pwm_table_blue [LED_PWM_TABLE_LEN] =
     0b1001001001001000,
     0b1010101010101010
 };
-uint16_t ui16_pwm_mask = 32768;
+
+volatile uint16_t ui16_pwm_mask = 32768;
 
 #if defined(BOARD_PCA10059)
 #include "pins.h"
