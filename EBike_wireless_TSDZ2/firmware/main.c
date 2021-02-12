@@ -1530,6 +1530,9 @@ void TSDZ2_power_manage(void)
 bool anyscreen_onpress(buttons_events_t events) {
   if ((events & DOWN_LONG_CLICK) && ui_vars.ui8_walk_assist_feature_enabled) {
     ui_vars.ui8_walk_assist = 1;
+      led_clear_queue();
+      led_hold_queue();
+      led_alert(LED_EVENT_WALK_ASSIST_ACTIVE);
     return true;
   }
 
@@ -1834,9 +1837,9 @@ void walk_assist_state(void) {
   if (ui_vars.ui8_walk_assist_feature_enabled) {
     // if down button is still pressed
     if (ui_vars.ui8_walk_assist && buttons_get_down_state()) {
-      led_alert(LED_EVENT_WALK_ASSIST_ACTIVE);
       ui8_walk_assist_timeout = 2; // 0.2 seconds
     } else if (buttons_get_down_state() == 0 && --ui8_walk_assist_timeout == 0) {
+      led_release_queue();
       ui_vars.ui8_walk_assist = 0;
     }
   } else {

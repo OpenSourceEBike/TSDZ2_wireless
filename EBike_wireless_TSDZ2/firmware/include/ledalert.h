@@ -148,8 +148,11 @@ static const uint8_t ui8_led_sequences [LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_S
 
 void led_clock(void);                   // Call this every LED_CLOCK_MS mS.
 void led_alert(uint8_t ui8_sequence);   // call this to queue and play a sequence - e.g. led_alert(LED_SEQUENCE_SHORT_GREEN);
-void do_led_pwm(void);
-void led_init(void);
+//void do_led_pwm(void);               
+void led_init(void);                    // call this to setup app timers
+void led_clear_queue(void);             //used if you want to play a sequence right now.
+void led_hold_queue(void);              // Used to keep the current sequence playing
+void led_release_queue(void);           // Go back to normal - play the queue as it happens
 
 volatile uint8_t ui8_led_red_intensity;
 volatile uint8_t ui8_led_green_intensity;

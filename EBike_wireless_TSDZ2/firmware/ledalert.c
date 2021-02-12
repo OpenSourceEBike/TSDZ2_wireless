@@ -9,9 +9,10 @@
 #include "boards.h"
 #include "ledalert.h"
 #include "app_timer.h"
+#include "timer.h"
 
 APP_TIMER_DEF(led_timer);
-#define LED_PWM_INTERVAL APP_TIMER_TICKS(3) // 16/3 = 5khz approx - seems to be the slowest without too much flicker 
+#define LED_PWM_INTERVAL APP_TIMER_TICKS(1) // 16Khz - means the lowest intensity (green) is at about 2Khz..
 
 #define LED_PWM_TABLE_LEN 4   
 
@@ -31,7 +32,7 @@ uint16_t ui16_pwm_table_green [LED_PWM_TABLE_LEN] = //Make green less bright
 
 uint16_t ui16_pwm_table_blue [LED_PWM_TABLE_LEN] =
 {   0b0000000000000000,
-    0b1000010000100000,
+    0b0100001000010000,
     0b1001001001001000,
     0b1010101010101010
 };
@@ -110,14 +111,33 @@ void led_init(void)
     APP_ERROR_CHECK(err_code);
 }
 
+uint8_t ui8_led_queue_held = 0;
+
+void led_clear_queue(void) //used if you want to play a sequence right now.
+{
+    ui8_led_sequence_queue_read_position == 0;
+    ui8_led_sequence_queue_write_position == 0;
+}
+
+void led_hold_queue(void) // Used to keep the current sequence playing
+{
+    ui8_led_queue_held = 1;
+}
+
+void led_release_queue(void) // Go back to normal - play the queue as it happens
+{
+    ui8_led_queue_held = 0;
+}
+
 void led_alert(uint8_t ui8_sequence)
 {
     // Write the sequence to the buffer
     ui8_led_sequence_queue[ui8_led_sequence_queue_write_position] = ui8_sequence;
     // Move write pointer forward (wrapping)
     ui8_led_sequence_queue_write_position=((++ui8_led_sequence_queue_write_position)% LED_SEQUENCE_BUFFER_SIZE);
-    // If write pointer hits read pointer - move read pointer forward (lose oldest queued sequence)
-    if (ui8_led_sequence_queue_write_position==ui8_led_sequence_queue_read_position) ui8_led_sequence_queue_read_position=((++ui8_led_sequence_queue_read_position) % LED_SEQUENCE_BUFFER_SIZE);
+    // If write pointer hits read pointer - move read pointer forward (lose oldest queued sequence) - unless queue is held - as you'll probably overwrite the held sequence that's playing
+    // so if the queue is held - queue overflows and new sequences are lost.
+    if ((ui8_led_sequence_queue_write_position==ui8_led_sequence_queue_read_position) & !ui8_led_queue_held) ui8_led_sequence_queue_read_position=((++ui8_led_sequence_queue_read_position) % LED_SEQUENCE_BUFFER_SIZE);
 }
 
 // Called every LED_CLOCK_MS mS (50ms)
@@ -128,7 +148,10 @@ void led_clock(void)
         // If something is in the queue and we're not currently playing something - let's play a sequence
         ui8_led_sequence_isplaying_now = 1;
         ui8_led_sequence_current_sequence = ui8_led_sequence_queue[ui8_led_sequence_queue_read_position];
-        ui8_led_sequence_queue_read_position=((++ui8_led_sequence_queue_read_position)% LED_SEQUENCE_BUFFER_SIZE);
+
+        //Move the read pointer forward - unless the queue is held...
+        if (!ui8_led_queue_held) ui8_led_sequence_queue_read_position=((++ui8_led_sequence_queue_read_position)% LED_SEQUENCE_BUFFER_SIZE);
+
         ui8_led_sequence_current_sequence_command_index = 0;
         ui8_led_sequence_current_command = LED_NOCOMMAND;
     }
