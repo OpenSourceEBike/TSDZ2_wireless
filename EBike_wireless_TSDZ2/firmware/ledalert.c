@@ -56,8 +56,8 @@ void set_led(uint8_t rgb)
     ui8_led_on = (rgb!=0);
 
     ui8_led_red_intensity = (rgb & 1);   // Only use the lowest intensity
-    ui8_led_green_intensity = (rgb & 2); // Only use the lowest intensity
-    ui8_led_blue_intensity = (rgb & 4);  // Only use the lowest intensity
+    ui8_led_green_intensity = (rgb & 2) >> 1; // Only use the lowest intensity
+    ui8_led_blue_intensity = (rgb & 4) >> 2;  // Only use the lowest intensity
 
 }
 #endif
