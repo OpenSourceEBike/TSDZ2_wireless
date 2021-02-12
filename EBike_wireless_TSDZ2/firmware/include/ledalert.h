@@ -71,8 +71,7 @@ static const uint8_t ui8_led_sequences [LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_S
     {LED_BLUE,WAIT_MS(50),LED_OFF,WAIT_MS(50),LED_REPEAT_LASTX,CMDS_RPT(2,8),LED_BLUE,WAIT_MS(50),LED_OFF,WAIT_MS(0),
                                                                             LED_END_SEQUENCE,LED_END_SEQUENCE},                            //LED_SEQUENCE_BLUEFLASH_10
 
-    {LED_YELLOW,WAIT_MS(200),LED_OFF,WAIT_MS(200),LED_REPEAT_LASTX,CMDS_RPT(2,9),LED_YELLOW,WAIT_MS(200),LED_OFF,WAIT_MS(0),
-                                                                                LED_END_SEQUENCE,LED_END_SEQUENCE},                       //LED_SEQUENCE_YELLOW_SLOWFLASH_10;
+    {LED_YELLOW,WAIT_MS(200),LED_OFF,WAIT_MS(200),LED_END_SEQUENCE,LED_END_SEQUENCE},                                                      //LED_SEQUENCE_YELLOW_SLOWFLASH;
 
     {LED_GREEN,WAIT_MS(200),LED_OFF,WAIT_MS(200),LED_REPEAT_LASTX,CMDS_RPT(2,4),LED_GREEN,WAIT_MS(200),LED_OFF,WAIT_MS(0),
                                                                                 LED_END_SEQUENCE,LED_END_SEQUENCE},                       //LED_SEQUENCE_GREEN_SLOWFLASH_5;
@@ -120,7 +119,7 @@ static const uint8_t ui8_led_sequences [LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_S
 #define LED_SEQUENCE_BLUEFLASH_8                    11
 #define LED_SEQUENCE_BLUEFLASH_9                    12
 #define LED_SEQUENCE_BLUEFLASH_10                   13
-#define LED_SEQUENCE_YELLOW_SLOWFLASH_10            14
+#define LED_SEQUENCE_YELLOW_SLOWFLASH               14
 #define LED_SEQUENCE_GREEN_SLOWFLASH_5              15
 #define LED_SEQUENCE_GREEN_SLOWFLASH_2_LONGGREEN    16
 #define LED_SEQUENCE_RED_SLOWFLASH_5                17
@@ -135,7 +134,7 @@ static const uint8_t ui8_led_sequences [LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_S
 #define LED_EVENT_WIRELESS_BOARD_POWER_ON           LED_SEQUENCE_RED_YELLOW_LONGGREEN
 #define LED_EVENT_BLUETOOTH_CONNECT                 LED_SEQUENCE_BLUE_SLOWFLASH_2_LONGGREEN
 #define LED_EVENT_BLUETOOTH_DISCONNECT              LED_SEQUENCE_BLUE_SLOWFLASH_2_LONGRED
-#define LED_EVENT_MOTOR_ON_WAIT                     LED_SEQUENCE_YELLOW_SLOWFLASH_10
+#define LED_EVENT_MOTOR_ON_WAIT                     LED_SEQUENCE_YELLOW_SLOWFLASH
 #define LED_EVENT_MOTOR_ON_COMPLETE                 LED_SEQUENCE_GREEN_SLOWFLASH_2_LONGGREEN
 #define LED_EVENT_MOTOR_OFF                         LED_SEQUENCE_RED_SLOWFLASH_2_LONGRED
 #define LED_EVENT_LIGHTS_OFF                        LED_SEQUENCE_WHITE_SLOWFLASH_2_LONGRED
