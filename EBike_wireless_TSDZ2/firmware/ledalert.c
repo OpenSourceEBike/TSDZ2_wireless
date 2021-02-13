@@ -12,31 +12,43 @@
 #include "timer.h"
 
 APP_TIMER_DEF(led_timer);
-#define LED_PWM_INTERVAL APP_TIMER_TICKS(1) // 16Khz - means the lowest intensity (green) is at about 2Khz..
+#define LED_PWM_INTERVAL APP_TIMER_TICKS(1) // 16Khz - means the lowest intensity (green) is pulsing at about 1Khz.. each pulse is c.61 microseconds in length (1/16384s)
 
-#define LED_PWM_TABLE_LEN 4   
+#define LED_PWM_TABLE_LEN 8   
 #define LED_NOCOMMAND                           255
 #define LED_SEQUENCE_BUFFER_SIZE                16
 
 uint16_t ui16_pwm_table_red [LED_PWM_TABLE_LEN] =
-{   0b0000000000000000,
-    0b0100001000010000,
-    0b1001001001001000,
-    0b1010101010101010
+{   0b0000000000000000, // 0 pulses/mS
+    0b0000000100000001, // 2 pulses/mS
+    0b0100010000100010, // 4 pulses/mS
+    0b1001001001010100, // 6 pulses/mS
+    0b1010101010101010, // 8 pulses/mS
+    0b1110101011101010, // 10 pulses/mS
+    0b1011101011101111, // 12 pulses/mS
+    0b1111101111101111, // 14 pulses/mS
 };
 
 uint16_t ui16_pwm_table_green [LED_PWM_TABLE_LEN] = //Make green less bright
-{   0b0000000000000000,
-    0b1000000100000000,
-    0b1000010000010000,
-    0b1000100010001000
+{   0b0000000000000000, // 0 pulses/mS
+    0b0001000000000000, // 1 pulses/mS
+    0b1000000100000000, // 2 pulses/mS
+    0b1000010000010000, // 3 pulses/mS
+    0b1000100010001000, // 4 pulses/mS
+    0b0100100100100100, // 5 pulses/mS
+    0b0010100101001010, // 6 pulses/mS
+    0b1010101010101010, // 7 pulses/mS
 };
 
 uint16_t ui16_pwm_table_blue [LED_PWM_TABLE_LEN] =
-{   0b0000000000000000,
-    0b0100001000010000,
-    0b1001001001001000,
-    0b1010101010101010
+{   0b0000000000000000, // 0 pulses/mS
+    0b0000010000000100, // 2 pulses/mS
+    0b0100100010000100, // 4 pulses/mS
+    0b0100100101010010, // 6 pulses/mS
+    0b1010101010101010, // 8 pulses/mS
+    0b1010101110101011, // 10 pulses/mS
+    0b1110101110111110, // 12 pulses/mS
+    0b1110111110111111, // 14 pulses/mS
 };
 
 uint8_t ui8_led_red_intensity;
@@ -54,6 +66,7 @@ uint8_t ui8_led_sequence_isplaying_now = 0;
 uint8_t ui8_led_sequence_repeat_counter = 0;
 uint8_t ui8_led_sequence_repeat_goto_index = 0;
 uint8_t ui8_led_queue_held = 0;
+uint8_t ui8_led_global_brightness = 0;
 
 #if defined(BOARD_PCA10059)
 #include "pins.h"
@@ -70,14 +83,18 @@ void do_led_pwm(void)
 
 void set_led(uint8_t rgb)
 {
-    //ui8_led_on = (rgb!=0);
 
-    ui8_led_red_intensity = (rgb & 1);   // Only use the lowest intensity
-    ui8_led_green_intensity = (rgb & 2) >> 1; // Only use the lowest intensity
-    ui8_led_blue_intensity = (rgb & 4) >> 2;  // Only use the lowest intensity
+    ui8_led_red_intensity = ((rgb & 1) * ui8_led_global_brightness);
+    ui8_led_green_intensity = (((rgb & 2) >> 1) * ui8_led_global_brightness);
+    ui8_led_blue_intensity = (((rgb & 4) >> 2) * ui8_led_global_brightness);
 
 }
 #endif
+
+void led_set_global_brightness(uint8_t ui8_global_brightness)
+{
+    ui8_led_global_brightness = (ui8_global_brightness & 7);
+}
 
 // Called every LED_CLOCK_MS mS (50ms)
 void led_clock(void)
@@ -183,6 +200,7 @@ void led_init(void)
     ui8_led_blue_intensity = 0;
     ui8_led_sequence_queue_read_position = 0;
     ui8_led_sequence_queue_write_position = 0;
+    led_set_global_brightness(1); // Default to lowest 'on' brightness
     
     ret_code_t err_code; // Should really check this!
 
@@ -193,12 +211,9 @@ void led_init(void)
     APP_ERROR_CHECK(err_code);
 }
 
-
-
 void led_clear_queue(void) //used if you want to play a sequence right now.
 {
-    ui8_led_sequence_queue_read_position == 0;
-    ui8_led_sequence_queue_write_position == 0;
+    ui8_led_sequence_queue_write_position = ui8_led_sequence_queue_read_position;
 }
 
 void led_hold_queue(void) // Used to keep the current sequence playing
