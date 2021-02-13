@@ -197,8 +197,10 @@ void led_init(void)
 
 void led_clear_queue(void) //used if you want to play a sequence right now.
 {
-    ui8_led_sequence_queue_read_position == 0;
-    ui8_led_sequence_queue_write_position == 0;
+    ui8_led_sequence_queue_read_position = 0;
+    ui8_led_sequence_queue_write_position = 0;
+    ui8_led_sequence_isplaying_now = 0;
+    ui8_led_sequence_current_command = LED_NOCOMMAND;
 }
 
 void led_hold_queue(void) // Used to keep the current sequence playing
