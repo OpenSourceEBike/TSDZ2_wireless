@@ -9,6 +9,6 @@ void uart_send_tx_buffer(uint8_t *tx_buffer, uint8_t ui8_len);
 void uart_get_rx_buffer_rdy_clear(void);
 void uart_reset_rx_buffer(void);
 
-#define UART_NUMBER_DATA_BYTES_TO_RECEIVE       29
-#define UART_NUMBER_DATA_BYTES_TO_SEND          88
+#define UART_NUMBER_DATA_BYTES_TO_RECEIVE       256 //29 Up buffer to 256 bytes to prevent overflow/potential memory corruption if recieved packet length byte too big
+#define UART_NUMBER_DATA_BYTES_TO_SEND          256 //88 
 
