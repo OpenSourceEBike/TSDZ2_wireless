@@ -98,6 +98,8 @@ uint8_t ui8_m_alternate_field_state = 0;
 uint8_t ui8_m_alternate_field_timeout_cnt = 0;
 uint8_t ui8_m_vthrottle_can_increment_decrement = 0;
 
+uint8_t ui8_last_assist_level = 0;
+
 typedef enum
 {
   TSDZ2_POWER_STATE_OFF_START,
@@ -751,7 +753,14 @@ static void ant_id_write_handler(uint16_t conn_handle, ble_ant_id_t *p_ant_id, u
 static void tsdz2_write_handler_periodic(uint8_t *p_data, uint16_t len)
 {
   if (p_data[0] != 255)
+  {
+    // Do the assist leds based on assist changes from the app (and maybe the remote?)
     ui_vars.ui8_assist_level = p_data[0];
+    if (ui_vars.ui8_assist_level > ui8_last_assist_level) led_alert(LED_EVENT_ASSIST_LEVEL_INCREASE);
+    else if (ui_vars.ui8_assist_level < ui8_last_assist_level) led_alert(LED_EVENT_ASSIST_LEVEL_DECREASE);
+    ui8_last_assist_level = ui_vars.ui8_assist_level;
+  }
+  
 
   if (p_data[1] != 255)
   {
