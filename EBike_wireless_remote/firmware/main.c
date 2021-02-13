@@ -816,6 +816,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
           {
             if (m_ant_lev.page_16.travel_mode == 0) //at limits
             {
+              led_clear_queue();
               led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
             }
             else
@@ -860,6 +861,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
           if (motor_init_state == 1)
             if (m_ant_lev.page_16.travel_mode == 55) //at limits
             {
+              led_clear_queue();
               led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
             }
             else

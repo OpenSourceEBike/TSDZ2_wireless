@@ -5,25 +5,24 @@
  *
  * Released under the GPL License, Version 3
  */
-
 #include "stdint.h"
 
-#define LED_CLOCK_MS 50
+#define LED_CLOCK_MS                            50
 
 // LED Sequence command defines\macros
 
-#define LED_RED 1
-#define LED_GREEN 2
-#define LED_BLUE 4
-#define LED_MAGENTA LED_BLUE | LED_RED
-#define LED_CYAN LED_BLUE | LED_GREEN
-#define LED_YELLOW LED_RED | LED_GREEN
-#define LED_WHITE LED_BLUE | LED_RED | LED_GREEN
-#define LED_OFF 0
-#define LED_END_SEQUENCE 253
-#define LED_REPEAT_LASTX 254
+#define LED_RED                                 1
+#define LED_GREEN                               2
+#define LED_BLUE                                4
+#define LED_MAGENTA                             LED_BLUE | LED_RED
+#define LED_CYAN                                LED_BLUE | LED_GREEN
+#define LED_YELLOW                              LED_RED | LED_GREEN
+#define LED_WHITE                               LED_BLUE | LED_RED | LED_GREEN
+#define LED_OFF                                 0
+#define LED_END_SEQUENCE                        253
+#define LED_REPEAT_LASTX                        254
 #define WAIT_MS(a) ((a) / (LED_CLOCK_MS))
-#define CMDS_RPT(a, b) ((a) + (16 * (b))) //Repeat last x commands - next value last x-1 commands to repeat (0-15) plus 16*number of times - so max is repeat last 16 commands 16 times
+#define CMDS_RPT(a,b) ((a) + (16 * (b)))         //Repeat last x commands - next value last x-1 commands to repeat (0-15) plus 16*number of times - so max is repeat last 16 commands 16 times
 extern uint32_t get_time_base_counter_1ms(void);
 // Define sequences here
 // Sequence commands are 2 bytes each - first is the colour or other instruction, 2nd is either time to show for LED - or parameter for command.
@@ -199,13 +198,14 @@ static const uint8_t ui8_led_sequences[LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SE
 #define LED_EVENT_CONFIG_CTRL_ACTIVE LED_SEQUENCE_GREEN_SLOWFLASH_5
 
 
+             
 
-void led_clock(void);                 // Call this every LED_CLOCK_MS mS.
-void led_alert(uint8_t ui8_sequence); // call this to queue and play a sequence - e.g. led_alert(LED_SEQUENCE_SHORT_GREEN);
-void do_led_pwm(void);
-void led_init(void);
 
-volatile uint8_t ui8_led_red_intensity;
-volatile uint8_t ui8_led_green_intensity;
-volatile uint8_t ui8_led_blue_intensity;
-volatile uint8_t ui8_led_on;
+void led_init(void);                                             // call this to setup app timers
+void led_alert(uint8_t ui8_sequence);                            // call this to queue and play a sequence - e.g. led_alert(LED_SEQUENCE_SHORT_GREEN);           
+void led_clear_queue(void);                                      // used if you want to play a sequence right now. clear the queue then the next thing you play is up now.
+void led_hold_queue(void);                                       // Used to keep the current sequence playing until you release the queue
+void led_release_queue(void);                                    // Go back to normal - play the queue as it happens
+void led_set_global_brightness(uint8_t ui8_global_brightness);   // Default is 1 - lowest. 3 currently is highest.
+
+
