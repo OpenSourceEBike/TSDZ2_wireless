@@ -68,11 +68,11 @@ uint8_t motor_soc_state;
 bool motor_display_soc = false;
 bool display_assist = false;
 uint8_t walk_mode = 0;
+bool brake_flag = false;
 uint8_t light_mode = 0;
-//uint8_t pwm_led = 0;        //pwm LED to flash
-//float pwm_duty_cycle = 0.2; //20%
-// use 0.2 for blue and red led; 0.1 for green led
-//float pwm_cycle_time_ms = 10; //pwm cycle time in ms
+uint32_t ui32_last_run_time = 0;
+uint32_t ui32_time_now;
+bool disp_config_flag = false;
 
 bool searching_flag = false;
 
@@ -81,7 +81,7 @@ bool searching_flag = false;
 #define BUTTON_LONG_PRESS_TIMEOUT APP_TIMER_TICKS(1000)      // 1 seconds for long press
 #define BUTTON_CONFIG_PRESS_TIMEOUT APP_TIMER_TICKS(5000)    // 5 seconds TO ENTER CONFIG MODE
 
-#define ANT_Search_TIMEOUT APP_TIMER_TICKS(400) // 400 ms for Ant Search check
+#define ANT_Search_TIMEOUT APP_TIMER_TICKS(600) // 400 ms for Ant Search check
 #define DEVICE_NAME "TSDZ2_remote"              /**< Name of device. Will be included in the advertising data. */
 
 #define APP_BLE_CONN_CFG_TAG 1 /**< A tag identifying the SoftDevice BLE configuration. */
@@ -247,6 +247,8 @@ static void main_timer_timeout(void *p_context)
 void check_motor_init()
 {
   static bool soc_disp = true;
+
+  static bool motor_on;
   //static bool key_disp = false;
 
   //display SOC if standby key pressed and motor is on
@@ -260,7 +262,15 @@ void check_motor_init()
   switch (motor_init_state)
   {
   case 0: //motor off
-
+    if (motor_on)
+    {
+      {
+        led_alert(LED_EVENT_MOTOR_OFF);
+        motor_on = false;
+        nrf_delay_ms(4000);
+        disp_soc(motor_soc_state);
+      }
+    }
     //key_disp = false;
 
     break;
@@ -274,14 +284,19 @@ void check_motor_init()
 
         led_alert(LED_EVENT_MOTOR_ON_COMPLETE);
       }
-
+      motor_on = true;
       soc_disp = false;
       // key_disp = true;
     }
     break;
   case 2: //motor initializing
-
-    led_alert(LED_EVENT_MOTOR_ON_WAIT);
+    //send alert every 500ms
+    ui32_time_now = get_time_base_counter_1ms();
+    if ((ui32_time_now - ui32_last_run_time) >= 500)
+    {
+      ui32_last_run_time = ui32_time_now;
+      led_alert(LED_EVENT_MOTOR_ON_WAIT);
+    }
 
     soc_disp = true; //show the soc when motor turns on
 
@@ -560,7 +575,7 @@ static void ANT_Search_timeout(void *p_context) //check every 400 ms
 
   // keep a counter for the number of ANT search timeouts
   ui8_cnt_ant_search_timeout++;
-  if (ui8_cnt_ant_search_timeout > 72) // 400ms * 72 = 30 seconds
+  if (ui8_cnt_ant_search_timeout > 50) // 600ms * 50 = 30 seconds
   {
     // if is not connected, shutdown
     shutdown_flag = true;
@@ -581,9 +596,9 @@ static void ANT_Search_timeout(void *p_context) //check every 400 ms
       ui8_cnt_ant_search_timeout = 0;
       err_code = app_timer_stop(ANT_Search_timer);
       APP_ERROR_CHECK(err_code);
-      nrf_delay_ms(1000); //cleaR THE BUFFER
+
       led_alert(LED_EVENT_ANT_CONNECT);
-      nrf_delay_ms(3000);
+      // nrf_delay_ms(3000);
 
       searching_flag = false;
     }
@@ -628,9 +643,6 @@ static void bluetooth_timer_timeout(void *p_context)
 static void timer_button_config_press_timeout_handler(void *p_context)
 {
   UNUSED_PARAMETER(p_context);
- 
-  led_alert(LED_EVENT_SHORT_BLUE);
-  nrf_delay_ms(4000);
 
   config_press = true;
   // enter configuration mode
@@ -668,12 +680,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     if (nrf_gpio_pin_read(STANDBY__PIN) == 0)
     {
       //INDICATE ENTERING BOOTLOADER MODE
-
-      for (int i = 0; i < 6; i++)
-      {
-
-        led_alert(LED_EVENT_ENTER_DFU);
-      }
+      led_alert(LED_EVENT_ENTER_DFU);
       new_ant_device_id = 0x99;
     }
     if (nrf_gpio_pin_read(PLUS__PIN) == 0)
@@ -700,7 +707,6 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     walk_mode = 55; //set walk mode flag to allow button release to work
                     //start blinking blue led
                     //slow flash
-    led_alert(LED_EVENT_WALK_ASSIST_ACTIVE);
     m_button_long_press = false;
     buttons_send_page16(&m_ant_lev, walk_mode, m_button_long_press);
   }
@@ -724,10 +730,6 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     //turn motor power on/off
     m_button_long_press = true;
     buttons_send_page16(&m_ant_lev, STANDBY__PIN, m_button_long_press);
-    if (motor_init_state == 1) //motor is turning off
-    {
-      led_alert(LED_EVENT_MOTOR_OFF);
-    }
   }
 
   m_button_long_press = true; //needed for app_release long press actions
@@ -746,7 +748,11 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       m_button_long_press = false;                                                                    //button pushed
       err_code = app_timer_start(m_timer_button_long_press_timeout, BUTTON_LONG_PRESS_TIMEOUT, NULL); //start the long press timer
       APP_ERROR_CHECK(err_code);
-
+      if (button_pin == STANDBY__PIN)
+      {
+        if (motor_init_state == 0) //motor is off
+          led_alert(LED_EVENT_SHORT_RED);
+      }
       if (button_pin == ENTER__PIN)
       {
         //start the config timer
@@ -760,11 +766,10 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       if (button_pin == STANDBY__PIN)
       {
         //not assigned
-        led_alert(LED_EVENT_SHORT_RED);
+        //led_alert(LED_EVENT_SHORT_RED);
       }
       if (button_pin == PLUS__PIN)
       {
-        led_alert(LED_EVENT_ASSIST_LEVEL_INCREASE);
 
         new_ant_device_id = 0x92;
       }
@@ -777,15 +782,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       {
         err_code = app_timer_stop(m_timer_button_config_press_timeout); //stop the config  timer
         APP_ERROR_CHECK(err_code);
-        if (ebike)
-        {
-          led_alert(LED_EVENT_SHORT_RED);
-        }
-
-        if (garmin)
-        {
-          led_alert(LED_EVENT_SHORT_GREEN);
-        }
+        disp_config_flag = true;
       }
       break;
     }
@@ -817,8 +814,15 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         {
           if (motor_init_state == 1)
           {
-            buttons_send_page16(&m_ant_lev, button_pin, m_button_long_press);
-            led_alert(LED_EVENT_ASSIST_LEVEL_DECREASE);
+            if (m_ant_lev.page_16.travel_mode == 0) //at limits
+            {
+              led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
+            }
+            else
+            {
+              buttons_send_page16(&m_ant_lev, button_pin, m_button_long_press);
+              led_alert(LED_EVENT_ASSIST_LEVEL_DECREASE);
+            }
           }
           else
           {
@@ -829,8 +833,8 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       else if ((button_pin == BRAKE__PIN) && (motor_init_state == 1))
       {
 
-        brake = 0;
-        bsp_board_led_off(LED_R__PIN);
+        brake_flag = false;
+        bsp_board_led_off(LED_R__PIN); //turn off the brake led
         m_button_long_press = true;
         buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
       }
@@ -842,7 +846,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         }
         else
         {
-
+          // led_alert(LED_EVENT_SHORT_RED); //inactive
           motor_display_soc = false; //flag needed due to interrupt priority
         }
       }
@@ -854,10 +858,15 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         if ((ebike) && (!m_button_long_press))
         {
           if (motor_init_state == 1)
-          {
-            buttons_send_page16(&m_ant_lev, button_pin, m_button_long_press);
-            led_alert(LED_EVENT_ASSIST_LEVEL_INCREASE);
-          }
+            if (m_ant_lev.page_16.travel_mode == 55) //at limits
+            {
+              led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
+            }
+            else
+            {
+              buttons_send_page16(&m_ant_lev, button_pin, m_button_long_press);
+              led_alert(LED_EVENT_ASSIST_LEVEL_INCREASE);
+            }
           else
           {
             led_alert(LED_EVENT_SHORT_RED);
@@ -895,19 +904,24 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       m_button_long_press = false;                                  //button pushed
       err_code = app_timer_stop(m_timer_button_long_press_timeout); //stop the long press timer
       APP_ERROR_CHECK(err_code);
+      if (button_pin == STANDBY__PIN)
+      {
+        if (motor_init_state == 0) //motor is off
+          led_alert(LED_EVENT_SHORT_RED);
+      }
 
-      //send the brake signal on a button push for BRAKE__PIN
       if (button_pin == ENTER__PIN)
       {
         //start the config timer
         err_code = app_timer_start(m_timer_button_config_press_timeout, BUTTON_CONFIG_PRESS_TIMEOUT, NULL); //start the long press timer
         APP_ERROR_CHECK(err_code);
       }
+      //send the brake signal on a button push for BRAKE__PIN
       if ((button_pin == BRAKE__PIN) && (motor_init_state == 1)) //motor is on
       {
         //set the brake flag in the rear gearing to signal that the brake has been pressed
         buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
-        bsp_board_led_on(LED_R__PIN);
+        brake_flag = true;
       }
 
       else
@@ -1426,6 +1440,46 @@ void check_interrupt_flags(void)
 {
   check_motor_init(); //check for errors and motor status
 
+  if (disp_config_flag) //display configuration
+  {
+
+    if (ebike)
+    {
+      led_alert(LED_EVENT_CONFIG_LEV_ACTIVE);
+      nrf_delay_ms(2000);
+    }
+
+    if (garmin)
+    {
+      led_alert(LED_EVENT_CONFIG_CTRL_ACTIVE);
+      nrf_delay_ms(2000);
+    }
+    disp_config_flag = false;
+  }
+
+  if (brake_flag)
+  {
+    //display every 0.400 seconds
+
+    ui32_time_now = get_time_base_counter_1ms();
+    if ((ui32_time_now - ui32_last_run_time) >= 400)
+    {
+      ui32_last_run_time = ui32_time_now;
+      led_alert(LED_EVENT_SHORT_RED);
+    }
+  }
+  //check for walk mode
+  if (walk_mode)
+  {
+    //display every 0.4 seconds
+    ui32_time_now = get_time_base_counter_1ms();
+    if ((ui32_time_now - ui32_last_run_time) >= 400)
+    {
+      ui32_last_run_time = ui32_time_now;
+      led_alert(LED_EVENT_WALK_ASSIST_ACTIVE);
+    }
+  }
+
   //need flags to handle interrupt events for flash write
   //this is required due to interrupt priority
   //see: https://devzone.nordicsemi.com/f/nordic-q-a/57067/calling-fds_record_update-in-isr
@@ -1458,12 +1512,12 @@ void check_interrupt_flags(void)
     case 0x93: //ANT CONTROL off
       garmin = 0;
       break;
-    case 0x94: //brake control on - not used for now
-      brake = 1;
+    case 0x94: //?? control on - not used for now
+
       break;
 
-    case 0x95: //brake control off - not used for now
-      brake = 0;
+    case 0x95: //?? control off - not used for now
+
       break;
 
     case 0x99: // start bootloader
@@ -1492,6 +1546,8 @@ void check_interrupt_flags(void)
   if (enable_configuration)
   {
     eeprom_write_variables(old_ant_device_id, 1, ebike, garmin, brake); // Enable BLUETOOTH on restart}
+    led_alert(LED_EVENT_CONFIGURATION_MODE);
+    nrf_delay_ms(2000);
     wait_and_reset();
   }
 
@@ -1499,6 +1555,9 @@ void check_interrupt_flags(void)
   if (disable_configuration)
   {
     eeprom_write_variables(old_ant_device_id, 0, ebike, garmin, brake); // Disable BLUETOOTH on restart}
+    led_alert(LED_EVENT_CONFIGURATION_MODE);
+    nrf_delay_ms(2000);
+
     wait_and_reset();
   }
 }
@@ -1618,18 +1677,17 @@ int main(void)
 
   if (configuration_flag)
   {
-    led_alert(LED_EVENT_CONFIGURATION_MODE);
-    nrf_delay_ms(500);
+    // led_alert(LED_EVENT_CONFIGURATION_MODE);
+    //  nrf_delay_ms(500);
     if (ebike)
     {
-      led_alert(LED_EVENT_SHORT_RED);
+      led_alert(LED_EVENT_CONFIG_LEV_ACTIVE);
       nrf_delay_ms(2000);
     }
 
     if (garmin)
     {
-
-      led_alert(LED_EVENT_SHORT_GREEN);
+      led_alert(LED_EVENT_CONFIG_CTRL_ACTIVE);
       nrf_delay_ms(2000);
     }
 

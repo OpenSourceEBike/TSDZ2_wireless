@@ -128,8 +128,8 @@ SRC_FILES += \
   $(SDK_ROOT)/components/boards/boards.c \
   $(PROJ_DIR)/ble_services.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c \
-  $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c \
-  $(PROJ_DIR)/../../common_firmware/common.c
+  $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c 
+  
 
 # Include folders common to all targets
 INC_FOLDERS += \

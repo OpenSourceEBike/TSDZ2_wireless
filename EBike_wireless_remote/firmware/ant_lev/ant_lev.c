@@ -121,10 +121,8 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
             if (p_profile->page_16.travel_mode == 0)
             {
                 //quickly flash led if at limits
-                for (int i = 0; i < 10; i++)
-                {
-                    led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
-                }
+
+                led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
 
                 desired_travel_mode = 0;
             }
@@ -136,10 +134,8 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
                 if (p_profile->page_16.travel_mode == 0)
                 {
                     //quickly flash led if at limits
-                    for (int i = 0; i < 10; i++)
-                    {
-                        led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
-                    }
+
+                    led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
                 }
             }
 

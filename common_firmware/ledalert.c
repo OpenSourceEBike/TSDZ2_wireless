@@ -9,6 +9,7 @@
 #include "boards.h"
 #include "ledalert.h"
 #include "app_timer.h"
+#include "nrf_delay.h"
 
 APP_TIMER_DEF(led_timer);
 #define LED_PWM_INTERVAL APP_TIMER_TICKS(3) // 16/3 = 5khz approx - seems to be the slowest without too much flicker
@@ -35,7 +36,6 @@ uint16_t ui16_pwm_table_blue[LED_PWM_TABLE_LEN] =
 
 volatile uint16_t ui16_pwm_mask = 32768;
 
-#if defined(BOARD_PCA10059)
 #include "pins.h"
 void do_led_pwm(void)
 {
@@ -65,7 +65,7 @@ void set_led(uint8_t rgb)
     ui8_led_green_intensity = (rgb & 2) >> 1; // Only use the lowest intensity
     ui8_led_blue_intensity = (rgb & 4) >> 2;  // Only use the lowest intensity
 }
-#endif
+
 #define LED_NOCOMMAND 255
 #define LED_SEQUENCE_BUFFER_SIZE 16
 
@@ -82,6 +82,43 @@ volatile uint8_t ui8_led_sequence_repeat_goto_index = 0;
 
 uint32_t ui32_sequencer_last_run_time = 0;
 
+void disp_soc(int soc)
+{
+
+    switch (soc)
+    {
+    case (1):
+        led_alert(LED_SEQUENCE_GREEN_SLOWFLASH_1);
+        break;
+    case (2):
+        led_alert(LED_SEQUENCE_GREEN_SLOWFLASH_2);
+        break;
+    case (3):
+        led_alert(LED_SEQUENCE_GREEN_SLOWFLASH_3);
+        break;
+    case (4):
+        led_alert(LED_SEQUENCE_GREEN_SLOWFLASH_4);
+        break;
+    case (5):
+        led_alert(LED_SEQUENCE_GREEN_SLOWFLASH_5);
+        break;
+    case (6):
+        led_alert(LED_SEQUENCE_GREEN_SLOWFLASH_6);
+        break;
+    case (7):
+        led_alert(LED_SEQUENCE_GREEN_SLOWFLASH_7);
+        break;
+    case (8):
+        led_alert(LED_SEQUENCE_GREEN_SLOWFLASH_8);
+        break;
+    case (9):
+        led_alert(LED_SEQUENCE_GREEN_SLOWFLASH_9);
+        break;
+    case 10:
+        led_alert(LED_SEQUENCE_GREEN_SLOWFLASH_10);
+        break;
+    }
+}
 static void led_timer_timeout(void *p_context)
 {
     UNUSED_PARAMETER(p_context);
