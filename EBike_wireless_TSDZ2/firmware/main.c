@@ -1482,6 +1482,46 @@ void ble_update_configurations_data(void)
   }
 }
 
+void disp_soc(void)
+{
+  switch (ui8_g_battery_soc/10)
+  {
+    case 0:
+      led_alert(LED_EVENT_BATTERY_SOC_0_PERCENT);
+      break;
+    case 1:
+      led_alert(LED_EVENT_BATTERY_SOC_10_PERCENT);
+      break;
+    case 2:
+      led_alert(LED_EVENT_BATTERY_SOC_20_PERCENT);
+      break;
+    case 3:
+      led_alert(LED_EVENT_BATTERY_SOC_30_PERCENT);
+      break;
+    case 4:
+      led_alert(LED_EVENT_BATTERY_SOC_40_PERCENT);
+      break;
+    case 5:
+      led_alert(LED_EVENT_BATTERY_SOC_50_PERCENT);
+      break;
+    case 6:
+      led_alert(LED_EVENT_BATTERY_SOC_60_PERCENT);
+      break;
+    case 7:
+      led_alert(LED_EVENT_BATTERY_SOC_70_PERCENT);
+      break;
+    case 8:
+      led_alert(LED_EVENT_BATTERY_SOC_80_PERCENT);
+      break;
+    case 9:
+      led_alert(LED_EVENT_BATTERY_SOC_90_PERCENT);
+      break;
+    case 10:
+      led_alert(LED_EVENT_BATTERY_SOC_100_PERCENT);
+      break;
+  }
+}
+
 void TSDZ2_power_manage(void)
 {
   static uint8_t counter;
@@ -1499,8 +1539,12 @@ void TSDZ2_power_manage(void)
     if (counter == 0)
     {
       // reset state variables
-      if (g_motor_init_state != MOTOR_INIT_OFF) led_alert(LED_EVENT_MOTOR_OFF);
-
+      if (g_motor_init_state != MOTOR_INIT_OFF) 
+      {
+        led_alert(LED_EVENT_MOTOR_OFF);
+        led_alert(LED_EVENT_WAIT_1S);
+        disp_soc();
+      }
       uart_reset_rx_buffer();
       g_motor_init_state = MOTOR_INIT_OFF;
       g_motor_init_state_conf = MOTOR_INIT_CONFIG_SEND_CONFIG;
@@ -1539,9 +1583,16 @@ bool anyscreen_onpress(buttons_events_t events) {
   // long up to turn on headlights
   if (events & UP_LONG_CLICK) {
     ui_vars.ui8_lights = !ui_vars.ui8_lights;
-    if (ui_vars.ui8_lights) led_alert(LED_EVENT_LIGHTS_ON);
-      else led_alert(LED_EVENT_LIGHTS_OFF);
-
+    if (ui_vars.ui8_lights) 
+    {
+      led_set_global_brightness(1); // When lights are on - assume it's dark and make the LEDs dimmer
+      led_alert(LED_EVENT_LIGHTS_ON);
+    }
+      else 
+    {
+      led_set_global_brightness(7); // Lights are off - assume it's daylight - let's have the brightest LEDs
+      led_alert(LED_EVENT_LIGHTS_OFF);
+    }
     //set_lcd_backlight();
 
     return true;
@@ -1974,18 +2025,6 @@ void led_pwm_on(uint32_t mask, uint8_t duty_cycle_max, uint8_t duty_cycle_min, u
   }
 }
 
-void disp_soc(void)
-{
-  nrf_delay_ms(1000);
-  for (int i = 0; i < (ui8_g_battery_soc/10); i++)
-  {
-    led_pwm_on(G_LED, 100, 0, 5, 0);
-    nrf_delay_ms(200);
-    soft_blink = led_softblink_uninit(); // turn off the soft_blink led
-    nrf_delay_ms(300);
-  }
-}
-
 int main(void)
 {
   mp_ui_vars = get_ui_vars();
@@ -2013,6 +2052,7 @@ int main(void)
   ant_setup();
   uart_init();
   led_init();
+  led_set_global_brightness(7); // For wireless controller - brightest
 
   // setup this member variable ui8_m_ant_device_id
   ui8_m_ant_device_id = mp_ui_vars->ui8_ant_device_id;
