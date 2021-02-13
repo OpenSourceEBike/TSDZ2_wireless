@@ -30,7 +30,7 @@
 // can loop previous commands with LED_REPEAT_LASTX, CMDS_RPT(2,10) where the two values are the number of previous commands to repeat,how many times.
 // Don't nest loops in led sequences, there is no stack!
 
-#define LED_NUM_SEQUENCES                       25 //Update when new sequences are added
+#define LED_NUM_SEQUENCES                       26 //Update when new sequences are added
 #define LED_MAX_COMMANDS_IN_SEQUENCE            16
 
 static const uint8_t ui8_led_sequences [LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SEQUENCE * 2] = {
@@ -100,8 +100,10 @@ static const uint8_t ui8_led_sequences [LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_S
                                                                                                     LED_END_SEQUENCE,LED_END_SEQUENCE},   //LED_SEQUENCE_BLUE_SLOWFLASH_2_LONGGREEN;
 
     {LED_BLUE,WAIT_MS(200),LED_OFF,WAIT_MS(200),LED_REPEAT_LASTX,CMDS_RPT(2,2),LED_RED,WAIT_MS(750),LED_OFF,WAIT_MS(0),
-                                                                                                    LED_END_SEQUENCE,LED_END_SEQUENCE}   //LED_SEQUENCE_BLUE_SLOWFLASH_2_LONGRED;
-
+                                                                                                    LED_END_SEQUENCE,LED_END_SEQUENCE},   //LED_SEQUENCE_BLUE_SLOWFLASH_2_LONGRED;
+    
+    {LED_RED,WAIT_MS(50),LED_OFF,WAIT_MS(50),LED_REPEAT_LASTX,CMDS_RPT(2,1),LED_RED,WAIT_MS(50),LED_OFF,WAIT_MS(0),
+                                                                            LED_END_SEQUENCE,LED_END_SEQUENCE}                            //LED_SEQUENCE_REDFLASH_3
 };
 
 
@@ -131,6 +133,7 @@ static const uint8_t ui8_led_sequences [LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_S
 #define LED_SEQUENCE_RED_YELLOW_LONGGREEN           22
 #define LED_SEQUENCE_BLUE_SLOWFLASH_2_LONGGREEN     23
 #define LED_SEQUENCE_BLUE_SLOWFLASH_2_LONGRED       24
+#define LED_SEQUENCE_REDFLASH_3                     25
 
 #define LED_EVENT_WIRELESS_BOARD_POWER_ON           LED_SEQUENCE_RED_YELLOW_LONGGREEN
 #define LED_EVENT_BLUETOOTH_CONNECT                 LED_SEQUENCE_BLUE_SLOWFLASH_2_LONGGREEN
@@ -140,7 +143,7 @@ static const uint8_t ui8_led_sequences [LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_S
 #define LED_EVENT_MOTOR_OFF                         LED_SEQUENCE_RED_SLOWFLASH_2_LONGRED
 #define LED_EVENT_LIGHTS_OFF                        LED_SEQUENCE_WHITE_SLOWFLASH_2_LONGRED
 #define LED_EVENT_LIGHTS_ON                         LED_SEQUENCE_WHITE_SLOWFLASH_2_LONGGREEN
-#define LED_EVENT_ASSIST_LIMITS_REACHED             LED_SEQUENCE_SHORT_RED
+#define LED_EVENT_ASSIST_LIMITS_REACHED             LED_SEQUENCE_REDFLASH_3
 #define LED_EVENT_ASSIST_LEVEL_DECREASE             LED_SEQUENCE_SHORT_YELLOW
 #define LED_EVENT_ASSIST_LEVEL_INCREASE             LED_SEQUENCE_SHORT_GREEN
 #define LED_EVENT_WALK_ASSIST_ACTIVE                LED_SEQUENCE_GREENFLASH_1

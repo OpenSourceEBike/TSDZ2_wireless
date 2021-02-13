@@ -22,7 +22,7 @@
 #define LED_REPEAT_LASTX 254
 #define WAIT_MS(a) ((a) / (LED_CLOCK_MS))
 #define CMDS_RPT(a, b) ((a) + (16 * (b))) //Repeat last x commands - next value last x-1 commands to repeat (0-15) plus 16*number of times - so max is repeat last 16 commands 16 times
-
+extern uint32_t get_time_base_counter_1ms(void);
 // Define sequences here
 // Sequence commands are 2 bytes each - first is the colour or other instruction, 2nd is either time to show for LED - or parameter for command.
 // End sequences with two LED_END_SEQUENCE
@@ -31,7 +31,7 @@
 
 #define LED_NUM_SEQUENCES 26 //Update when new sequences are added
 #define LED_MAX_COMMANDS_IN_SEQUENCE 16
-extern uint32_t get_time_base_counter_1ms(void);
+
 static const uint8_t ui8_led_sequences[LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SEQUENCE * 2] = {
 
     {LED_GREEN, WAIT_MS(200), LED_OFF, WAIT_MS(0), LED_END_SEQUENCE, LED_END_SEQUENCE}, //LED_SEQUENCE_SHORT_GREEN
@@ -101,9 +101,8 @@ static const uint8_t ui8_led_sequences[LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SE
     {LED_BLUE, WAIT_MS(200), LED_OFF, WAIT_MS(200), LED_REPEAT_LASTX, CMDS_RPT(2, 2), LED_RED, WAIT_MS(750), LED_OFF, WAIT_MS(0),
      LED_END_SEQUENCE, LED_END_SEQUENCE}, //LED_SEQUENCE_BLUE_SLOWFLASH_2_LONGRED;
 
-    {LED_RED, WAIT_MS(50), LED_OFF, WAIT_MS(50), LED_REPEAT_LASTX, CMDS_RPT(2, 1), LED_RED, WAIT_MS(50), LED_OFF, WAIT_MS(0),
-     LED_END_SEQUENCE, LED_END_SEQUENCE}, //LED_SEQUENCE_REDFLASH_3
-
+    {LED_RED, WAIT_MS(50), LED_OFF, WAIT_MS(50), LED_REPEAT_LASTX, CMDS_RPT(2, 2), LED_RED, WAIT_MS(50), LED_OFF, WAIT_MS(0),
+     LED_END_SEQUENCE, LED_END_SEQUENCE} //LED_SEQUENCE_REDFLASH_3
 };
 
 // ui8_sequence
@@ -132,7 +131,7 @@ static const uint8_t ui8_led_sequences[LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SE
 #define LED_SEQUENCE_RED_YELLOW_LONGGREEN 22
 #define LED_SEQUENCE_BLUE_SLOWFLASH_2_LONGGREEN 23
 #define LED_SEQUENCE_BLUE_SLOWFLASH_2_LONGRED 24
-#define LED_SEQUENCE_SHORT_RED_3 25
+#define LED_SEQUENCE_REDFLASH_3 25
 
 #define LED_EVENT_WIRELESS_BOARD_POWER_ON LED_SEQUENCE_RED_YELLOW_LONGGREEN
 #define LED_EVENT_BLUETOOTH_CONNECT LED_SEQUENCE_BLUE_SLOWFLASH_2_LONGGREEN
@@ -142,16 +141,23 @@ static const uint8_t ui8_led_sequences[LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SE
 #define LED_EVENT_MOTOR_OFF LED_SEQUENCE_RED_SLOWFLASH_2_LONGRED
 #define LED_EVENT_LIGHTS_OFF LED_SEQUENCE_WHITE_SLOWFLASH_2_LONGRED
 #define LED_EVENT_LIGHTS_ON LED_SEQUENCE_WHITE_SLOWFLASH_2_LONGGREEN
-#define LED_EVENT_ASSIST_LIMITS_REACHED LED_SEQUENCE_SHORT_RED_3
+#define LED_EVENT_ASSIST_LIMITS_REACHED LED_SEQUENCE_REDFLASH_3
 #define LED_EVENT_ASSIST_LEVEL_DECREASE LED_SEQUENCE_SHORT_YELLOW
 #define LED_EVENT_ASSIST_LEVEL_INCREASE LED_SEQUENCE_SHORT_GREEN
 #define LED_EVENT_WALK_ASSIST_ACTIVE LED_SEQUENCE_GREENFLASH_1
-#define LED_EVENT_INACTIVE_BUTTON LED_SEQUENCE_SHORT_RED
+#define LED_EVENT_ANT_CONNECT LED_SEQUENCE_BLUEFLASH_4
+#define LED_EVENT_ANT_DISCONNECT LED_SEQUENCE_SHORT_RED
+#define LED_EVENT_ENTER_DFU LED_SEQUENCE_BLUEFLASH_10
+#define LED_EVENT_CONFIGURATION_MODE LED_SEQUENCE_BLUEFLASH_5
+#define LED_EVENT_SHORT_GREEN LED_SEQUENCE_SHORT_GREEN
+#define LED_EVENT_SHORT_RED LED_SEQUENCE_SHORT_RED
+#define LED_EVENT_SHORT_BLUE LED_SEQUENCE_SHORT_BLUE
 
-extern void led_clock(void);                 // Call this every LED_CLOCK_MS mS.
-extern void led_alert(uint8_t ui8_sequence); // call this to queue and play a sequence - e.g. led_alert(LED_SEQUENCE_SHORT_GREEN);
-extern void do_led_pwm(void);
-extern void led_init(void);
+
+void led_clock(void);                 // Call this every LED_CLOCK_MS mS.
+void led_alert(uint8_t ui8_sequence); // call this to queue and play a sequence - e.g. led_alert(LED_SEQUENCE_SHORT_GREEN);
+void do_led_pwm(void);
+void led_init(void);
 
 volatile uint8_t ui8_led_red_intensity;
 volatile uint8_t ui8_led_green_intensity;
