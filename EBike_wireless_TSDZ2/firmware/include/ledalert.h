@@ -169,6 +169,6 @@ void led_alert(uint8_t ui8_sequence);                            // call this to
 void led_clear_queue(void);                                      // used if you want to play a sequence right now. clear the queue then the next thing you play is up now.
 void led_hold_queue(void);                                       // Used to keep the current sequence playing until you release the queue
 void led_release_queue(void);                                    // Go back to normal - play the queue as it happens
-void led_set_global_brightness(uint8_t ui8_global_brightness);   // Default is 1 - lowest. 3 currently is highest.
+void led_set_global_brightness(uint8_t ui8_global_brightness);   // Default is 1 - lowest. 7 currently is highest.
 
 
