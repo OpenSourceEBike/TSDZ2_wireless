@@ -30,7 +30,7 @@ extern uint32_t get_time_base_counter_1ms(void);
 // can loop previous commands with LED_REPEAT_LASTX, CMDS_RPT(2,10) where the two values are the number of previous commands to repeat,how many times.
 // Don't nest loops in led sequences, there is no stack!
 
-#define LED_NUM_SEQUENCES 37 //Update when new sequences are added
+#define LED_NUM_SEQUENCES 47 //Update when new sequences are added
 #define LED_MAX_COMMANDS_IN_SEQUENCE 16
 
 static const uint8_t ui8_led_sequences[LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SEQUENCE * 2] = {
@@ -134,7 +134,36 @@ static const uint8_t ui8_led_sequences[LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SE
 
     {LED_RED,WAIT_MS(750),LED_OFF,WAIT_MS(200),LED_REPEAT_LASTX,CMDS_RPT(2,3),LED_END_SEQUENCE,LED_END_SEQUENCE},                          //LED_SEQUENCE_LONGRED_LONGRED_LONGRED;
 
-    {LED_OFF,WAIT_MS(1000),LED_END_SEQUENCE,LED_END_SEQUENCE}                                                                              //LED_SEQUENCE_OFF_1S
+    {LED_OFF,WAIT_MS(1000),LED_END_SEQUENCE,LED_END_SEQUENCE},                                                                             //LED_SEQUENCE_OFF_1S
+
+    {LED_RED,WAIT_MS(200),LED_OFF,WAIT_MS(200),LED_END_SEQUENCE,LED_END_SEQUENCE},                                                         //LED_SEQUENCE_REDSLOWFLASH_1
+
+    {LED_RED,WAIT_MS(200),LED_OFF,WAIT_MS(200),LED_RED,WAIT_MS(50),LED_OFF,WAIT_MS(0),LED_END_SEQUENCE,LED_END_SEQUENCE},                  //LED_SEQUENCE_REDSLOWFLASH_2
+
+    {LED_RED,WAIT_MS(200),LED_OFF,WAIT_MS(200),LED_REPEAT_LASTX,CMDS_RPT(2,1),LED_RED,WAIT_MS(200),LED_OFF,WAIT_MS(0),
+                                                                            LED_END_SEQUENCE,LED_END_SEQUENCE},                            //LED_SEQUENCE_REDSLOWFLASH_3
+
+    {LED_YELLOW,WAIT_MS(200),LED_OFF,WAIT_MS(200),LED_REPEAT_LASTX,CMDS_RPT(2,2),LED_YELLOW,WAIT_MS(200),LED_OFF,WAIT_MS(0),
+                                                                            LED_END_SEQUENCE,LED_END_SEQUENCE},                            //LED_SEQUENCE_YELLOWSLOWFLASH_4
+
+    {LED_YELLOW,WAIT_MS(200),LED_OFF,WAIT_MS(200),LED_REPEAT_LASTX,CMDS_RPT(2,3),LED_YELLOW,WAIT_MS(200),LED_OFF,WAIT_MS(0),
+                                                                            LED_END_SEQUENCE,LED_END_SEQUENCE},                            //LED_SEQUENCE_YELLOWSLOWFLASH_5
+
+    {LED_YELLOW,WAIT_MS(200),LED_OFF,WAIT_MS(200),LED_REPEAT_LASTX,CMDS_RPT(2,4),LED_YELLOW,WAIT_MS(200),LED_OFF,WAIT_MS(0),
+                                                                            LED_END_SEQUENCE,LED_END_SEQUENCE},                            //LED_SEQUENCE_YELLOWSLOWFLASH_6
+
+    {LED_GREEN,WAIT_MS(200),LED_OFF,WAIT_MS(200),LED_REPEAT_LASTX,CMDS_RPT(2,5),LED_GREEN,WAIT_MS(200),LED_OFF,WAIT_MS(0),
+                                                                            LED_END_SEQUENCE,LED_END_SEQUENCE},                            //LED_SEQUENCE_GREENSLOWFLASH_7
+
+    {LED_GREEN,WAIT_MS(200),LED_OFF,WAIT_MS(200),LED_REPEAT_LASTX,CMDS_RPT(2,6),LED_GREEN,WAIT_MS(200),LED_OFF,WAIT_MS(0),
+                                                                            LED_END_SEQUENCE,LED_END_SEQUENCE},                            //LED_SEQUENCE_GREENSLOWFLASH_8
+
+    {LED_GREEN,WAIT_MS(200),LED_OFF,WAIT_MS(200),LED_REPEAT_LASTX,CMDS_RPT(2,7),LED_GREEN,WAIT_MS(200),LED_OFF,WAIT_MS(0),
+                                                                            LED_END_SEQUENCE,LED_END_SEQUENCE},                            //LED_SEQUENCE_GREENSLOWFLASH_9
+
+    {LED_GREEN,WAIT_MS(200),LED_OFF,WAIT_MS(200),LED_REPEAT_LASTX,CMDS_RPT(2,8),LED_GREEN,WAIT_MS(200),LED_OFF,WAIT_MS(0),
+                                                                            LED_END_SEQUENCE,LED_END_SEQUENCE}                             //LED_SEQUENCE_GREENSLOWFLASH_10
+
 
 
     
@@ -180,6 +209,16 @@ static const uint8_t ui8_led_sequences[LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SE
 #define LED_SEQUENCE_GREEN_SLOWFLASH_10 34
 #define LED_SEQUENCE_LONGRED_LONGRED_LONGRED        35
 #define LED_SEQUENCE_OFF_1S                         36
+#define LED_SEQUENCE_REDSLOWFLASH_1                 37
+#define LED_SEQUENCE_REDSLOWFLASH_2                 38
+#define LED_SEQUENCE_REDSLOWFLASH_3                 39
+#define LED_SEQUENCE_YELLOWSLOWFLASH_4              40
+#define LED_SEQUENCE_YELLOWSLOWFLASH_5              41
+#define LED_SEQUENCE_YELLOWSLOWFLASH_6              42
+#define LED_SEQUENCE_GREENSLOWFLASH_7               43
+#define LED_SEQUENCE_GREENSLOWFLASH_8               44
+#define LED_SEQUENCE_GREENSLOWFLASH_9               45
+#define LED_SEQUENCE_GREENSLOWFLASH_10              46
 
 
 #define LED_EVENT_WIRELESS_BOARD_POWER_ON LED_SEQUENCE_RED_YELLOW_LONGGREEN
@@ -203,23 +242,20 @@ static const uint8_t ui8_led_sequences[LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SE
 #define LED_EVENT_SHORT_BLUE LED_SEQUENCE_SHORT_BLUE
 #define LED_EVENT_CONFIG_LEV_ACTIVE LED_SEQUENCE_RED_SLOWFLASH_5
 #define LED_EVENT_CONFIG_CTRL_ACTIVE LED_SEQUENCE_GREEN_SLOWFLASH_5
-#define LED_EVENT_BATTERY_SOC_0_PERCENT             LED_SEQUENCE_LONGRED_LONGRED_LONGRED
-#define LED_EVENT_BATTERY_SOC_10_PERCENT            LED_SEQUENCE_GREEN_SLOWFLASH_1
-#define LED_EVENT_BATTERY_SOC_20_PERCENT            LED_SEQUENCE_GREEN_SLOWFLASH_2
-#define LED_EVENT_BATTERY_SOC_30_PERCENT            LED_SEQUENCE_GREEN_SLOWFLASH_3 
-#define LED_EVENT_BATTERY_SOC_40_PERCENT            LED_SEQUENCE_GREEN_SLOWFLASH_4
-#define LED_EVENT_BATTERY_SOC_50_PERCENT            LED_SEQUENCE_GREEN_SLOWFLASH_5
-#define LED_EVENT_BATTERY_SOC_60_PERCENT            LED_SEQUENCE_GREEN_SLOWFLASH_6
-#define LED_EVENT_BATTERY_SOC_70_PERCENT            LED_SEQUENCE_GREEN_SLOWFLASH_7
-#define LED_EVENT_BATTERY_SOC_80_PERCENT            LED_SEQUENCE_GREEN_SLOWFLASH_8
-#define LED_EVENT_BATTERY_SOC_90_PERCENT            LED_SEQUENCE_GREEN_SLOWFLASH_9
-#define LED_EVENT_BATTERY_SOC_100_PERCENT           LED_SEQUENCE_GREEN_SLOWFLASH_10
+#define LED_EVENT_BATTERY_SOC_0_PERCENT             LED_SEQUENCE_OFF_1S
+#define LED_EVENT_BATTERY_SOC_10_PERCENT            LED_SEQUENCE_REDSLOWFLASH_1
+#define LED_EVENT_BATTERY_SOC_20_PERCENT            LED_SEQUENCE_REDSLOWFLASH_2
+#define LED_EVENT_BATTERY_SOC_30_PERCENT            LED_SEQUENCE_REDSLOWFLASH_3 
+#define LED_EVENT_BATTERY_SOC_40_PERCENT            LED_SEQUENCE_YELLOWSLOWFLASH_4
+#define LED_EVENT_BATTERY_SOC_50_PERCENT            LED_SEQUENCE_YELLOWSLOWFLASH_5
+#define LED_EVENT_BATTERY_SOC_60_PERCENT            LED_SEQUENCE_YELLOWSLOWFLASH_6
+#define LED_EVENT_BATTERY_SOC_70_PERCENT            LED_SEQUENCE_GREENSLOWFLASH_7
+#define LED_EVENT_BATTERY_SOC_80_PERCENT            LED_SEQUENCE_GREENSLOWFLASH_8
+#define LED_EVENT_BATTERY_SOC_90_PERCENT            LED_SEQUENCE_GREENSLOWFLASH_9
+#define LED_EVENT_BATTERY_SOC_100_PERCENT           LED_SEQUENCE_GREENSLOWFLASH_10
 #define LED_EVENT_WAIT_1S                           LED_SEQUENCE_OFF_1S
+#define LED_EVENT_DEEP_SLEEP                        LED_SEQUENCE_RED_YELLOW_LONGGREEN
  
-
-             
-
-
 void led_init(void);                                             // call this to setup app timers
 void led_alert(uint8_t ui8_sequence);                            // call this to queue and play a sequence - e.g. led_alert(LED_SEQUENCE_SHORT_GREEN);           
 void led_clear_queue(void);                                      // used if you want to play a sequence right now. clear the queue then the next thing you play is up now.

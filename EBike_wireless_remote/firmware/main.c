@@ -229,21 +229,7 @@ static void main_timer_timeout(void *p_context)
   if (main_ticks % (1000 / MSEC_PER_TICK) == 0)
     ui32_seconds_since_startup++;
 }
-/*void disp_soc(void)
-{
 
-  nrf_delay_ms(100);
-  pwm_led = LED_B__PIN + 1;
-
-  for (int i = 0; i < motor_soc_state; i++)
-  {
-    pwm_led_on();
-    nrf_delay_ms(300);
-    pwm_led_off();
-    nrf_delay_ms(300);
-  }
-}
-*/
 void check_motor_init()
 {
   static bool soc_disp = true;
@@ -1541,7 +1527,8 @@ void check_interrupt_flags(void)
   // check to see if low power mode is requested
   if (shutdown_flag)
   {
-    nrf_delay_ms(1000);
+    led_alert(LED_EVENT_DEEP_SLEEP );
+    nrf_delay_ms(3000);
     shutdown();
   }
   // now check for bluetooth flag on plus button press
