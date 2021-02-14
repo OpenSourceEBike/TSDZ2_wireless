@@ -52,24 +52,7 @@
 #include "boards.h"
 #include "nrf_bootloader_info.h"
 #include "buttons.h"
-//#include "screen.h"
-#include "led_softblink.h"
-#include "low_power_pwm.h"
 #include "ledalert.h"
-
-// Copied from rananna's wireless remote code for led control
-uint8_t led_duty_cycle = 120;
-//mask_number used for pwm debugging
-int8_t mask_number = 0;
-#define P_LED BSP_LED_0_MASK //green (pwr)
-#define R_LED BSP_LED_1_MASK //red
-#define G_LED BSP_LED_2_MASK //green
-#define B_LED BSP_LED_3_MASK //blue
-//pwm blinking led routine is led_pwm_on
-//only one instance may be active at any time
-//softblink is the instance flag 1 means led busy, 0 or 2 means led ready
-uint8_t soft_blink = 0;
-APP_TIMER_DEF(led_timer);
 
 extern uint8_t ui8_g_battery_soc;
 ui_vars_t *mp_ui_vars;
@@ -2005,51 +1988,6 @@ static void handle_buttons() {
 	buttons_clock(); // Note: this is done _after_ button events is checked to provide a 20ms debounce
 }
 
-void led_pwm_on(uint32_t mask, uint8_t duty_cycle_max, uint8_t duty_cycle_min, uint8_t duty_cycle_step, uint32_t led_on_ms)
-{
-  //mask can be ORed to turn on R &B colors
-  //ie: R_LED || B_LED
-  //not G_LED as it is on a diffderent gpio port
-  ret_code_t err_code;
-  NRF_GPIO_Type *port;
-  uint32_t ON_TICKS = 0;
-  ON_TICKS = APP_TIMER_TICKS(led_on_ms);
-
-  if (soft_blink == 0) //ok to start another pwm instance
-  {
-
-    //fix for port number problem with green led
-    port = NRF_P0;
-    if (mask == G_LED)
-      port = NRF_P1;
-
-#define LED_PWM_PARAMS(mask)                             \
-  {                                                      \
-    .active_high = false,                                \
-    .duty_cycle_max = duty_cycle_max,                    \
-    .duty_cycle_min = duty_cycle_min,                    \
-    .duty_cycle_step = duty_cycle_step,                  \
-    .off_time_ticks = 3000,                              \
-    .on_time_ticks = 0,                                  \
-    .leds_pin_bm = LED_SB_INIT_PARAMS_LEDS_PIN_BM(mask), \
-    .p_leds_port = port                                  \
-  }
-    const led_sb_init_params_t led_pwm_init_param = LED_PWM_PARAMS(mask);
-
-    err_code = led_softblink_init(&led_pwm_init_param);
-    APP_ERROR_CHECK(err_code);
-
-    if (led_on_ms)
-    {
-      err_code = app_timer_start(led_timer, ON_TICKS, NULL);
-      APP_ERROR_CHECK(err_code);
-    }
-    err_code = led_softblink_start(mask);
-    APP_ERROR_CHECK(err_code);
-    soft_blink = 1; //set the blocking flag
-  }
-}
-
 int main(void)
 {
   mp_ui_vars = get_ui_vars();
@@ -2077,7 +2015,7 @@ int main(void)
   ant_setup();
   uart_init();
   led_init();
-  led_set_global_brightness(7); // For wireless controller - brightest
+  led_set_global_brightness(4); // For wireless controller - brightest
 
   // setup this member variable ui8_m_ant_device_id
   ui8_m_ant_device_id = mp_ui_vars->ui8_ant_device_id;
