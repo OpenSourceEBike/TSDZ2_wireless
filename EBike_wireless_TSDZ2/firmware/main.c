@@ -733,7 +733,8 @@ static void ant_id_write_handler(uint16_t conn_handle, ble_ant_id_t *p_ant_id, u
 
 static void tsdz2_write_handler_periodic(uint8_t *p_data, uint16_t len)
 {
-  if (p_data[0] != 255) ui_vars.ui8_assist_level = p_data[0];
+  if (p_data[0] != 255) 
+    ui_vars.ui8_assist_level = p_data[0];
 
   if (p_data[1] != 255)
   {
