@@ -81,7 +81,6 @@ uint8_t ui8_m_alternate_field_state = 0;
 uint8_t ui8_m_alternate_field_timeout_cnt = 0;
 uint8_t ui8_m_vthrottle_can_increment_decrement = 0;
 
-
 typedef enum
 {
   TSDZ2_POWER_STATE_OFF_START,
