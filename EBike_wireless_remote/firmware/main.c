@@ -1540,9 +1540,9 @@ void check_interrupt_flags(void)
   //check to see if brightness change is requested'
   if (brightness_flag)
   {
-    static uint8_t brightness=0;
-    brightness++;
-    if (brightness > 3)
+    static uint8_t brightness = 1;
+    brightness += 6;
+    if (brightness > 7)
       brightness = 1;
     led_set_global_brightness(brightness);
     led_alert(LED_SEQUENCE_LONGRED_LONGGREEN_LONGBLUE);
