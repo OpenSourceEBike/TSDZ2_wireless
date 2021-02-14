@@ -74,7 +74,7 @@ uint8_t ui8_led_sequence_repeat_goto_index = 0;
 uint8_t ui8_led_queue_held = 0;
 uint8_t ui8_led_global_brightness = 0;
 
-#if defined(BOARD_PCA10059)
+
 #include "pins.h"
 void do_led_pwm(void)
 {
@@ -103,7 +103,7 @@ void set_led(uint8_t rgb)
     ui8_led_green_intensity = (((rgb & 2) >> 1) * ui8_led_global_brightness);
     ui8_led_blue_intensity = (((rgb & 4) >> 2) * ui8_led_global_brightness);
 }
-#endif
+
 
 void led_set_global_brightness(uint8_t ui8_global_brightness)
 {

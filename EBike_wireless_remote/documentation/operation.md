@@ -1,4 +1,5 @@
 # **Remote operation**
+
 ## Getting started with the Wireless remote 
 
 **To get started , follow this simple four step process (or five steps if you have connected the e-brakes):**
@@ -7,7 +8,7 @@
 1. Ensure that the second wireless board is powered up and connected to the TSDZ2 motor controller. Ensure that the remote has a battery connected and press any button to start the pairing process with the motor controller. When the remote is searching for an ANT connection, the **RED LED** will slowly flash. When a connection is made with the motor, the **GREEN LED** will short flash twice followed by one long flash to indicate connection.
 2. To turn on the motor from the remote control, press and hold the **POWER** key on the remote control. A  **YELLOW** LED will start flashing, and will continue flashing until the motor is on, at which time a **GREEN** LED will short flash twice followed by one long flash to indicate that the motor is on.
 3. press the **PLUS/MINUS** keys briefly to increase/decrease the motor assist level. The **GREEN** LED will briefly flash on every **PLUS** press of the button, while the **YELLOW** LED will briefly flash on every MINUS press of the button. There are 7 levels of assist. When you reach level 7 (maximum assist) or level 0 (motor off) the **RED** LED will rapidly flash.
-4. (Optional step needed you have connected the e-brakes) Depress either the right or left brake lever. The **RED** LED will light and the motor assist will stop. Release the brake lever and the **RED** led will turn off and the motor assist will resume.
+4. (Optional step needed you have connected the e-brakes) Depress either the right or left brake lever. The **RED** LED will flash quickly and the motor assist will stop. Release the brake lever and the **RED** led will turn off and the motor assist will resume.
 5. To turn off the motor, press and hold the **POWER** key on the remote control. The **RED** LED will short flash twice, followed by one long flash to indicate the motor is off. The LED will then flash one flash for every 10% of charge remaining in the battery.(ie:5 flashes=50% charge remaining). The flashes will be **RED** from 0%-40%, **YELLOW** from 40%-70%, and **GREEN** from 70% to 100% of charge.
 
 ### **That's basically all you need to get started with the wireless remote.**
@@ -40,6 +41,7 @@ The remote has two modes of operation; **CONFIGURATION MODE** and **NORMAL MODE*
 * Short Press the [**POWER**] button to display the motor battery state of charge. Battery state is indicated by flashing. The number of flashes will indicate battery charge state from from 1 flash (10% charge) to 10 flashes (100% charge). The flashes will be **RED** from 0%-40%, **YELLOW** from 40%-70%, and **GREEN** from 70% to 100% of charge.
 (Motor On **ONLY**.)  
  * Short Press the [**ENTER**] button to **PAGE UP** on a connected garmin bike computer. (Works **ONLY** if garmin control is activated)
+ * Double click on the [**ENTER**] button to set the LED intensity. There are 3 levels of LED intensity that can be set. Each double click will cycle through the 3 levels.
 
 **Long Press Button Actions:**
 

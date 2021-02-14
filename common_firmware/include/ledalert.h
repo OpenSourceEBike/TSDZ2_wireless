@@ -30,7 +30,7 @@ extern uint32_t get_time_base_counter_1ms(void);
 // can loop previous commands with LED_REPEAT_LASTX, CMDS_RPT(2,10) where the two values are the number of previous commands to repeat,how many times.
 // Don't nest loops in led sequences, there is no stack!
 
-#define LED_NUM_SEQUENCES 47 //Update when new sequences are added
+#define LED_NUM_SEQUENCES 48 //Update when new sequences are added
 #define LED_MAX_COMMANDS_IN_SEQUENCE 16
 
 static const uint8_t ui8_led_sequences[LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SEQUENCE * 2] = {
@@ -162,7 +162,10 @@ static const uint8_t ui8_led_sequences[LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SE
                                                                             LED_END_SEQUENCE,LED_END_SEQUENCE},                            //LED_SEQUENCE_GREENSLOWFLASH_9
 
     {LED_GREEN,WAIT_MS(200),LED_OFF,WAIT_MS(200),LED_REPEAT_LASTX,CMDS_RPT(2,8),LED_GREEN,WAIT_MS(200),LED_OFF,WAIT_MS(0),
-                                                                            LED_END_SEQUENCE,LED_END_SEQUENCE}                             //LED_SEQUENCE_GREENSLOWFLASH_10
+                                                                            LED_END_SEQUENCE,LED_END_SEQUENCE},                             //LED_SEQUENCE_GREENSLOWFLASH_10
+
+    {LED_RED, WAIT_MS(750), LED_OFF, WAIT_MS(200), LED_GREEN, WAIT_MS(750), LED_OFF, WAIT_MS(200), LED_BLUE, WAIT_MS(750), LED_OFF, WAIT_MS(0),
+     LED_END_SEQUENCE, LED_END_SEQUENCE} //LED_SEQUENCE_LONGRED_LONGGREEN_LONGBLUE                                                                        
 
 
 
@@ -219,6 +222,8 @@ static const uint8_t ui8_led_sequences[LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SE
 #define LED_SEQUENCE_GREENSLOWFLASH_8               44
 #define LED_SEQUENCE_GREENSLOWFLASH_9               45
 #define LED_SEQUENCE_GREENSLOWFLASH_10              46
+#define LED_SEQUENCE_LONGRED_LONGGREEN_LONGBLUE     47
+
 
 
 #define LED_EVENT_WIRELESS_BOARD_POWER_ON LED_SEQUENCE_RED_YELLOW_LONGGREEN
@@ -255,12 +260,13 @@ static const uint8_t ui8_led_sequences[LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SE
 #define LED_EVENT_BATTERY_SOC_100_PERCENT           LED_SEQUENCE_GREENSLOWFLASH_10
 #define LED_EVENT_WAIT_1S                           LED_SEQUENCE_OFF_1S
 #define LED_EVENT_DEEP_SLEEP                        LED_SEQUENCE_RED_YELLOW_LONGGREEN
+#define LED_EVENT_BRIGHTNESS_CHECK                  LED_SEQUENCE_RED_YELLOW_LONGGREEN
  
-void led_init(void);                                             // call this to setup app timers
-void led_alert(uint8_t ui8_sequence);                            // call this to queue and play a sequence - e.g. led_alert(LED_SEQUENCE_SHORT_GREEN);           
-void led_clear_queue(void);                                      // used if you want to play a sequence right now. clear the queue then the next thing you play is up now.
-void led_hold_queue(void);                                       // Used to keep the current sequence playing until you release the queue
-void led_release_queue(void);                                    // Go back to normal - play the queue as it happens
-void led_set_global_brightness(uint8_t ui8_global_brightness);   // Default is 1 - lowest. 3 currently is highest.
+extern void led_init(void);                                             // call this to setup app timers
+extern void led_alert(uint8_t ui8_sequence);                            // call this to queue and play a sequence - e.g. led_alert(LED_SEQUENCE_SHORT_GREEN);           
+extern void led_clear_queue(void);                                      // used if you want to play a sequence right now. clear the queue then the next thing you play is up now.
+extern void led_hold_queue(void);                                       // Used to keep the current sequence playing until you release the queue
+extern void led_release_queue(void);                                    // Go back to normal - play the queue as it happens
+extern void led_set_global_brightness(uint8_t ui8_global_brightness);   // Default is 1 - lowest. 3 currently is highest.
 
 

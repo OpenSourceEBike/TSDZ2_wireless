@@ -177,6 +177,7 @@ uint8_t brake = 0;  //BRAKE FLAG
 bool m_button_long_press = false;
 bool shutdown_flag = false;
 bool plus_minus_flag = false;
+bool brightness_flag = false;
 NRF_BLE_GATT_DEF(m_gatt);           /**< GATT module instance. */
 NRF_BLE_QWR_DEF(m_qwr);             /**< Context for the Queued Write module.*/
 BLE_ADVERTISING_DEF(m_advertising); /**< Advertising module instance. */
@@ -680,10 +681,11 @@ static void timer_button_long_press_timeout_handler(void *p_context)
   }
 
   //pageup/pagedown
-  if ((nrf_gpio_pin_read(ENTER__PIN) == 0) && garmin && !configuration_flag)
+  if ((nrf_gpio_pin_read(ENTER__PIN) == 0) && garmin && !configuration_flag && !brightness_flag)
   {
 
     buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 0);
+
     led_alert(LED_EVENT_SHORT_GREEN);
   }
 
@@ -710,6 +712,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     // shutdown the remote
     plus_minus_flag = true; // reset and start again;
   }
+
   if (nrf_gpio_pin_read(STANDBY__PIN) == 0) //if motor on/off requested
 
   {
@@ -741,6 +744,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       }
       if (button_pin == ENTER__PIN)
       {
+
         //start the config timer
         err_code = app_timer_start(m_timer_button_config_press_timeout, BUTTON_CONFIG_PRESS_TIMEOUT, NULL); //start the long press timer
         APP_ERROR_CHECK(err_code);
@@ -861,7 +865,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
           }
         }
       }
-      else if ((button_pin == ENTER__PIN) && (!m_button_long_press))
+      else if ((button_pin == ENTER__PIN) && (!m_button_long_press) && (!brightness_flag))
       //pageup on bike computer
       {
         if (garmin)
@@ -900,6 +904,15 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
 
       if (button_pin == ENTER__PIN)
       {
+        //check for double clicks
+        ui32_time_now = get_time_base_counter_1ms();
+        if ((ui32_time_now - ui32_last_run_time) <= 250)
+        {
+          brightness_flag = true;                    // change brightness
+          ui32_last_run_time = ui32_time_now - 5000; //prevent multiple double clicks
+        }
+        else
+          ui32_last_run_time = ui32_time_now;
         //start the config timer
         err_code = app_timer_start(m_timer_button_config_press_timeout, BUTTON_CONFIG_PRESS_TIMEOUT, NULL); //start the long press timer
         APP_ERROR_CHECK(err_code);
@@ -1524,10 +1537,25 @@ void check_interrupt_flags(void)
     eeprom_write_variables(old_ant_device_id, 1, ebike, garmin, brake);
     wait_and_reset();
   }
+  //check to see if brightness change is requested'
+  if (brightness_flag)
+  {
+    static uint8_t brightness=0;
+    brightness++;
+    if (brightness > 3)
+      brightness = 1;
+    led_set_global_brightness(brightness);
+    led_alert(LED_SEQUENCE_LONGRED_LONGGREEN_LONGBLUE);
+    nrf_delay_ms(3000);
+    led_alert(LED_SEQUENCE_LONGRED_LONGGREEN_LONGBLUE);
+    nrf_delay_ms(3000);
+
+    brightness_flag = false;
+  }
   // check to see if low power mode is requested
   if (shutdown_flag)
   {
-    led_alert(LED_EVENT_DEEP_SLEEP );
+    led_alert(LED_EVENT_DEEP_SLEEP);
     nrf_delay_ms(3000);
     shutdown();
   }
