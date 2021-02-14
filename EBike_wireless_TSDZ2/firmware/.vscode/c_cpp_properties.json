@@ -3,7 +3,8 @@
         {
             "name": "nRF SDK 16.0.0",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/../../common_firmware/include/**"
             ],
             "forcedInclude": [
                 "${workspaceFolder}/nRF5_SDK_16.0.0/sdk_config.h"

@@ -82,15 +82,15 @@ void do_led_pwm(void)
     if (ui16_pwm_mask == 0)
         ui16_pwm_mask = 32768;
 
-    if (ui16_pwm_table_red[ui8_led_red_intensity & 3] & ui16_pwm_mask)
+    if (ui16_pwm_table_red[ui8_led_red_intensity] & ui16_pwm_mask)
         bsp_board_led_on(LED_R__PIN);
     else
         bsp_board_led_off(LED_R__PIN);
-    if (ui16_pwm_table_green[ui8_led_green_intensity & 3] & ui16_pwm_mask)
+    if (ui16_pwm_table_green[ui8_led_green_intensity] & ui16_pwm_mask)
         bsp_board_led_on(LED_G__PIN);
     else
         bsp_board_led_off(LED_G__PIN);
-    if (ui16_pwm_table_blue[ui8_led_blue_intensity & 3] & ui16_pwm_mask)
+    if (ui16_pwm_table_blue[ui8_led_blue_intensity] & ui16_pwm_mask)
         bsp_board_led_on(LED_B__PIN);
     else
         bsp_board_led_off(LED_B__PIN);
@@ -251,7 +251,7 @@ void led_alert(uint8_t ui8_sequence)
         ui8_led_sequence_queue_read_position = ((ui8_led_sequence_queue_read_position+1) % LED_SEQUENCE_BUFFER_SIZE);
 }
 
-void disp_soc(int soc)
+/* void disp_soc(int soc)
 {
 
     switch (soc)
@@ -291,4 +291,4 @@ void disp_soc(int soc)
         led_alert(LED_EVENT_BATTERY_SOC_100_PERCENT);
         break;
     }
-}
+} */
