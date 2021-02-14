@@ -2006,7 +2006,7 @@ int main(void)
   ant_setup();
   uart_init();
   led_init();
-  led_set_global_brightness(4); // For wireless controller - brightest
+  led_set_global_brightness(7); // For wireless controller - brightest
 
   // setup this member variable ui8_m_ant_device_id
   ui8_m_ant_device_id = mp_ui_vars->ui8_ant_device_id;
