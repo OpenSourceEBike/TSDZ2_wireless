@@ -4,7 +4,8 @@
             {
                 "name": "nRF SDK 16.0.0",
                 "includePath": [
-                    "${workspaceFolder}/**"
+                    "${workspaceFolder}/**",
+                    "${HOME}/github/TSDZ2_wireless/common_firmware/**"
                 ],
                 "forcedInclude": [
                     "${workspaceFolder}/include/sdk_config.h"

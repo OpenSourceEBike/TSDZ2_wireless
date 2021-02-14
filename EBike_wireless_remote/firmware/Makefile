@@ -120,6 +120,7 @@ SRC_FILES += \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_34.c \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_page_16.c \
   $(PROJ_DIR)/ant_lev/pages/ant_lev_common_data.c \
+  $(PROJ_DIR)/../../common_firmware/ledalert.c \
   $(PROJ_DIR)/main.c \
   $(PROJ_DIR)/eeprom.c \
   $(SDK_ROOT)/integration/nrfx/legacy/nrf_drv_clock.c \
@@ -127,8 +128,8 @@ SRC_FILES += \
   $(SDK_ROOT)/components/boards/boards.c \
   $(PROJ_DIR)/ble_services.c \
   $(SDK_ROOT)/components/softdevice/common/nrf_sdh_ble.c \
-  $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c \
-  $(PROJ_DIR)/../../common_firmware/common.c
+  $(SDK_ROOT)/components/softdevice/common/nrf_sdh_soc.c 
+  
 
 # Include folders common to all targets
 INC_FOLDERS += \
