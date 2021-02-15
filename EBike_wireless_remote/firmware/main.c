@@ -176,7 +176,6 @@ uint8_t garmin = 0; //no garmin computer as a default
 uint8_t brake = 0;  //BRAKE FLAG
 bool m_button_long_press = false;
 bool shutdown_flag = false;
-bool plus_minus_flag = false;
 bool brightness_flag = false;
 NRF_BLE_GATT_DEF(m_gatt);           /**< GATT module instance. */
 NRF_BLE_QWR_DEF(m_qwr);             /**< Context for the Queued Write module.*/
@@ -707,12 +706,6 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     buttons_send_page16(&m_ant_lev, light_mode, m_button_long_press);
   }
 
-  if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && (nrf_gpio_pin_read(PLUS__PIN) == 0))
-  {
-    // shutdown the remote
-    plus_minus_flag = true; // reset and start again;
-  }
-
   if (nrf_gpio_pin_read(STANDBY__PIN) == 0) //if motor on/off requested
 
   {
@@ -797,8 +790,6 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       if ((button_pin == MINUS__PIN) && !light_mode)
 
       {
-        if (plus_minus_flag)
-          shutdown_flag = true; //needed because button release will wake up the board
 
         if ((ebike) && (!m_button_long_press))
         {
@@ -843,13 +834,10 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       }
       else if (button_pin == PLUS__PIN)
       {
-        if (plus_minus_flag)
-          shutdown_flag = true; //needed because button release will wake up the board
-
         if ((ebike) && (!m_button_long_press))
         {
           if (motor_init_state == 1)
-            if (m_ant_lev.page_16.travel_mode == 55) //at limits
+            if (m_ant_lev.page_16.travel_mode >= 55) //at limits
             {
               led_clear_queue();
               led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
@@ -898,8 +886,20 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       APP_ERROR_CHECK(err_code);
       if (button_pin == STANDBY__PIN)
       {
-        if (motor_init_state == 0) //motor is off
-          led_alert(LED_EVENT_SHORT_RED);
+        if (motor_init_state == 0) //check for double clicks when the motor is off
+        {
+          ui32_time_now = get_time_base_counter_1ms();
+          if ((ui32_time_now - ui32_last_run_time) <= 250)
+          {
+            shutdown_flag = true;                    // set flag for low power
+            ui32_last_run_time = ui32_time_now - 5000; //prevent multiple double clicks
+          }
+          else
+          {
+            ui32_last_run_time = ui32_time_now;
+            led_alert(LED_EVENT_SHORT_RED); //inactive
+          }
+        }
       }
 
       if (button_pin == ENTER__PIN)
@@ -908,7 +908,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         ui32_time_now = get_time_base_counter_1ms();
         if ((ui32_time_now - ui32_last_run_time) <= 250)
         {
-          brightness_flag = true;                    // change brightness
+          brightness_flag = true;                      // change brightness
           ui32_last_run_time = ui32_time_now - 5000; //prevent multiple double clicks
         }
         else
@@ -1538,15 +1538,13 @@ void check_interrupt_flags(void)
     wait_and_reset();
   }
   //check to see if brightness change is requested'
-  if (brightness_flag)
+  if (brightness_flag) //do three levels of brightness, 1 4 and 7
   {
-    static uint8_t brightness=0;
-    brightness++;
-    if (brightness > 3)
+    static uint8_t brightness = 1;
+    brightness += 3;
+    if (brightness > 7)
       brightness = 1;
     led_set_global_brightness(brightness);
-    led_alert(LED_SEQUENCE_LONGRED_LONGGREEN_LONGBLUE);
-    nrf_delay_ms(3000);
     led_alert(LED_SEQUENCE_LONGRED_LONGGREEN_LONGBLUE);
     nrf_delay_ms(3000);
 
@@ -1563,6 +1561,7 @@ void check_interrupt_flags(void)
   if (enable_configuration)
   {
     eeprom_write_variables(old_ant_device_id, 1, ebike, garmin, brake); // Enable BLUETOOTH on restart}
+    nrf_delay_ms(2000);
     led_alert(LED_EVENT_CONFIGURATION_MODE);
     nrf_delay_ms(2000);
     wait_and_reset();
@@ -1572,6 +1571,7 @@ void check_interrupt_flags(void)
   if (disable_configuration)
   {
     eeprom_write_variables(old_ant_device_id, 0, ebike, garmin, brake); // Disable BLUETOOTH on restart}
+    nrf_delay_ms(2000);
     led_alert(LED_EVENT_CONFIGURATION_MODE);
     nrf_delay_ms(2000);
 
@@ -1650,45 +1650,9 @@ int main(void)
   leds_init();
 
   init_app_timers();
-
   buttons_init();
   led_init(); //pwm initialization
-  /*
-  // try out the ALERTS
-  led_alert(LED_EVENT_WIRELESS_BOARD_POWER_ON);
-  nrf_delay_ms(2000);
-  led_alert(LED_EVENT_BLUETOOTH_CONNECT);
-  nrf_delay_ms(2000);
-  led_alert(LED_EVENT_BLUETOOTH_DISCONNECT);
-  nrf_delay_ms(2000);
-  led_alert(LED_EVENT_MOTOR_ON_WAIT);
-  nrf_delay_ms(2000);
-  led_alert(LED_EVENT_MOTOR_ON_COMPLETE);
-  nrf_delay_ms(2000);
-  led_alert(LED_EVENT_MOTOR_OFF);
-  nrf_delay_ms(2000);
-  led_alert(LED_EVENT_LIGHTS_OFF);
-  nrf_delay_ms(2000);
-  led_alert(LED_EVENT_LIGHTS_ON);
-  nrf_delay_ms(2000);
-  led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
-  nrf_delay_ms(2000);
-  led_alert(LED_EVENT_ASSIST_LEVEL_DECREASE);
-  nrf_delay_ms(2000);
-  led_alert(LED_EVENT_ASSIST_LEVEL_INCREASE);
-  nrf_delay_ms(2000);
-  led_alert(LED_EVENT_WALK_ASSIST_ACTIVE);
-  nrf_delay_ms(2000);
-  led_alert(LED_EVENT_INACTIVE_BUTTON);
-  nrf_delay_ms(2000);
-  led_alert(LED_EVENT_ANT_CONNECT);
-  nrf_delay_ms(2000);
-  led_alert(LED_EVENT_ANT_DISCONNECT);
-  nrf_delay_ms(2000);
-  led_alert(LED_EVENT_ENTER_DFU);
-  nrf_delay_ms(2000);
-  */
-  //read the flash memory and setup the ANT ID and Bluetooth flag
+              //read the flash memory and setup the ANT ID and Bluetooth flag
   eeprom_init(&old_ant_device_id, &configuration_flag, &ebike, &garmin, &brake);
   new_ant_device_id = old_ant_device_id; //no change at this time.
 
