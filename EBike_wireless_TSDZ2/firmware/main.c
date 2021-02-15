@@ -509,6 +509,8 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
     if (p_profile->page_16.current_rear_gear == 14)
     {
       // walk mode is activated
+      ui_vars.ui8_walk_assist = 1;
+      
     }
     if (p_profile->page_16.current_rear_gear == 15)
     {
@@ -521,6 +523,7 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
       // disable walk mode
       // disable brakes: be as fast as possible
       nrf_gpio_port_out_set(NRF_P0, 1UL << BRAKE__PIN);
+      ui_vars.ui8_walk_assist = 0;
     }
     if (p_profile->page_16.current_front_gear == 3)
     {
