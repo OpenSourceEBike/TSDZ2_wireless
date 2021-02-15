@@ -376,8 +376,8 @@ void ant_lev_evt_handler_pre(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
 
   // 3. lights
   //set by the remote control page 16 command
-  p_profile->common.system_state = p_profile->common.system_state && 0xf7; //lights off
-
+  //p_profile->common.system_state = p_profile->common.system_state && 0xf0; //lights off
+p_profile->common.system_state =  0x00; //lights off
   p_profile->common.system_state |= (mp_ui_vars->ui8_lights << 3);
 
   //4. state of charge
