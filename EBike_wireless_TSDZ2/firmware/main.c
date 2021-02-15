@@ -376,8 +376,8 @@ void ant_lev_evt_handler_pre(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
 
   // 3. lights
   //set by the remote control page 16 command
-  p_profile->common.system_state = p_profile->common.system_state && 0xf7; //lights off
-
+  //p_profile->common.system_state = p_profile->common.system_state && 0xf0; //lights off
+p_profile->common.system_state =  0x00; //lights off
   p_profile->common.system_state |= (mp_ui_vars->ui8_lights << 3);
 
   //4. state of charge
@@ -509,6 +509,8 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
     if (p_profile->page_16.current_rear_gear == 14)
     {
       // walk mode is activated
+      ui_vars.ui8_walk_assist = 1;
+      
     }
     if (p_profile->page_16.current_rear_gear == 15)
     {
@@ -521,6 +523,7 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
       // disable walk mode
       // disable brakes: be as fast as possible
       nrf_gpio_port_out_set(NRF_P0, 1UL << BRAKE__PIN);
+      ui_vars.ui8_walk_assist = 0;
     }
     if (p_profile->page_16.current_front_gear == 3)
     {
