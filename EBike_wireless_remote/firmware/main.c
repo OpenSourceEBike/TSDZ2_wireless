@@ -1561,6 +1561,7 @@ void check_interrupt_flags(void)
   if (enable_configuration)
   {
     eeprom_write_variables(old_ant_device_id, 1, ebike, garmin, brake); // Enable BLUETOOTH on restart}
+    nrf_delay_ms(2000);
     led_alert(LED_EVENT_CONFIGURATION_MODE);
     nrf_delay_ms(2000);
     wait_and_reset();
@@ -1570,6 +1571,7 @@ void check_interrupt_flags(void)
   if (disable_configuration)
   {
     eeprom_write_variables(old_ant_device_id, 0, ebike, garmin, brake); // Disable BLUETOOTH on restart}
+    nrf_delay_ms(2000);
     led_alert(LED_EVENT_CONFIGURATION_MODE);
     nrf_delay_ms(2000);
 
