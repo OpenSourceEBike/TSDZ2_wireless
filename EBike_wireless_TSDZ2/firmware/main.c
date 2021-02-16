@@ -68,6 +68,7 @@ static uint16_t m_assist_level_change_timeout = 0;
 // uint8_t ui8_m_wheel_speed_decimal;
 
 static uint8_t ui8_walk_assist_timeout = 0;
+static uint8_t ui8_walk_assist_state_process_locally = 0;
 
 // uint16_t ui16_m_battery_current_filtered_x10;
 // uint16_t ui16_m_motor_current_filtered_x10;
@@ -1579,6 +1580,7 @@ bool anyscreen_onpress(buttons_events_t events) {
       led_clear_queue();
       led_hold_queue();
       led_alert(LED_EVENT_WALK_ASSIST_ACTIVE);
+      ui8_walk_assist_state_process_locally = 1;
     return true;
   }
 
@@ -1775,7 +1777,7 @@ static bool onPressStreetMode(buttons_events_t events) {
 bool mainScreenOnPress(buttons_events_t events) {
   bool handled = false;
 
-  handled = onPressAlternateField(events);
+  //handled = onPressAlternateField(events);
 
   if (handled == false)
     handled = anyscreen_onpress(events);
@@ -1894,9 +1896,11 @@ void walk_assist_state(void) {
     } else if (buttons_get_down_state() == 0 && --ui8_walk_assist_timeout == 0) {
       led_release_queue();
       ui_vars.ui8_walk_assist = 0;
+      ui8_walk_assist_state_process_locally = 0;
     }
   } else {
     ui_vars.ui8_walk_assist = 0;
+    ui8_walk_assist_state_process_locally = 0;
   }
 }
 
@@ -2038,7 +2042,7 @@ int main(void)
       ble_update_configurations_data();
       TSDZ2_power_manage();
 
-      walk_assist_state();
+      if (ui8_walk_assist_state_process_locally) walk_assist_state();
       handle_buttons();
       //alternatField(); // Removed until we can resolve what to do with the alternate state display requirements
       streetMode();
