@@ -12,9 +12,9 @@
 #include "stdint.h"
 #include "nrf_delay.h"
 
-APP_TIMER_DEF(led_timer);
+APP_TIMER_DEF(led_pwm_timer);
 #define LED_PWM_INTERVAL APP_TIMER_TICKS(1) // 16Khz - means the lowest intensity (green) is pulsing at about 1Khz.. each pulse is c.61 microseconds in length (1/16384s)
-APP_TIMER_DEF(led_clock_timer);
+APP_TIMER_DEF(led_sequence_clock_timer);
 
 #define LED_PWM_TABLE_LEN 8
 #define LED_NOCOMMAND 255
@@ -84,10 +84,10 @@ void set_led(uint8_t rgb)
     ui8_led_blue_intensity = (((rgb & 4) >> 2) * ui8_led_global_brightness);
 
     if (rgb != 0) 
-        app_timer_start(led_timer, LED_PWM_INTERVAL, NULL); 
+        app_timer_start(led_pwm_timer, LED_PWM_INTERVAL, NULL); 
     else 
     {
-        app_timer_stop(led_timer);
+        app_timer_stop(led_pwm_timer);
         bsp_board_led_off(LED_R__PIN);
         bsp_board_led_off(LED_G__PIN);
         bsp_board_led_off(LED_B__PIN);
@@ -118,8 +118,7 @@ void led_sequence_clock(void *p_context)
         ui8_led_sequence_current_sequence_command_index = 0;
         ui8_led_sequence_current_command = LED_NOCOMMAND;
     }
-
-    if (ui8_led_sequence_isplaying_now)
+    else if (ui8_led_sequence_isplaying_now)
     {
         // Process sequence commands
         if (ui8_led_sequence_current_command == LED_NOCOMMAND)
@@ -180,6 +179,7 @@ void led_sequence_clock(void *p_context)
             }
         }
     }
+    else app_timer_stop(led_sequence_clock_timer); // Turn off the timer to save power
 }
 
 static void led_pwm_timer_timeout(void *p_context)
@@ -207,13 +207,10 @@ void led_init(void)
     led_set_global_brightness(1); // Default to lowest 'on' brightness
 
     ret_code_t err_code;
-    err_code = app_timer_create(&led_timer, APP_TIMER_MODE_REPEATED, led_pwm_timer_timeout);
+    err_code = app_timer_create(&led_pwm_timer, APP_TIMER_MODE_REPEATED, led_pwm_timer_timeout);
     APP_ERROR_CHECK(err_code);
 
-    err_code = app_timer_create(&led_clock_timer, APP_TIMER_MODE_REPEATED, led_sequence_clock);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = app_timer_start(led_clock_timer,APP_TIMER_TICKS(LED_CLOCK_MS), NULL); 
+    err_code = app_timer_create(&led_sequence_clock_timer, APP_TIMER_MODE_REPEATED, led_sequence_clock);
     APP_ERROR_CHECK(err_code);
 }
 
@@ -234,6 +231,9 @@ void led_release_queue(void) // Go back to normal - play the queue as it happens
 
 void led_alert(uint8_t ui8_sequence)
 {
+    // Turn on the timer that clocks the sequence
+    app_timer_start(led_sequence_clock_timer,APP_TIMER_TICKS(LED_CLOCK_MS), NULL); // should we check the return code?
+    
     // Write the sequence to the buffer
     ui8_led_sequence_queue[ui8_led_sequence_queue_write_position] = ui8_sequence;
     // Move write pointer forward (wrapping)
