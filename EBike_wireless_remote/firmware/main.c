@@ -678,45 +678,46 @@ static void timer_button_long_press_timeout_handler(void *p_context)
       new_ant_device_id = 0x91;
     }
   }
-
-  //pageup/pagedown
-  if ((nrf_gpio_pin_read(ENTER__PIN) == 0) && garmin && !configuration_flag && !brightness_flag)
-  {
-
-    buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 0);
-
-    led_alert(LED_EVENT_SHORT_GREEN);
-  }
-
-  if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && (!configuration_flag) && (motor_init_state == 1))
-  {
-    // start walk mode
-    walk_mode = 55; //set walk mode flag to allow button release to work
-                    //start blinking blue led
-                    //slow flash
-    m_button_long_press = false;
-    buttons_send_page16(&m_ant_lev, walk_mode, m_button_long_press);
-  }
   else
-    led_alert(LED_EVENT_SHORT_RED);
-
-  if (nrf_gpio_pin_read(PLUS__PIN) == 0)
   {
-    // toggle lights on/off
-    light_mode = 54;
-    m_button_long_press = false;
-    //54 if flag to send light mode command
-    buttons_send_page16(&m_ant_lev, light_mode, m_button_long_press);
+    //pageup/pagedown
+    if ((nrf_gpio_pin_read(ENTER__PIN) == 0) && garmin && !brightness_flag)
+    {
+
+      buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 0);
+
+      led_alert(LED_EVENT_SHORT_GREEN);
+    }
+
+    if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && (motor_init_state == 1))
+    {
+      // start walk mode
+      walk_mode = 55; //set walk mode flag to allow button release to work
+                      //start blinking blue led
+                      //slow flash
+      m_button_long_press = false;
+      buttons_send_page16(&m_ant_lev, walk_mode, m_button_long_press);
+    }
+    else
+      led_alert(LED_EVENT_SHORT_RED);
+
+    if (nrf_gpio_pin_read(PLUS__PIN) == 0)
+    {
+      // toggle lights on/off
+      light_mode = 54;
+      m_button_long_press = false;
+      //54 if flag to send light mode command
+      buttons_send_page16(&m_ant_lev, light_mode, m_button_long_press);
+    }
+
+    if (nrf_gpio_pin_read(STANDBY__PIN) == 0) //if motor on/off requested
+
+    {
+      //turn motor power on/off
+      m_button_long_press = true;
+      buttons_send_page16(&m_ant_lev, STANDBY__PIN, m_button_long_press);
+    }
   }
-
-  if (nrf_gpio_pin_read(STANDBY__PIN) == 0) //if motor on/off requested
-
-  {
-    //turn motor power on/off
-    m_button_long_press = true;
-    buttons_send_page16(&m_ant_lev, STANDBY__PIN, m_button_long_press);
-  }
-
   m_button_long_press = true; //needed for app_release long press actions
 }
 
@@ -1686,10 +1687,22 @@ int main(void)
     profile_setup();
   power_mgt_init();
 
-  // idle loop
+  /* idle loop
   while (true)
   {
     nrf_pwr_mgmt_run();
+    check_interrupt_flags();
+  }
+   
+   */
+  while (true)
+  {
+
+    // Wait for an event.
+    __WFE();
+    // Clear the internal event register.
+    __SEV();
+    __WFE();
     check_interrupt_flags();
   }
 }
