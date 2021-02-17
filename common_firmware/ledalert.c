@@ -10,12 +10,11 @@
 #include "ledalert.h"
 #include "app_timer.h"
 #include "stdint.h"
-//#include "timer.h"
 #include "nrf_delay.h"
-extern uint32_t ui32_time_now;
 
-APP_TIMER_DEF(led_timer);
+APP_TIMER_DEF(led_pwm_timer);
 #define LED_PWM_INTERVAL APP_TIMER_TICKS(1) // 16Khz - means the lowest intensity (green) is pulsing at about 1Khz.. each pulse is c.61 microseconds in length (1/16384s)
+APP_TIMER_DEF(led_sequence_clock_timer);
 
 #define LED_PWM_TABLE_LEN 8
 #define LED_NOCOMMAND 255
@@ -76,32 +75,23 @@ uint8_t ui8_led_global_brightness = 0;
 
 
 #include "pins.h"
-void do_led_pwm(void)
-{
-    ui16_pwm_mask = ui16_pwm_mask >> 1;
-    if (ui16_pwm_mask == 0)
-        ui16_pwm_mask = 32768;
 
-    if (ui16_pwm_table_red[ui8_led_red_intensity] & ui16_pwm_mask)
-        bsp_board_led_on(LED_R__PIN);
-    else
-        bsp_board_led_off(LED_R__PIN);
-    if (ui16_pwm_table_green[ui8_led_green_intensity] & ui16_pwm_mask)
-        bsp_board_led_on(LED_G__PIN);
-    else
-        bsp_board_led_off(LED_G__PIN);
-    if (ui16_pwm_table_blue[ui8_led_blue_intensity] & ui16_pwm_mask)
-        bsp_board_led_on(LED_B__PIN);
-    else
-        bsp_board_led_off(LED_B__PIN);
-}
 
 void set_led(uint8_t rgb)
 {
-
     ui8_led_red_intensity = ((rgb & 1) * ui8_led_global_brightness);
     ui8_led_green_intensity = (((rgb & 2) >> 1) * ui8_led_global_brightness);
     ui8_led_blue_intensity = (((rgb & 4) >> 2) * ui8_led_global_brightness);
+
+    if (rgb != 0) 
+        app_timer_start(led_pwm_timer, LED_PWM_INTERVAL, NULL); 
+    else 
+    {
+        app_timer_stop(led_pwm_timer);
+        bsp_board_led_off(LED_R__PIN);
+        bsp_board_led_off(LED_G__PIN);
+        bsp_board_led_off(LED_B__PIN);
+    }
 }
 
 
@@ -111,8 +101,10 @@ void led_set_global_brightness(uint8_t ui8_global_brightness)
 }
 
 // Called every LED_CLOCK_MS mS (50ms)
-void led_clock(void)
+void led_sequence_clock(void *p_context)
 {
+    UNUSED_PARAMETER(p_context);
+
     if ((!ui8_led_sequence_isplaying_now) && (ui8_led_sequence_queue_read_position != ui8_led_sequence_queue_write_position))
     {
         // If something is in the queue and we're not currently playing something - let's play a sequence
@@ -126,8 +118,7 @@ void led_clock(void)
         ui8_led_sequence_current_sequence_command_index = 0;
         ui8_led_sequence_current_command = LED_NOCOMMAND;
     }
-
-    if (ui8_led_sequence_isplaying_now)
+    else if (ui8_led_sequence_isplaying_now)
     {
         // Process sequence commands
         if (ui8_led_sequence_current_command == LED_NOCOMMAND)
@@ -188,22 +179,22 @@ void led_clock(void)
             }
         }
     }
+    else app_timer_stop(led_sequence_clock_timer); // Turn off the timer to save power
 }
 
-uint32_t ui32_sequencer_last_run_time = 0;
-
-static void led_timer_timeout(void *p_context)
+static void led_pwm_timer_timeout(void *p_context)
 {
     UNUSED_PARAMETER(p_context);
 
-    do_led_pwm();
+    // Do LED PWM - this code needs to be fast and compact - if I could read thumb I might be able to tell, but it should be :)
 
-    uint32_t ui32_time_now = get_time_base_counter_1ms();
-    if ((ui32_time_now - ui32_sequencer_last_run_time) >= 50)
-    {
-        ui32_sequencer_last_run_time = ui32_time_now;
-        led_clock();
-    }
+    ui16_pwm_mask = ui16_pwm_mask >> 1;
+    if (ui16_pwm_mask == 0) ui16_pwm_mask = 32768;
+
+    if (ui16_pwm_table_red[ui8_led_red_intensity] & ui16_pwm_mask) bsp_board_led_on(LED_R__PIN); else bsp_board_led_off(LED_R__PIN);
+    if (ui16_pwm_table_green[ui8_led_green_intensity] & ui16_pwm_mask) bsp_board_led_on(LED_G__PIN); else bsp_board_led_off(LED_G__PIN);
+    if (ui16_pwm_table_blue[ui8_led_blue_intensity] & ui16_pwm_mask) bsp_board_led_on(LED_B__PIN); else bsp_board_led_off(LED_B__PIN);
+
 }
 
 void led_init(void)
@@ -215,12 +206,11 @@ void led_init(void)
     ui8_led_sequence_queue_write_position = 0;
     led_set_global_brightness(1); // Default to lowest 'on' brightness
 
-    ret_code_t err_code; // Should really check this!
-
-    err_code = app_timer_create(&led_timer, APP_TIMER_MODE_REPEATED, led_timer_timeout);
+    ret_code_t err_code;
+    err_code = app_timer_create(&led_pwm_timer, APP_TIMER_MODE_REPEATED, led_pwm_timer_timeout);
     APP_ERROR_CHECK(err_code);
 
-    err_code = app_timer_start(led_timer, LED_PWM_INTERVAL, NULL);
+    err_code = app_timer_create(&led_sequence_clock_timer, APP_TIMER_MODE_REPEATED, led_sequence_clock);
     APP_ERROR_CHECK(err_code);
 }
 
@@ -241,6 +231,9 @@ void led_release_queue(void) // Go back to normal - play the queue as it happens
 
 void led_alert(uint8_t ui8_sequence)
 {
+    // Turn on the timer that clocks the sequence
+    app_timer_start(led_sequence_clock_timer,APP_TIMER_TICKS(LED_CLOCK_MS), NULL); // should we check the return code?
+    
     // Write the sequence to the buffer
     ui8_led_sequence_queue[ui8_led_sequence_queue_write_position] = ui8_sequence;
     // Move write pointer forward (wrapping)
@@ -250,45 +243,3 @@ void led_alert(uint8_t ui8_sequence)
     if ((ui8_led_sequence_queue_write_position == ui8_led_sequence_queue_read_position) & !ui8_led_queue_held)
         ui8_led_sequence_queue_read_position = ((ui8_led_sequence_queue_read_position+1) % LED_SEQUENCE_BUFFER_SIZE);
 }
-
-/* void disp_soc(int soc)
-{
-
-    switch (soc)
-    {
-    case (0):
-        led_alert(LED_EVENT_BATTERY_SOC_0_PERCENT);
-        break;
-
-    case (1):
-        led_alert(LED_EVENT_BATTERY_SOC_10_PERCENT);
-        break;
-    case (2):
-        led_alert(LED_EVENT_BATTERY_SOC_20_PERCENT);
-        break;
-    case (3):
-        led_alert(LED_EVENT_BATTERY_SOC_30_PERCENT);
-        break;
-    case (4):
-        led_alert(LED_EVENT_BATTERY_SOC_40_PERCENT);
-        break;
-    case (5):
-        led_alert(LED_EVENT_BATTERY_SOC_50_PERCENT);
-        break;
-    case (6):
-        led_alert(LED_EVENT_BATTERY_SOC_60_PERCENT);
-        break;
-    case (7):
-        led_alert(LED_EVENT_BATTERY_SOC_70_PERCENT);
-        break;
-    case (8):
-        led_alert(LED_EVENT_BATTERY_SOC_80_PERCENT);
-        break;
-    case (9):
-        led_alert(LED_EVENT_BATTERY_SOC_90_PERCENT);
-        break;
-    case 10:
-        led_alert(LED_EVENT_BATTERY_SOC_100_PERCENT);
-        break;
-    }
-} */
