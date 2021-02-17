@@ -76,12 +76,12 @@ bool disp_config_flag = false;
 
 bool searching_flag = false;
 
-#define BUTTON_DETECTION_DELAY APP_TIMER_TICKS(1)            /**< Delay from a GPIOTE event until a button is reported as pushed (in number of timer ticks). */
+#define BUTTON_DETECTION_DELAY APP_TIMER_TICKS(25)           /**< Delay from a GPIOTE event until a button is reported as pushed (in number of timer ticks). */
 #define BUTTON_PRESS_TIMEOUT APP_TIMER_TICKS(60 * 60 * 1000) // 1h to enter low power mode
 #define BUTTON_LONG_PRESS_TIMEOUT APP_TIMER_TICKS(1000)      // 1 seconds for long press
 #define BUTTON_CONFIG_PRESS_TIMEOUT APP_TIMER_TICKS(5000)    // 5 seconds TO ENTER CONFIG MODE
 
-#define ANT_Search_TIMEOUT APP_TIMER_TICKS(600) // 400 ms for Ant Search check
+#define ANT_Search_TIMEOUT APP_TIMER_TICKS(600) // 600 ms for Ant Search check
 #define DEVICE_NAME "TSDZ2_remote"              /**< Name of device. Will be included in the advertising data. */
 
 #define APP_BLE_CONN_CFG_TAG 1 /**< A tag identifying the SoftDevice BLE configuration. */
@@ -688,7 +688,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     led_alert(LED_EVENT_SHORT_GREEN);
   }
 
-  if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && (!configuration_flag))
+  if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && (!configuration_flag) && (motor_init_state == 1))
   {
     // start walk mode
     walk_mode = 55; //set walk mode flag to allow button release to work
@@ -697,6 +697,9 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     m_button_long_press = false;
     buttons_send_page16(&m_ant_lev, walk_mode, m_button_long_press);
   }
+  else
+    led_alert(LED_EVENT_SHORT_RED);
+
   if (nrf_gpio_pin_read(PLUS__PIN) == 0)
   {
     // toggle lights on/off
@@ -795,6 +798,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         {
           if (motor_init_state == 1)
           {
+            buttons_send_page16(&m_ant_lev, button_pin, m_button_long_press);
             if (m_ant_lev.page_16.travel_mode == 0) //at limits
             {
               led_clear_queue();
@@ -802,7 +806,6 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
             }
             else
             {
-              buttons_send_page16(&m_ant_lev, button_pin, m_button_long_press);
               led_alert(LED_EVENT_ASSIST_LEVEL_DECREASE);
             }
           }
@@ -837,16 +840,18 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         if ((ebike) && (!m_button_long_press))
         {
           if (motor_init_state == 1)
-            if (m_ant_lev.page_16.travel_mode >= 55) //at limits
+          {
+            buttons_send_page16(&m_ant_lev, button_pin, m_button_long_press);
+            if (m_ant_lev.page_16.travel_mode == 56) //at limits
             {
               led_clear_queue();
               led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
             }
             else
             {
-              buttons_send_page16(&m_ant_lev, button_pin, m_button_long_press);
               led_alert(LED_EVENT_ASSIST_LEVEL_INCREASE);
             }
+          }
           else
           {
             led_alert(LED_EVENT_SHORT_RED);
@@ -891,7 +896,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
           ui32_time_now = get_time_base_counter_1ms();
           if ((ui32_time_now - ui32_last_run_time) <= 250)
           {
-            shutdown_flag = true;                    // set flag for low power
+            shutdown_flag = true;                      // set flag for low power
             ui32_last_run_time = ui32_time_now - 5000; //prevent multiple double clicks
           }
           else
@@ -908,7 +913,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         ui32_time_now = get_time_base_counter_1ms();
         if ((ui32_time_now - ui32_last_run_time) <= 250)
         {
-          brightness_flag = true;                      // change brightness
+          brightness_flag = true;                    // change brightness
           ui32_last_run_time = ui32_time_now - 5000; //prevent multiple double clicks
         }
         else
