@@ -190,9 +190,11 @@ void led_sequence_clock(void *p_context)
             }
         }
     }
-    else app_timer_stop(led_sequence_clock_timer); // Turn off the timer to save power
-
-    sd_app_evt_wait(); // Try to sleep
+    else 
+    {
+        app_timer_stop(led_sequence_clock_timer); // Turn off the timer to save power
+        sd_app_evt_wait(); // Try to sleep
+    }
     
 }
 
@@ -258,7 +260,7 @@ static void led_pwm_timer_timeout(void *p_context)
 
     //if (ui16_pwm_table_green[ui8_led_green_intensity] & ui16_pwm_mask) bsp_board_led_on(LED_G__PIN); else bsp_board_led_off(LED_G__PIN);
     //if (ui16_pwm_table_blue[ui8_led_blue_intensity] & ui16_pwm_mask) bsp_board_led_on(LED_B__PIN); else bsp_board_led_off(LED_B__PIN);
-    sd_app_evt_wait(); // Try to sleep
+
 }
 
 void led_init(void)
