@@ -218,7 +218,6 @@ void led_sequence_clock(void *p_context)
         }
     }
     else app_timer_stop(led_sequence_clock_timer); // Turn off the timer to save power
-    
 }
 
 static void led_pwm_timer_timeout(void *p_context)
