@@ -524,7 +524,7 @@ void ant_lev_evt_handler(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
 void wait_and_reset(void)
 {
 
-  nrf_lp_delay_ms(WAIT_TIME);
+  nrf_delay_ms(WAIT_TIME);
   sd_nvic_SystemReset(); // reset and start again
 }
 void ANT_Search_Stop(void) //ant search has timed out without finding a device
@@ -972,31 +972,31 @@ void buttons_init(void)
 void shutdown(void)
 {
   nrf_gpio_pin_clear(19); //reset
-  nrf_lp_delay_ms(10);
+  nrf_delay_ms(10);
   nrf_gpio_pin_clear(BUTTON_1); //button1
-  nrf_lp_delay_ms(10);
+  nrf_delay_ms(10);
   app_timer_stop(ANT_Search_timer);
-  nrf_lp_delay_ms(10);
+  nrf_delay_ms(10);
   app_timer_stop(m_timer_button_press_timeout);
-  nrf_lp_delay_ms(10);
+  nrf_delay_ms(10);
   app_timer_stop(m_timer_button_long_press_timeout);
-  nrf_lp_delay_ms(10);
+  nrf_delay_ms(10);
   app_timer_stop(bluetooth_timer);
-  nrf_lp_delay_ms(10);
+  nrf_delay_ms(10);
   sd_clock_hfclk_release();
-  nrf_lp_delay_ms(10);
+  nrf_delay_ms(10);
   // Disable TWI ready for sleep
   NRF_TWI0->ENABLE = TWI_ENABLE_ENABLE_Disabled << TWI_ENABLE_ENABLE_Pos;
-  nrf_lp_delay_ms(10);
+  nrf_delay_ms(10);
   NRF_SPI0->ENABLE = 0;
-  nrf_lp_delay_ms(10);
+  nrf_delay_ms(10);
   NRF_UART0->ENABLE = 0;
-  nrf_lp_delay_ms(10);
+  nrf_delay_ms(10);
 
   // shut down the dcdc
   sd_power_dcdc_mode_set(NRF_POWER_DCDC_DISABLE);
   sd_power_pof_enable(0);
-  nrf_lp_delay_ms(100);
+  nrf_delay_ms(100);
 
   nrf_gpio_cfg_default(LED1_G);
   nrf_gpio_cfg_default(LED2_R);
@@ -1006,9 +1006,9 @@ void shutdown(void)
   nrf_gpio_cfg_default(BUTTON_1);
   nrf_gpio_cfg_default(19);
   sd_clock_hfclk_release();
-  nrf_lp_delay_ms(10);
+  nrf_delay_ms(10);
 
-  nrf_lp_delay_ms(1000);
+  nrf_delay_ms(1000);
   nrf_pwr_mgmt_shutdown(NRF_PWR_MGMT_SHUTDOWN_GOTO_SYSOFF);
 }
 
@@ -1484,7 +1484,7 @@ void check_interrupt_flags(void)
     case 0x99: // start bootloader
         //turn off config mode on reboot
       eeprom_write_variables(old_ant_device_id, 0, ebike, garmin, brake); // disable BLUETOOTH on restart}
-      nrf_lp_delay_ms(2000);
+      nrf_delay_ms(2000);
       nrf_power_gpregret_set(BOOTLOADER_DFU_START);
       wait_and_reset();
       break;
@@ -1501,34 +1501,35 @@ void check_interrupt_flags(void)
   if (brightness_flag) //do three levels of brightness, 1 4 and 7
   {
     static uint8_t brightness = 1;
-    //nrf_lp_delay_ms(1000);
     brightness += 3;
     if (brightness > 7)
       brightness = 1;
     led_set_global_brightness(brightness);
     led_alert(LED_SEQUENCE_LONGRED_LONGGREEN_LONGBLUE);
-
-    nrf_lp_delay_ms(4000);
+    /*
+    nrf_delay_ms(4000);
     bsp_board_led_on(LED_R__PIN);
 
-    nrf_lp_delay_ms(1000);
+    nrf_delay_ms(1000);
     bsp_board_led_off(LED_R__PIN);
     bsp_board_led_on(LED_G__PIN);
 
-    nrf_lp_delay_ms(1000);
+    nrf_delay_ms(1000);
     bsp_board_led_off(LED_G__PIN);
     bsp_board_led_on(LED_B__PIN);
 
-    nrf_lp_delay_ms(1000);
+    nrf_delay_ms(1000);
     bsp_board_led_off(LED_B__PIN);
+    */
 
     brightness_flag = false;
   }
   // check to see if low power mode is requested
   if (shutdown_flag)
   {
-    nrf_lp_delay_ms(2000);
+
     led_alert(LED_EVENT_DEEP_SLEEP);
+    nrf_lp_delay_ms(2000); //let the sequence finish
 
     shutdown();
   }
@@ -1536,7 +1537,7 @@ void check_interrupt_flags(void)
   if (enable_configuration)
   {
     eeprom_write_variables(old_ant_device_id, 1, ebike, garmin, brake); // Enable BLUETOOTH on restart}
-    nrf_lp_delay_ms(2000);
+    nrf_delay_ms(2000);
     led_alert(LED_EVENT_CONFIGURATION_MODE);
 
     wait_and_reset();
@@ -1546,7 +1547,7 @@ void check_interrupt_flags(void)
   if (disable_configuration)
   {
     eeprom_write_variables(old_ant_device_id, 0, ebike, garmin, brake); // Disable BLUETOOTH on restart}
-    nrf_lp_delay_ms(2000);
+    nrf_delay_ms(2000);
     led_alert(LED_EVENT_CONFIGURATION_MODE);
 
     wait_and_reset();
@@ -1634,7 +1635,7 @@ int main(void)
   if (configuration_flag)
   {
     // led_alert(LED_EVENT_CONFIGURATION_MODE);
-    //  nrf_lp_delay_ms(500);
+    //  nrf_delay_ms(500);
     if (ebike)
     {
       led_alert(LED_EVENT_CONFIG_LEV_ACTIVE);
