@@ -54,6 +54,7 @@ void nrf_lp_delay_ms(int ms_delay)
 
 void disp_soc(int soc)
 {
+  led_clear_queue();
   switch (soc)
   {
   case (0):

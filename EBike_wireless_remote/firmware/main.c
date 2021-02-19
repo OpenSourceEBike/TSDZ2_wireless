@@ -1655,14 +1655,14 @@ int main(void)
     profile_setup();
   power_mgt_init();
 
-  /* idle loop
+   //idle loop
   while (true)
   {
     nrf_pwr_mgmt_run();
     check_interrupt_flags();
   }
    
-   */
+  /* 
   while (true)
   {
 
@@ -1673,4 +1673,5 @@ int main(void)
     __WFE();
     check_interrupt_flags();
   }
+  */
 }
