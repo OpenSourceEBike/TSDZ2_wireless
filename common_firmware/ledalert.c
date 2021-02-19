@@ -22,38 +22,65 @@ APP_TIMER_DEF(led_sequence_clock_timer);
 
 uint16_t ui16_pwm_table_red[LED_PWM_TABLE_LEN] =
     {
-        0b0000000000000000, // 0%
-        0b1100000000000000, // 12.5%
-        0b1111000000000000, // 25%
-        0b1111110000000000, // etc.
-        0b1111111100000000, 
-        0b1111111111000000,
-        0b1111111111110000, 
-        0b1111111111111100, 
+        // 0b0000000000000000, // 0%
+        // 0b1100000000000000, // 12.5%
+        // 0b1111000000000000, // 25%
+        // 0b1111110000000000, // etc.
+        // 0b1111111100000000, 
+        // 0b1111111111000000,
+        // 0b1111111111110000, 
+        // 0b1111111111111100, 
+
+        0b0000000000000000, // 0 pulses/mS
+        0b0000000100000001, // 2 pulses/mS
+        0b0100010000100010, // 4 pulses/mS
+        0b1001001001010100, // 6 pulses/mS
+        0b1010101010101010, // 8 pulses/mS
+        0b1110101011101010, // 10 pulses/mS
+        0b1011101011101111, // 12 pulses/mS
+        0b1111101111101111, // 14 pulses/mS
 };
 
 uint16_t ui16_pwm_table_green[LED_PWM_TABLE_LEN] = //Make green less bright
     {
-        0b0000000000000000, // 0%
-        0b1000000000000000, // 6.25%
-        0b1100000000000000, // 12.5%
-        0b1110000000000000, // etc
-        0b1111000000000000, 
-        0b1111100000000000, 
-        0b1111110000000000, 
-        0b1111111000000000, 
+        // 0b0000000000000000, // 0%
+        // 0b1000000000000000, // 6.25%
+        // 0b1100000000000000, // 12.5%
+        // 0b1110000000000000, // etc
+        // 0b1111000000000000, 
+        // 0b1111100000000000, 
+        // 0b1111110000000000, 
+        // 0b1111111000000000, 
+
+        0b0000000000000000, // 0 pulses/mS
+        0b0001000000000000, // 1 pulses/mS
+        0b1000000100000000, // 2 pulses/mS
+        0b1000010000010000, // 3 pulses/mS
+        0b1000100010001000, // 4 pulses/mS
+        0b0100100100100100, // 5 pulses/mS
+        0b0010100101001010, // 6 pulses/mS
+        0b1010101010101010, // 7 pulses/mS
 };
 
 uint16_t ui16_pwm_table_blue[LED_PWM_TABLE_LEN] =
     {
-        0b0000000000000000,
-        0b1100000000000000, 
-        0b1111000000000000, 
-        0b1111110000000000, 
-        0b1111111100000000, 
-        0b1111111111000000, 
-        0b1111111111110000, 
-        0b1111111111111100, 
+        // 0b0000000000000000, // 0%
+        // 0b1100000000000000, // 12.5%
+        // 0b1111000000000000, // 25%
+        // 0b1111110000000000, // etc.
+        // 0b1111111100000000, 
+        // 0b1111111111000000,
+        // 0b1111111111110000, 
+        // 0b1111111111111100, 
+
+        0b0000000000000000, // 0 pulses/mS
+        0b0000000100000001, // 2 pulses/mS
+        0b0100010000100010, // 4 pulses/mS
+        0b1001001001010100, // 6 pulses/mS
+        0b1010101010101010, // 8 pulses/mS
+        0b1110101011101010, // 10 pulses/mS
+        0b1011101011101111, // 12 pulses/mS
+        0b1111101111101111, // 14 pulses/mS
 };
 
 uint8_t ui8_led_red_intensity;
@@ -252,10 +279,6 @@ static void led_pwm_timer_timeout(void *p_context)
             ui8_led_blue_on_state = 0;
         } 
     }
-
-    //if (ui16_pwm_table_green[ui8_led_green_intensity] & ui16_pwm_mask) bsp_board_led_on(LED_G__PIN); else bsp_board_led_off(LED_G__PIN);
-    //if (ui16_pwm_table_blue[ui8_led_blue_intensity] & ui16_pwm_mask) bsp_board_led_on(LED_B__PIN); else bsp_board_led_off(LED_B__PIN);
-
 }
 
 void led_init(void)
@@ -297,9 +320,6 @@ void led_release_queue(void) // Go back to normal - play the queue as it happens
 
 void led_alert(uint8_t ui8_sequence)
 {
-    // Turn on the timer that clocks the sequence
-    app_timer_start(led_sequence_clock_timer,APP_TIMER_TICKS(LED_CLOCK_MS), NULL); // should we check the return code?
-    
     // Write the sequence to the buffer
     ui8_led_sequence_queue[ui8_led_sequence_queue_write_position] = ui8_sequence;
     // Move write pointer forward (wrapping)
@@ -308,4 +328,7 @@ void led_alert(uint8_t ui8_sequence)
     // so if the queue is held - queue overflows and new sequences are lost.
     if ((ui8_led_sequence_queue_write_position == ui8_led_sequence_queue_read_position) & !ui8_led_queue_held)
         ui8_led_sequence_queue_read_position = ((ui8_led_sequence_queue_read_position+1) % LED_SEQUENCE_BUFFER_SIZE);
+
+    // Turn on the timer that clocks the sequence
+    app_timer_start(led_sequence_clock_timer,APP_TIMER_TICKS(LED_CLOCK_MS), NULL); // should we check the return code?
 }
