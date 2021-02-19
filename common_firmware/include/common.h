@@ -10,3 +10,5 @@
 
 
 void disp_soc(int soc);
+void nrf_lp_delay_ms_init(void);
+void nrf_lp_delay_ms(int ms_delay);
