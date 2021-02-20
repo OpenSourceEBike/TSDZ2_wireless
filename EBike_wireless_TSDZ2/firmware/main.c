@@ -63,8 +63,6 @@ volatile uint8_t ui8_m_enter_bootloader = 0;
 volatile uint8_t ui8_m_ant_device_id = 0;
 volatile uint8_t ui8_m_flash_configurations = 0;
 
-//static uint16_t m_assist_level_change_timeout = 0;
-
 // uint8_t ui8_m_wheel_speed_integer;
 // uint8_t ui8_m_wheel_speed_decimal;
 
@@ -1656,7 +1654,7 @@ void walk_assist_state(void) {
 }
 
 
-/// Called every 20ms to check for wired button events and dispatch to our handlers
+/// Called every 50ms to check for wired button events and dispatch to our handlers
 static void handle_buttons() {
 
   static uint8_t firstTime = 1;
@@ -1674,7 +1672,7 @@ static void handle_buttons() {
  		if (wiredRemoteOnPress(buttons_events)) buttons_clear_all_events();
   }
 
-	buttons_clock(); // Note: this is done _after_ button events is checked to provide a 20ms debounce
+	buttons_clock(); // Note: this is done _after_ button events is checked to provide a 50ms debounce
 }
 
 int main(void)
