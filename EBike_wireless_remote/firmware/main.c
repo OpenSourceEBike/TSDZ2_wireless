@@ -74,7 +74,7 @@ bool disp_config_flag = false;
 
 bool searching_flag = false;
 
-#define BUTTON_DETECTION_DELAY APP_TIMER_TICKS(25)           /**< Delay from a GPIOTE event until a button is reported as pushed (in number of timer ticks). */
+#define BUTTON_DETECTION_DELAY APP_TIMER_TICKS(10)           /**< Delay from a GPIOTE event until a button is reported as pushed (in number of timer ticks). */
 #define BUTTON_PRESS_TIMEOUT APP_TIMER_TICKS(60 * 60 * 1000) // 1h to enter low power mode
 #define BUTTON_LONG_PRESS_TIMEOUT APP_TIMER_TICKS(1000)      // 1 seconds for long press
 #define BUTTON_CONFIG_PRESS_TIMEOUT APP_TIMER_TICKS(5000)    // 5 seconds TO ENTER CONFIG MODE
