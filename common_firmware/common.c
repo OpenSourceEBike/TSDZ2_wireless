@@ -26,37 +26,38 @@ void disp_soc(int soc)
     switch (soc)
     {
     case (0):
-      led_sequence_play(LED_EVENT_BATTERY_SOC_0_PERCENT);
+      led_alert(LED_EVENT_BATTERY_SOC_0_PERCENT);
       break;
+
     case (1):
-      led_sequence_play(LED_EVENT_BATTERY_SOC_10_PERCENT);
+      led_alert(LED_EVENT_BATTERY_SOC_10_PERCENT);
       break;
     case (2):
-      led_sequence_play(LED_EVENT_BATTERY_SOC_20_PERCENT);
+      led_alert(LED_EVENT_BATTERY_SOC_20_PERCENT);
       break;
     case (3):
-      led_sequence_play(LED_EVENT_BATTERY_SOC_30_PERCENT);
+      led_alert(LED_EVENT_BATTERY_SOC_30_PERCENT);
       break;
     case (4):
-      led_sequence_play(LED_EVENT_BATTERY_SOC_40_PERCENT);
+      led_alert(LED_EVENT_BATTERY_SOC_40_PERCENT);
       break;
     case (5):
-      led_sequence_play(LED_EVENT_BATTERY_SOC_50_PERCENT);
+      led_alert(LED_EVENT_BATTERY_SOC_50_PERCENT);
       break;
     case (6):
-      led_sequence_play(LED_EVENT_BATTERY_SOC_60_PERCENT);
+      led_alert(LED_EVENT_BATTERY_SOC_60_PERCENT);
       break;
     case (7):
-      led_sequence_play(LED_EVENT_BATTERY_SOC_70_PERCENT);
+      led_alert(LED_EVENT_BATTERY_SOC_70_PERCENT);
       break;
     case (8):
-      led_sequence_play(LED_EVENT_BATTERY_SOC_80_PERCENT);
+      led_alert(LED_EVENT_BATTERY_SOC_80_PERCENT);
       break;
     case (9):
-      led_sequence_play(LED_EVENT_BATTERY_SOC_90_PERCENT);
+      led_alert(LED_EVENT_BATTERY_SOC_90_PERCENT);
       break;
     case 10:
-      led_sequence_play(LED_EVENT_BATTERY_SOC_100_PERCENT);
+      led_alert(LED_EVENT_BATTERY_SOC_100_PERCENT);
       break;
     }
   }

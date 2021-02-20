@@ -121,7 +121,6 @@ SRC_FILES += \
 	$(PROJ_DIR)/ble_services.c \
   $(PROJ_DIR)/buttons.c \
   $(PROJ_DIR)/../../common_firmware/ledalert.c \
-  $(PROJ_DIR)/../../common_firmware/common.c \
   $(PROJ_DIR)/main.c \
   $(SDK_ROOT)/components/boards/boards.c \
  
