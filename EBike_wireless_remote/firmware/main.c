@@ -58,7 +58,7 @@
 
 #include "ant_search_config.h"
 #include <math.h>
-#define WAIT_TIME 1000 // wait 1 seconds before a reset
+#define WAIT_TIME 3000 // wait 3 seconds before a reset
 bool config_press = false;
 //motor state control variables
 uint8_t motor_init_state = 0;
@@ -822,7 +822,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       { //display the battery SOC
         if (motor_init_state == 1)
         {
-          motor_display_soc = true; //display charge state when turning off
+          motor_display_soc = true; //display charge state 
         }
         else
         {
@@ -1016,7 +1016,7 @@ void shutdown(void)
   sd_clock_hfclk_release();
   nrf_delay_ms(10);
 
-  nrf_delay_ms(1000);
+  nrf_delay_ms(WAIT_TIME);
   nrf_pwr_mgmt_shutdown(NRF_PWR_MGMT_SHUTDOWN_GOTO_SYSOFF);
 }
 
@@ -1494,7 +1494,7 @@ void check_interrupt_flags(void)
     case 0x99: // start bootloader
         //turn off config mode on reboot
       eeprom_write_variables(old_ant_device_id, 0, ebike, garmin, brake); // disable BLUETOOTH on restart}
-      nrf_delay_ms(2000);
+      nrf_delay_ms(WAIT_TIME);
       nrf_power_gpregret_set(BOOTLOADER_DFU_START);
       wait_and_reset();
       break;
@@ -1505,6 +1505,7 @@ void check_interrupt_flags(void)
 
     // save changes and keep in  configuration mode
     eeprom_write_variables(old_ant_device_id, 1, ebike, garmin, brake);
+    nrf_delay_ms(WAIT_TIME);
     wait_and_reset();
   }
   //check to see if brightness change is requested'
@@ -1547,7 +1548,7 @@ void check_interrupt_flags(void)
   if (enable_configuration)
   {
     eeprom_write_variables(old_ant_device_id, 1, ebike, garmin, brake); // Enable BLUETOOTH on restart}
-    nrf_delay_ms(2000);
+    nrf_delay_ms(WAIT_TIME);
     led_alert(LED_EVENT_CONFIGURATION_MODE);
 
     wait_and_reset();
@@ -1557,7 +1558,7 @@ void check_interrupt_flags(void)
   if (disable_configuration)
   {
     eeprom_write_variables(old_ant_device_id, 0, ebike, garmin, brake); // Disable BLUETOOTH on restart}
-    nrf_delay_ms(2000);
+    nrf_delay_ms(WAIT_TIME);
     led_alert(LED_EVENT_CONFIGURATION_MODE);
 
     wait_and_reset();
