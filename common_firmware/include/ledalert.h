@@ -23,14 +23,14 @@
 #define LED_REPEAT_LASTX                        254
 #define WAIT_MS(a) ((a) / (LED_CLOCK_MS))
 #define CMDS_RPT(a,b) ((a) + (16 * (b)))         //Repeat last x commands - next value last x-1 commands to repeat (0-15) plus 16*number of times - so max is repeat last 16 commands 16 times
-extern uint32_t get_time_base_counter_1ms(void);
+
 // Define sequences here
 // Sequence commands are 2 bytes each - first is the colour or other instruction, 2nd is either time to show for LED - or parameter for command.
 // End sequences with two LED_END_SEQUENCE
 // can loop previous commands with LED_REPEAT_LASTX, CMDS_RPT(2,10) where the two values are the number of previous commands to repeat,how many times.
 // Don't nest loops in led sequences, there is no stack!
 
-#define LED_NUM_SEQUENCES 49 //Update when new sequences are added
+#define LED_NUM_SEQUENCES 51 //Update when new sequences are added
 #define LED_MAX_COMMANDS_IN_SEQUENCE 16
 
 static const uint8_t ui8_led_sequences[LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SEQUENCE * 2] = {
@@ -167,7 +167,13 @@ static const uint8_t ui8_led_sequences[LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SE
     {LED_RED, WAIT_MS(750), LED_OFF, WAIT_MS(200), LED_GREEN, WAIT_MS(750), LED_OFF, WAIT_MS(200), LED_BLUE, WAIT_MS(750), LED_OFF, WAIT_MS(0),
      LED_END_SEQUENCE, LED_END_SEQUENCE}, //LED_SEQUENCE_LONGRED_LONGGREEN_LONGBLUE      
 
-    {LED_YELLOW,WAIT_MS(200),LED_OFF,WAIT_MS(200),LED_END_SEQUENCE,LED_END_SEQUENCE}                                                         //LED_SEQUENCE_YELLOW_SLOWFLASH                                                                  
+    {LED_YELLOW,WAIT_MS(200),LED_OFF,WAIT_MS(200),LED_END_SEQUENCE,LED_END_SEQUENCE},                                                         //LED_SEQUENCE_YELLOW_SLOWFLASH                                                                  
+
+    {LED_YELLOW, WAIT_MS(200), LED_OFF, WAIT_MS(200), LED_REPEAT_LASTX, CMDS_RPT(2, 2), LED_GREEN, WAIT_MS(750), LED_OFF, WAIT_MS(0),
+     LED_END_SEQUENCE, LED_END_SEQUENCE}, //LED_SEQUENCE_YELLOW_SLOWFLASH_2_LONGGREEN;
+
+    {LED_YELLOW, WAIT_MS(200), LED_OFF, WAIT_MS(200), LED_REPEAT_LASTX, CMDS_RPT(2, 2), LED_RED, WAIT_MS(750), LED_OFF, WAIT_MS(0),
+     LED_END_SEQUENCE, LED_END_SEQUENCE} //LED_SEQUENCE_YELLOW_SLOWFLASH_2_LONGRED;
 
 };
 
@@ -221,7 +227,8 @@ static const uint8_t ui8_led_sequences[LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SE
 #define LED_SEQUENCE_GREENSLOWFLASH_10              46
 #define LED_SEQUENCE_LONGRED_LONGGREEN_LONGBLUE     47
 #define LED_SEQUENCE_YELLOW_SLOWFLASH               48
-
+#define LED_SEQUENCE_YELLOW_SLOWFLASH_2_LONGGREEN   49
+#define LED_SEQUENCE_YELLOW_SLOWFLASH_2_LONGRED     50
 
 #define LED_EVENT_WIRELESS_BOARD_POWER_ON LED_SEQUENCE_RED_YELLOW_LONGGREEN
 #define LED_EVENT_BLUETOOTH_CONNECT LED_SEQUENCE_BLUE_SLOWFLASH_2_LONGGREEN
@@ -258,12 +265,22 @@ static const uint8_t ui8_led_sequences[LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SE
 #define LED_EVENT_WAIT_1S                           LED_SEQUENCE_OFF_1S
 #define LED_EVENT_DEEP_SLEEP                        LED_SEQUENCE_RED_YELLOW_LONGGREEN
 #define LED_EVENT_BRIGHTNESS_CHECK                  LED_SEQUENCE_RED_YELLOW_LONGGREEN
+#define LED_EVENT_STREET_MODE_OFF                   LED_SEQUENCE_YELLOW_SLOWFLASH_2_LONGRED
+#define LED_EVENT_STREET_MODE_ON                    LED_SEQUENCE_YELLOW_SLOWFLASH_2_LONGGREEN
  
-extern void led_init(void);                                             // call this to setup app timers
-extern void led_alert(uint8_t ui8_sequence);                            // call this to queue and play a sequence - e.g. led_alert(LED_SEQUENCE_SHORT_GREEN);           
-extern void led_clear_queue(void);                                      // used if you want to play a sequence right now. clear the queue then the next thing you play is up now.
-extern void led_hold_queue(void);                                       // Used to keep the current sequence playing until you release the queue
-extern void led_release_queue(void);                                    // Go back to normal - play the queue as it happens
-extern void led_set_global_brightness(uint8_t ui8_global_brightness);   // Default is 1 - lowest. 3 currently is highest.
+// Deprecated - please use the equivalents below
+// extern void led_init(void);                                             // call this to setup app timers
+// extern void led_alert(uint8_t ui8_sequence);                            // call this to queue and play a sequence - e.g. led_alert(LED_SEQUENCE_SHORT_GREEN);           
+// extern void led_clear_queue(void);                                      // used if you want to play a sequence right now. clear the queue then the next thing you play is up now.
+// extern void led_hold_queue(void);                                       // Used to keep the current sequence playing until you release the queue
+// extern void led_release_queue(void);                                    // Go back to normal - play the queue as it happens
+// extern void led_set_global_brightness(uint8_t ui8_global_brightness);   // Default is 1 - lowest. 3 currently is highest.
 
-
+void led_init(void);                                             // call this to setup app timers
+void led_sequence_play(uint8_t ui8_sequence);                    // call this to queue and play a sequence - e.g. led_sequence_play(LED_SEQUENCE_SHORT_GREEN);  
+void led_sequence_play_next(uint8_t ui8_sequence);               // used if you want to play a sequence next in the queue - clears queue and plays
+void led_sequence_play_next_until(uint8_t ui8_sequence);         // used if you want to play a repeating sequence next in the queue - clears queue and plays a repeating sequence
+void led_sequence_play_now(uint8_t ui8_sequence);                // used if you want to play a sequence now - stops current sequence and plays
+void led_sequence_play_now_until(uint8_t ui8_sequence);          // used if you want to play a sequence now - stops current sequence and plays a repeating sequence
+void led_sequence_cancel_play_until();                           // Cancel repeating sequence
+void led_set_global_brightness(uint8_t ui8_global_brightness);   // Default is 1 - lowest 'on'. 7 currently is highest. 0 will switch leds off
