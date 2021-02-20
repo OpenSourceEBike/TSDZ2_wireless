@@ -10,7 +10,7 @@
 #include "ledalert.h"
 #include "app_timer.h"
 #include "stdint.h"
-#include "nrf_delay.h"
+
 
 APP_TIMER_DEF(led_pwm_timer);
 #define LED_PWM_INTERVAL APP_TIMER_TICKS(1) // 16Khz - means the lowest intensity (green) is pulsing at about 1Khz.. each pulse is c.61 microseconds in length (1/16384s)
@@ -291,6 +291,10 @@ void led_init(void)
     ui8_led_green_on_state = 0;
     ui8_led_blue_on_state = 0;
 
+    bsp_board_led_off(LED_R__PIN);
+    bsp_board_led_off(LED_G__PIN);
+    bsp_board_led_off(LED_B__PIN);
+
     ui8_led_sequence_queue_read_position = 0;
     ui8_led_sequence_queue_write_position = 0;
     led_set_global_brightness(1); // Default to lowest 'on' brightness
@@ -307,6 +311,16 @@ void led_clear_queue(void) //used if you want to play a sequence right now.
 {
     ui8_led_sequence_queue_write_position = ui8_led_sequence_queue_read_position;
 }
+
+void led_clear_queue_and_stop_current_sequence(void) //used if you want to play a sequence right now.
+{
+    ui8_led_sequence_queue_write_position = ui8_led_sequence_queue_read_position;
+    ui8_led_sequence_isplaying_now = 0;
+    ui8_led_sequence_current_sequence_command_index = 0;
+    ui8_led_sequence_current_command = LED_NOCOMMAND;
+}
+
+
 
 void led_hold_queue(void) // Used to keep the current sequence playing
 {
@@ -331,4 +345,44 @@ void led_alert(uint8_t ui8_sequence)
 
     // Turn on the timer that clocks the sequence
     app_timer_start(led_sequence_clock_timer,APP_TIMER_TICKS(LED_CLOCK_MS), NULL); // should we check the return code?
+}
+
+void led_sequence_play(uint8_t ui8_sequence)
+{
+    led_alert(ui8_sequence);
+}
+
+void led_sequence_play_next(uint8_t ui8_sequence)
+{
+    led_clear_queue();
+    led_sequence_play(ui8_sequence);
+}
+
+void led_sequence_play_next_until(uint8_t ui8_sequence)
+{
+    led_hold_queue();
+    led_sequence_play_next(ui8_sequence);
+}
+
+void led_sequence_play_now(uint8_t ui8_sequence)
+{
+    led_clear_queue_and_stop_current_sequence();
+    led_sequence_play(ui8_sequence);
+}
+
+void led_sequence_play_now_until(uint8_t ui8_sequence)
+{
+    led_hold_queue();
+    led_sequence_play_now(ui8_sequence);
+}
+
+void led_sequence_play_until(uint8_t ui8_sequence)
+{
+    led_hold_queue();
+    led_sequence_play(ui8_sequence);
+}
+
+void led_sequence_cancel_play_until()
+{
+    led_release_queue();
 }
