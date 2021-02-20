@@ -1656,7 +1656,7 @@ void walk_assist_state(void) {
 }
 
 
-/// Called every 20ms to check for wired button events and dispatch to our handlers
+/// Called every 50ms to check for wired button events and dispatch to our handlers
 static void handle_buttons() {
 
   static uint8_t firstTime = 1;
@@ -1674,7 +1674,7 @@ static void handle_buttons() {
  		if (wiredRemoteOnPress(buttons_events)) buttons_clear_all_events();
   }
 
-	buttons_clock(); // Note: this is done _after_ button events is checked to provide a 20ms debounce
+	buttons_clock(); // Note: this is done _after_ button events is checked to provide a 50ms debounce
 }
 
 int main(void)

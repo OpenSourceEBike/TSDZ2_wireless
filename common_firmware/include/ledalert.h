@@ -23,7 +23,7 @@
 #define LED_REPEAT_LASTX                        254
 #define WAIT_MS(a) ((a) / (LED_CLOCK_MS))
 #define CMDS_RPT(a,b) ((a) + (16 * (b)))         //Repeat last x commands - next value last x-1 commands to repeat (0-15) plus 16*number of times - so max is repeat last 16 commands 16 times
-extern uint32_t get_time_base_counter_1ms(void);
+
 // Define sequences here
 // Sequence commands are 2 bytes each - first is the colour or other instruction, 2nd is either time to show for LED - or parameter for command.
 // End sequences with two LED_END_SEQUENCE
