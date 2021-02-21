@@ -42,9 +42,9 @@ void ant_lev_page_16_decode(const uint8_t *p_page_buffer,
     p_page_data->current_front_gear = (p_incoming_data->display_command_lsb & 0x30) >> 4;
     p_page_data->current_rear_gear = ((p_incoming_data->display_command_lsb & 0xC0) >> 6) | ((p_incoming_data->display_command_msb) << 2);
     if (p_page_data->light_beam)
-        led_alert(LED_EVENT_LIGHTS_ON);
+        led_sequence_play_next(LED_EVENT_LIGHTS_ON);
     else
-        led_alert(LED_EVENT_LIGHTS_OFF);
+        led_sequence_play_next(LED_EVENT_LIGHTS_OFF);
 }
 void ant_lev_page_16_encode(uint8_t *p_page_buffer,
                             ant_lev_page_16_data_t const *p_page_data)
