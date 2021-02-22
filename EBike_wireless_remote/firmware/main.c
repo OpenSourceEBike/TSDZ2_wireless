@@ -1512,23 +1512,6 @@ void check_interrupt_flags(void)
       brightness = 1;
     led_set_global_brightness(brightness);
     led_sequence_play_next(LED_SEQUENCE_LONGRED_LONGGREEN_LONGBLUE);
-
-    /*
-    nrf_delay_ms(4000);
-    bsp_board_led_on(LED_R__PIN);
-
-    nrf_delay_ms(1000);
-    bsp_board_led_off(LED_R__PIN);
-    bsp_board_led_on(LED_G__PIN);
-
-    nrf_delay_ms(1000);
-    bsp_board_led_off(LED_G__PIN);
-    bsp_board_led_on(LED_B__PIN);
-
-    nrf_delay_ms(1000);
-    bsp_board_led_off(LED_B__PIN);
-    */
-
     brightness_flag = false;
   }
   // check to see if low power mode is requested
@@ -1656,16 +1639,5 @@ int main(void)
     check_interrupt_flags();
   }
 
-  /* 
-  while (true)
-  {
-
-    // Wait for an event.
-    __WFE();
-    // Clear the internal event register.
-    __SEV();
-    __WFE();
-    check_interrupt_flags();
-  }
-  */
+  
 }
