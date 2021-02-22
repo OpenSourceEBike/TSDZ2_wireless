@@ -272,7 +272,7 @@ void check_motor_init()
     break;
   case 2: //motor initializing
 
-    led_sequence_play(LED_EVENT_MOTOR_ON_WAIT);
+    led_sequence_play_next(LED_EVENT_MOTOR_ON_WAIT);
     soc_disp = true; //show the soc when motor turns on
 
     break;
@@ -571,7 +571,7 @@ static void ANT_Search_timeout(void *p_context) //check every 400 ms
       err_code = app_timer_stop(ANT_Search_timer);
       APP_ERROR_CHECK(err_code);
 
-      led_sequence_play(LED_EVENT_ANT_CONNECT);
+      led_sequence_play_next(LED_EVENT_ANT_CONNECT);
 
       searching_flag = false;
     }
@@ -585,7 +585,7 @@ static void ANT_Search_timeout(void *p_context) //check every 400 ms
     {
 
       ui8_cnt_ant_search_timeout = 0;
-      led_sequence_play(LED_EVENT_ANT_CONNECT);
+      led_sequence_play_next(LED_EVENT_ANT_CONNECT);
       err_code = app_timer_stop(ANT_Search_timer);
 
       searching_flag = false;
@@ -598,7 +598,7 @@ static void ANT_Search_timeout(void *p_context) //check every 400 ms
     {
       ui8_cnt_ant_search_timeout = 0;
 
-      led_sequence_play(LED_EVENT_ANT_CONNECT);
+      led_sequence_play_next(LED_EVENT_ANT_CONNECT);
       err_code = app_timer_stop(ANT_Search_timer);
 
       searching_flag = false;
@@ -647,7 +647,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
   APP_ERROR_CHECK(err_code);
   if ((nrf_gpio_pin_read(ENTER__PIN) != 0) && (nrf_gpio_pin_read(MINUS__PIN) != 0) && (nrf_gpio_pin_read(STANDBY__PIN) != 0)) //if none of these are pressed
   {
-    led_sequence_play(LED_EVENT_SHORT_GREEN);
+    led_sequence_play_next(LED_EVENT_SHORT_GREEN);
   }
   if (configuration_flag)
   {
@@ -657,7 +657,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     if (nrf_gpio_pin_read(STANDBY__PIN) == 0)
     {
       //INDICATE ENTERING BOOTLOADER MODE
-      led_sequence_play(LED_EVENT_ENTER_DFU);
+      led_sequence_play_next(LED_EVENT_ENTER_DFU);
 
       new_ant_device_id = 0x99;
     }
@@ -678,7 +678,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
 
       buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 0);
 
-      led_sequence_play(LED_EVENT_SHORT_GREEN);
+      led_sequence_play_next(LED_EVENT_SHORT_GREEN);
     }
 
     if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && (motor_init_state == 1))
@@ -748,7 +748,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       if (button_pin == STANDBY__PIN)
       {
         //not assigned
-        //led_sequence_play(LED_EVENT_SHORT_RED);
+        //led_sequence_play_next(LED_EVENT_SHORT_RED);
       }
       if (button_pin == PLUS__PIN)
       {
@@ -802,7 +802,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
             }
             else
             {
-              led_sequence_play(LED_EVENT_ASSIST_LEVEL_DECREASE);
+              led_sequence_play_next(LED_EVENT_ASSIST_LEVEL_DECREASE);
             }
           }
           else
@@ -844,7 +844,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
             }
             else
             {
-              led_sequence_play(LED_EVENT_ASSIST_LEVEL_INCREASE);
+              led_sequence_play_next(LED_EVENT_ASSIST_LEVEL_INCREASE);
             }
           }
           else
@@ -864,7 +864,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         else
         {
           //garmin not activated, flash red led
-          led_sequence_play_next(LED_EVENT_SHORT_RED);
+          led_sequence_play(LED_EVENT_SHORT_RED);
         }
       }
 
@@ -1445,7 +1445,7 @@ void check_interrupt_flags(void)
   }
   //check for walk mode
   if (walk_mode)
-    led_sequence_play(LED_EVENT_WALK_ASSIST_ACTIVE);
+    led_sequence_play_next(LED_EVENT_WALK_ASSIST_ACTIVE);
 
   //need flags to handle interrupt events for flash write
   //this is required due to interrupt priority
@@ -1511,7 +1511,7 @@ void check_interrupt_flags(void)
     if (brightness > 7)
       brightness = 1;
     led_set_global_brightness(brightness);
-    led_sequence_play(LED_SEQUENCE_LONGRED_LONGGREEN_LONGBLUE);
+    led_sequence_play_next(LED_SEQUENCE_LONGRED_LONGGREEN_LONGBLUE);
 
     /*
     nrf_delay_ms(4000);
@@ -1535,8 +1535,8 @@ void check_interrupt_flags(void)
   if (shutdown_flag)
   {
 
-    led_sequence_play_now(LED_EVENT_DEEP_SLEEP);
-    nrf_delay_ms(3000);
+    led_sequence_play_next(LED_EVENT_DEEP_SLEEP);
+    nrf_lp_delay_ms(3000);
    
     shutdown();
   }
@@ -1638,7 +1638,7 @@ int main(void)
   if (configuration_flag)
   {
 
-    led_sequence_play(LED_EVENT_CONFIGURATION_MODE);
+    led_sequence_play_next(LED_EVENT_CONFIGURATION_MODE);
 
     //start the bluetooth 5 min timer -turn off configurartion mode automatically in 5 minutes
     err_code = app_timer_start(bluetooth_timer, BLUETOOTH_TIMEOUT, NULL);
