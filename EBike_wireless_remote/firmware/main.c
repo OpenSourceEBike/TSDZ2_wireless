@@ -1536,7 +1536,7 @@ void check_interrupt_flags(void)
   {
 
     led_sequence_play(LED_EVENT_DEEP_SLEEP);
-    nrf_lp_delay_ms(3000);
+    nrf_delay_ms(3000);
    
     shutdown();
   }
