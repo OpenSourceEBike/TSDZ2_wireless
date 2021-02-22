@@ -217,6 +217,7 @@ static void multiple_click_timeout(void *p_context)
   {
     if ((standby_pin_flag) && (motor_init_state == 0))
       shutdown_flag = true; // set flag for low power
+
     if (enter_pin_flag)
       brightness_flag = true; // change brightness
   }
@@ -520,7 +521,6 @@ void ant_lev_evt_handler(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
 
 void wait_and_reset(void)
 {
-
   nrf_delay_ms(WAIT_TIME);
   sd_nvic_SystemReset(); // reset and start again
 }
@@ -618,9 +618,15 @@ static void timer_button_config_press_timeout_handler(void *p_context)
   config_press = true;
   // enter configuration mode
   if (configuration_flag)
+  {
     disable_configuration = true;
+    enable_configuration = false;
+  }
   else
+  {
     enable_configuration = true;
+    disable_configuration = false;
+  }
 }
 static void timer_button_press_timeout_handler(void *p_context)
 {
@@ -652,6 +658,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     {
       //INDICATE ENTERING BOOTLOADER MODE
       led_sequence_play(LED_EVENT_ENTER_DFU);
+
       new_ant_device_id = 0x99;
     }
     if (nrf_gpio_pin_read(PLUS__PIN) == 0)
@@ -1479,17 +1486,12 @@ void check_interrupt_flags(void)
     case 0x95: //?? control off - not used for now
 
       break;
-
-    case 0x96:
-      wait_and_reset();
-
     case 0x99: // start bootloader
         //turn off config mode on reboot
       eeprom_write_variables(old_ant_device_id, 0, ebike, garmin, brake); // disable BLUETOOTH on restart}
       nrf_delay_ms(WAIT_TIME);
       nrf_power_gpregret_set(BOOTLOADER_DFU_START);
-      new_ant_device_id = 0x96; //wait and reset
-      // wait_and_reset();
+      wait_and_reset();
       break;
 
     default: //ant ID change requested
@@ -1499,8 +1501,7 @@ void check_interrupt_flags(void)
     // save changes and keep in  configuration mode
     eeprom_write_variables(old_ant_device_id, 1, ebike, garmin, brake);
     nrf_delay_ms(WAIT_TIME);
-    new_ant_device_id = 0x96; //wait and reset
-    //wait_and_reset();
+    wait_and_reset();
   }
   //check to see if brightness change is requested'
   if (brightness_flag) //do three levels of brightness, 1 4 and 7
@@ -1511,6 +1512,7 @@ void check_interrupt_flags(void)
       brightness = 1;
     led_set_global_brightness(brightness);
     led_sequence_play(LED_SEQUENCE_LONGRED_LONGGREEN_LONGBLUE);
+
     /*
     nrf_delay_ms(4000);
     bsp_board_led_on(LED_R__PIN);
@@ -1533,9 +1535,9 @@ void check_interrupt_flags(void)
   if (shutdown_flag)
   {
 
-    led_sequence_play(LED_EVENT_DEEP_SLEEP);
-    nrf_lp_delay_ms(2000); //let the sequence finish
-
+    led_sequence_play_now(LED_EVENT_DEEP_SLEEP);
+    nrf_delay_ms(3000);
+   
     shutdown();
   }
   // now check for bluetooth flag on plus button press
@@ -1543,9 +1545,7 @@ void check_interrupt_flags(void)
   {
     eeprom_write_variables(old_ant_device_id, 1, ebike, garmin, brake); // Enable BLUETOOTH on restart}
     nrf_delay_ms(WAIT_TIME);
-    led_sequence_play(LED_EVENT_CONFIGURATION_MODE);
-    new_ant_device_id = 0x96; //wait and reset
-    // wait_and_reset();
+    wait_and_reset();
   }
 
   // finally check bluetooth timeout flag and minus button press
@@ -1553,8 +1553,6 @@ void check_interrupt_flags(void)
   {
     eeprom_write_variables(old_ant_device_id, 0, ebike, garmin, brake); // Disable BLUETOOTH on restart}
     nrf_delay_ms(WAIT_TIME);
-    led_sequence_play(LED_EVENT_CONFIGURATION_MODE);
-
     wait_and_reset();
   }
 }
@@ -1633,25 +1631,16 @@ int main(void)
   init_app_timers();
   buttons_init();
   led_init(); //pwm initialization
-              //read the flash memory and setup the ANT ID and Bluetooth flag
+  led_sequence_play(LED_EVENT_WIRELESS_BOARD_POWER_ON);
+  //read the flash memory and setup the ANT ID and Bluetooth flag
   eeprom_init(&old_ant_device_id, &configuration_flag, &ebike, &garmin, &brake);
   new_ant_device_id = old_ant_device_id; //no change at this time.
-
   if (configuration_flag)
   {
-    // led_sequence_play(LED_EVENT_CONFIGURATION_MODE);
-    //  nrf_delay_ms(500);
-    if (ebike)
-    {
-      led_sequence_play(LED_EVENT_CONFIG_LEV_ACTIVE);
-    }
 
-    if (garmin)
-    {
-      led_sequence_play(LED_EVENT_CONFIG_CTRL_ACTIVE);
-    }
+    led_sequence_play(LED_EVENT_CONFIGURATION_MODE);
 
-    //start the bluetooth 5 min timer
+    //start the bluetooth 5 min timer -turn off configurartion mode automatically in 5 minutes
     err_code = app_timer_start(bluetooth_timer, BLUETOOTH_TIMEOUT, NULL);
     APP_ERROR_CHECK(err_code);
     ble_init();
