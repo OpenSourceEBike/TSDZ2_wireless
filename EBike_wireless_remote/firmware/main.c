@@ -272,7 +272,7 @@ void check_motor_init()
     break;
   case 2: //motor initializing
 
-    led_sequence_play_next(LED_EVENT_MOTOR_ON_WAIT);
+    led_sequence_play(LED_EVENT_MOTOR_ON_WAIT);
     soc_disp = true; //show the soc when motor turns on
 
     break;
@@ -647,7 +647,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
   APP_ERROR_CHECK(err_code);
   if ((nrf_gpio_pin_read(ENTER__PIN) != 0) && (nrf_gpio_pin_read(MINUS__PIN) != 0) && (nrf_gpio_pin_read(STANDBY__PIN) != 0)) //if none of these are pressed
   {
-    led_sequence_play_next(LED_EVENT_SHORT_GREEN);
+    led_sequence_play(LED_EVENT_SHORT_GREEN);
   }
   if (configuration_flag)
   {
@@ -656,8 +656,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
 
     if (nrf_gpio_pin_read(STANDBY__PIN) == 0)
     {
-      //INDICATE ENTERING BOOTLOADER MODE
-      led_sequence_play_next(LED_EVENT_ENTER_DFU);
+    
 
       new_ant_device_id = 0x99;
     }
@@ -678,7 +677,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
 
       buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 0);
 
-      led_sequence_play_next(LED_EVENT_SHORT_GREEN);
+      led_sequence_play(LED_EVENT_SHORT_GREEN);
     }
 
     if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && (motor_init_state == 1))
@@ -827,8 +826,8 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         }
         else
         {
-          led_sequence_play_next(LED_EVENT_SHORT_RED); //inactive
-          motor_display_soc = false;                   //flag needed due to interrupt priority
+          led_sequence_play(LED_EVENT_SHORT_RED); //inactive
+          motor_display_soc = false;              //flag needed due to interrupt priority
         }
       }
       else if (button_pin == PLUS__PIN)
@@ -976,6 +975,10 @@ void buttons_init(void)
 }
 void shutdown(void)
 {
+  led_sequence_play_next(LED_SEQUENCE_SHORT_GREEN);
+  led_sequence_play(LED_SEQUENCE_SHORT_BLUE);
+  led_sequence_play(LED_SEQUENCE_SHORT_YELLOW);
+  nrf_delay_ms(2000);
   nrf_gpio_pin_clear(19); //reset
   nrf_delay_ms(10);
   nrf_gpio_pin_clear(BUTTON_1); //button1
@@ -1441,11 +1444,11 @@ void check_interrupt_flags(void)
 
   if (brake_flag)
   {
-    led_sequence_play_next(LED_EVENT_SHORT_RED);
+    led_sequence_play(LED_EVENT_SHORT_RED);
   }
   //check for walk mode
   if (walk_mode)
-    led_sequence_play_next(LED_EVENT_WALK_ASSIST_ACTIVE);
+    led_sequence_play(LED_EVENT_WALK_ASSIST_ACTIVE);
 
   //need flags to handle interrupt events for flash write
   //this is required due to interrupt priority
@@ -1488,6 +1491,11 @@ void check_interrupt_flags(void)
       break;
     case 0x99: // start bootloader
         //turn off config mode on reboot
+        //INDICATE ENTERING BOOTLOADER MODE
+      led_sequence_play(LED_EVENT_ENTER_DFU);
+       nrf_delay_ms(3000);
+      led_sequence_play(LED_EVENT_ENTER_DFU);
+      nrf_delay_ms(3000);
       eeprom_write_variables(old_ant_device_id, 0, ebike, garmin, brake); // disable BLUETOOTH on restart}
       nrf_delay_ms(WAIT_TIME);
       nrf_power_gpregret_set(BOOTLOADER_DFU_START);
@@ -1516,13 +1524,8 @@ void check_interrupt_flags(void)
   }
   // check to see if low power mode is requested
   if (shutdown_flag)
-  {
-
-    led_sequence_play(LED_EVENT_DEEP_SLEEP);
-    nrf_delay_ms(3000);
-   
     shutdown();
-  }
+
   // now check for bluetooth flag on plus button press
   if (enable_configuration)
   {
@@ -1638,6 +1641,4 @@ int main(void)
     nrf_pwr_mgmt_run();
     check_interrupt_flags();
   }
-
-  
 }
