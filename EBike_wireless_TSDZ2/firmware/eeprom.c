@@ -482,4 +482,12 @@ void eeprom_write_variables(void) {
   /* Write the updated record to flash. */
   ret_code_t err_code = fds_record_update(&m_desc_config, &m_fds_configurations);
   APP_ERROR_CHECK(err_code);
+  err_code=fds_gc();
+  APP_ERROR_CHECK(err_code);
+
+  /* see: https://devzone.nordicsemi.com/f/nordic-q-a/25923/fds-gc-seems-not-to-work
+  
+Running GC after fds_record_update() will delete the 'old' copy of the record, if it succeeds.
+
+*/
 }
