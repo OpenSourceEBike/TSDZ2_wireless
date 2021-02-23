@@ -58,7 +58,7 @@
 
 #include "ant_search_config.h"
 #include <math.h>
-#define WAIT_TIME 3000 // wait 3 seconds before a reset
+#define WAIT_TIME 1000 // wait 3 seconds before a reset
 bool config_press = false;
 //motor state control variables
 uint8_t motor_init_state = 0;
@@ -217,6 +217,7 @@ static void multiple_click_timeout(void *p_context)
   {
     if ((standby_pin_flag) && (motor_init_state == 0))
       shutdown_flag = true; // set flag for low power
+
     if (enter_pin_flag)
       brightness_flag = true; // change brightness
   }
@@ -247,8 +248,7 @@ void check_motor_init()
     if (motor_on)
     {
       {
-        led_clear_queue();
-        led_alert(LED_EVENT_MOTOR_OFF);
+        led_sequence_play_next(LED_EVENT_MOTOR_OFF);
         motor_on = false;
         disp_soc(motor_soc_state);
       }
@@ -263,8 +263,7 @@ void check_motor_init()
       ////indicate the motor SOC when motor turns on
       if (!searching_flag) //needed if you have a garmin bike computer
       {
-        led_clear_queue();
-        led_alert(LED_EVENT_MOTOR_ON_COMPLETE);
+        led_sequence_play_next(LED_EVENT_MOTOR_ON_COMPLETE);
       }
       motor_on = true;
       soc_disp = false;
@@ -273,7 +272,7 @@ void check_motor_init()
     break;
   case 2: //motor initializing
 
-    led_alert(LED_EVENT_MOTOR_ON_WAIT);
+    led_sequence_play_next(LED_EVENT_MOTOR_ON_WAIT);
     soc_disp = true; //show the soc when motor turns on
 
     break;
@@ -522,7 +521,6 @@ void ant_lev_evt_handler(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
 
 void wait_and_reset(void)
 {
-
   nrf_delay_ms(WAIT_TIME);
   sd_nvic_SystemReset(); // reset and start again
 }
@@ -558,7 +556,7 @@ static void ANT_Search_timeout(void *p_context) //check every 400 ms
     return;
   }
   if (searching_flag)
-    led_alert(LED_EVENT_ANT_DISCONNECT);
+    led_sequence_play(LED_EVENT_ANT_DISCONNECT);
   err_code = sd_ant_channel_status_get(LEV_CHANNEL_NUM, &LEV_Status);
   APP_ERROR_CHECK(err_code);
   err_code = sd_ant_channel_status_get(CONTROLS_CHANNEL_NUM, &CTRL_Status);
@@ -573,7 +571,7 @@ static void ANT_Search_timeout(void *p_context) //check every 400 ms
       err_code = app_timer_stop(ANT_Search_timer);
       APP_ERROR_CHECK(err_code);
 
-      led_alert(LED_EVENT_ANT_CONNECT);
+      led_sequence_play_next(LED_EVENT_ANT_CONNECT);
 
       searching_flag = false;
     }
@@ -587,7 +585,7 @@ static void ANT_Search_timeout(void *p_context) //check every 400 ms
     {
 
       ui8_cnt_ant_search_timeout = 0;
-      led_alert(LED_EVENT_ANT_CONNECT);
+      led_sequence_play_next(LED_EVENT_ANT_CONNECT);
       err_code = app_timer_stop(ANT_Search_timer);
 
       searching_flag = false;
@@ -600,7 +598,7 @@ static void ANT_Search_timeout(void *p_context) //check every 400 ms
     {
       ui8_cnt_ant_search_timeout = 0;
 
-      led_alert(LED_EVENT_ANT_CONNECT);
+      led_sequence_play_next(LED_EVENT_ANT_CONNECT);
       err_code = app_timer_stop(ANT_Search_timer);
 
       searching_flag = false;
@@ -620,9 +618,15 @@ static void timer_button_config_press_timeout_handler(void *p_context)
   config_press = true;
   // enter configuration mode
   if (configuration_flag)
+  {
     disable_configuration = true;
+    enable_configuration = false;
+  }
   else
+  {
     enable_configuration = true;
+    disable_configuration = false;
+  }
 }
 static void timer_button_press_timeout_handler(void *p_context)
 {
@@ -643,7 +647,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
   APP_ERROR_CHECK(err_code);
   if ((nrf_gpio_pin_read(ENTER__PIN) != 0) && (nrf_gpio_pin_read(MINUS__PIN) != 0) && (nrf_gpio_pin_read(STANDBY__PIN) != 0)) //if none of these are pressed
   {
-    led_alert(LED_EVENT_SHORT_GREEN);
+    led_sequence_play_next(LED_EVENT_SHORT_GREEN);
   }
   if (configuration_flag)
   {
@@ -653,7 +657,8 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     if (nrf_gpio_pin_read(STANDBY__PIN) == 0)
     {
       //INDICATE ENTERING BOOTLOADER MODE
-      led_alert(LED_EVENT_ENTER_DFU);
+      led_sequence_play_next(LED_EVENT_ENTER_DFU);
+
       new_ant_device_id = 0x99;
     }
     if (nrf_gpio_pin_read(PLUS__PIN) == 0)
@@ -673,7 +678,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
 
       buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 0);
 
-      led_alert(LED_EVENT_SHORT_GREEN);
+      led_sequence_play_next(LED_EVENT_SHORT_GREEN);
     }
 
     if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && (motor_init_state == 1))
@@ -687,8 +692,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     }
     else
     {
-      led_clear_queue();
-      led_alert(LED_EVENT_SHORT_RED);
+      led_sequence_play_next(LED_EVENT_SHORT_RED);
     }
     if (nrf_gpio_pin_read(PLUS__PIN) == 0)
     {
@@ -727,8 +731,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       {
         if (motor_init_state == 0) //motor is off
         {
-          led_clear_queue();
-          led_alert(LED_EVENT_SHORT_RED);
+          led_sequence_play_next(LED_EVENT_SHORT_RED);
         }
       }
       if (button_pin == ENTER__PIN)
@@ -745,7 +748,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       if (button_pin == STANDBY__PIN)
       {
         //not assigned
-        //led_alert(LED_EVENT_SHORT_RED);
+        //led_sequence_play_next(LED_EVENT_SHORT_RED);
       }
       if (button_pin == PLUS__PIN)
       {
@@ -795,18 +798,16 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
             buttons_send_page16(&m_ant_lev, button_pin, m_button_long_press);
             if (m_ant_lev.page_16.travel_mode == 0) //at limits
             {
-              led_clear_queue();
-              led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
+              led_sequence_play_next(LED_EVENT_ASSIST_LIMITS_REACHED);
             }
             else
             {
-              led_alert(LED_EVENT_ASSIST_LEVEL_DECREASE);
+              led_sequence_play_next(LED_EVENT_ASSIST_LEVEL_DECREASE);
             }
           }
           else
           {
-            led_clear_queue();
-            led_alert(LED_EVENT_SHORT_RED);
+            led_sequence_play_next(LED_EVENT_SHORT_RED);
           }
         }
       }
@@ -822,13 +823,12 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       { //display the battery SOC
         if (motor_init_state == 1)
         {
-          motor_display_soc = true; //display charge state 
+          motor_display_soc = true; //display charge state
         }
         else
         {
-          led_clear_queue();
-          led_alert(LED_EVENT_SHORT_RED); //inactive
-          motor_display_soc = false;      //flag needed due to interrupt priority
+          led_sequence_play_next(LED_EVENT_SHORT_RED); //inactive
+          motor_display_soc = false;                   //flag needed due to interrupt priority
         }
       }
       else if (button_pin == PLUS__PIN)
@@ -840,18 +840,16 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
             buttons_send_page16(&m_ant_lev, button_pin, m_button_long_press);
             if (m_ant_lev.page_16.travel_mode == 56) //at limits
             {
-              led_clear_queue();
-              led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
+              led_sequence_play_next(LED_EVENT_ASSIST_LIMITS_REACHED);
             }
             else
             {
-              led_alert(LED_EVENT_ASSIST_LEVEL_INCREASE);
+              led_sequence_play_next(LED_EVENT_ASSIST_LEVEL_INCREASE);
             }
           }
           else
           {
-            led_clear_queue();
-            led_alert(LED_EVENT_SHORT_RED);
+            led_sequence_play_next(LED_EVENT_SHORT_RED);
           }
         }
       }
@@ -861,13 +859,12 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         if (garmin)
         {
           buttons_send_pag73(&m_antplus_controls, button_pin, 1);
-          led_alert(LED_EVENT_SHORT_GREEN);
+          led_sequence_play(LED_EVENT_SHORT_GREEN);
         }
         else
         {
           //garmin not activated, flash red led
-          led_clear_queue();
-          led_alert(LED_EVENT_SHORT_RED);
+          led_sequence_play(LED_EVENT_SHORT_RED);
         }
       }
 
@@ -1432,24 +1429,23 @@ void check_interrupt_flags(void)
 
     if (ebike)
     {
-      led_alert(LED_EVENT_CONFIG_LEV_ACTIVE);
+      led_sequence_play(LED_EVENT_CONFIG_LEV_ACTIVE);
     }
 
     if (garmin)
     {
-      led_alert(LED_EVENT_CONFIG_CTRL_ACTIVE);
+      led_sequence_play(LED_EVENT_CONFIG_CTRL_ACTIVE);
     }
     disp_config_flag = false;
   }
 
   if (brake_flag)
   {
-    led_clear_queue();
-    led_alert(LED_EVENT_SHORT_RED);
+    led_sequence_play_next(LED_EVENT_SHORT_RED);
   }
   //check for walk mode
   if (walk_mode)
-    led_alert(LED_EVENT_WALK_ASSIST_ACTIVE);
+    led_sequence_play_next(LED_EVENT_WALK_ASSIST_ACTIVE);
 
   //need flags to handle interrupt events for flash write
   //this is required due to interrupt priority
@@ -1490,7 +1486,6 @@ void check_interrupt_flags(void)
     case 0x95: //?? control off - not used for now
 
       break;
-
     case 0x99: // start bootloader
         //turn off config mode on reboot
       eeprom_write_variables(old_ant_device_id, 0, ebike, garmin, brake); // disable BLUETOOTH on restart}
@@ -1516,32 +1511,16 @@ void check_interrupt_flags(void)
     if (brightness > 7)
       brightness = 1;
     led_set_global_brightness(brightness);
-    led_alert(LED_SEQUENCE_LONGRED_LONGGREEN_LONGBLUE);
-    /*
-    nrf_delay_ms(4000);
-    bsp_board_led_on(LED_R__PIN);
-
-    nrf_delay_ms(1000);
-    bsp_board_led_off(LED_R__PIN);
-    bsp_board_led_on(LED_G__PIN);
-
-    nrf_delay_ms(1000);
-    bsp_board_led_off(LED_G__PIN);
-    bsp_board_led_on(LED_B__PIN);
-
-    nrf_delay_ms(1000);
-    bsp_board_led_off(LED_B__PIN);
-    */
-
+    led_sequence_play_next(LED_SEQUENCE_LONGRED_LONGGREEN_LONGBLUE);
     brightness_flag = false;
   }
   // check to see if low power mode is requested
   if (shutdown_flag)
   {
 
-    led_alert(LED_EVENT_DEEP_SLEEP);
-    nrf_lp_delay_ms(2000); //let the sequence finish
-
+    led_sequence_play(LED_EVENT_DEEP_SLEEP);
+    nrf_delay_ms(3000);
+   
     shutdown();
   }
   // now check for bluetooth flag on plus button press
@@ -1549,8 +1528,6 @@ void check_interrupt_flags(void)
   {
     eeprom_write_variables(old_ant_device_id, 1, ebike, garmin, brake); // Enable BLUETOOTH on restart}
     nrf_delay_ms(WAIT_TIME);
-    led_alert(LED_EVENT_CONFIGURATION_MODE);
-
     wait_and_reset();
   }
 
@@ -1559,8 +1536,6 @@ void check_interrupt_flags(void)
   {
     eeprom_write_variables(old_ant_device_id, 0, ebike, garmin, brake); // Disable BLUETOOTH on restart}
     nrf_delay_ms(WAIT_TIME);
-    led_alert(LED_EVENT_CONFIGURATION_MODE);
-
     wait_and_reset();
   }
 }
@@ -1639,25 +1614,16 @@ int main(void)
   init_app_timers();
   buttons_init();
   led_init(); //pwm initialization
-              //read the flash memory and setup the ANT ID and Bluetooth flag
+  led_sequence_play(LED_EVENT_WIRELESS_BOARD_POWER_ON);
+  //read the flash memory and setup the ANT ID and Bluetooth flag
   eeprom_init(&old_ant_device_id, &configuration_flag, &ebike, &garmin, &brake);
   new_ant_device_id = old_ant_device_id; //no change at this time.
-
   if (configuration_flag)
   {
-    // led_alert(LED_EVENT_CONFIGURATION_MODE);
-    //  nrf_delay_ms(500);
-    if (ebike)
-    {
-      led_alert(LED_EVENT_CONFIG_LEV_ACTIVE);
-    }
 
-    if (garmin)
-    {
-      led_alert(LED_EVENT_CONFIG_CTRL_ACTIVE);
-    }
+    led_sequence_play_next(LED_EVENT_CONFIGURATION_MODE);
 
-    //start the bluetooth 5 min timer
+    //start the bluetooth 5 min timer -turn off configurartion mode automatically in 5 minutes
     err_code = app_timer_start(bluetooth_timer, BLUETOOTH_TIMEOUT, NULL);
     APP_ERROR_CHECK(err_code);
     ble_init();
@@ -1673,16 +1639,5 @@ int main(void)
     check_interrupt_flags();
   }
 
-  /* 
-  while (true)
-  {
-
-    // Wait for an event.
-    __WFE();
-    // Clear the internal event register.
-    __SEV();
-    __WFE();
-    check_interrupt_flags();
-  }
-  */
+  
 }

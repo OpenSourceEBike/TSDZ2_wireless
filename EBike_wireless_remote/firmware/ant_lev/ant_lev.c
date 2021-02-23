@@ -123,7 +123,7 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
             {
                 //quickly flash led if at limits
 
-                led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
+                led_sequence_play_next(LED_EVENT_ASSIST_LIMITS_REACHED);
 
                 desired_travel_mode = 0;
             }
@@ -136,7 +136,7 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
                 {
                     //quickly flash led if at limits
 
-                    led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
+                    led_sequence_play_next(LED_EVENT_ASSIST_LIMITS_REACHED);
                 }
             }
 
@@ -147,7 +147,7 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
             if (p_profile->page_16.travel_mode == 56)
             {
                 desired_travel_mode = 56;
-               led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
+               led_sequence_play_next(LED_EVENT_ASSIST_LIMITS_REACHED);
             }
             else
 
@@ -158,7 +158,7 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
 
                 if (p_profile->page_16.travel_mode == 56)
                 {
-                 led_alert(LED_EVENT_ASSIST_LIMITS_REACHED);
+                 led_sequence_play_next(LED_EVENT_ASSIST_LIMITS_REACHED);
                 }
             }
         }

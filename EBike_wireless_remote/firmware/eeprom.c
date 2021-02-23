@@ -128,4 +128,12 @@ void eeprom_write_variables(uint8_t ant_num, uint8_t bluetooth, uint8_t ebike, u
   // update the  record
   err_code = fds_record_update(&m_desc_config, &record);
   APP_ERROR_CHECK(err_code);
+  err_code=fds_gc();
+  APP_ERROR_CHECK(err_code);
+
+  /* see: https://devzone.nordicsemi.com/f/nordic-q-a/25923/fds-gc-seems-not-to-work
+  
+Running GC after fds_record_update() will delete the 'old' copy of the record, if it succeeds.
+
+*/
 }
