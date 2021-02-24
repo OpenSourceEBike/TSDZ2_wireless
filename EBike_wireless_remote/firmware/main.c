@@ -521,7 +521,7 @@ void ant_lev_evt_handler(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
 
 void wait_and_reset(void)
 {
-  nrf_delay_ms(WAIT_TIME);
+  nrf_lp_delay_ms(WAIT_TIME);
   sd_nvic_SystemReset(); // reset and start again
 }
 void ANT_Search_Stop(void) //ant search has timed out without finding a device
@@ -977,33 +977,33 @@ void shutdown(void)
   led_sequence_play_next(LED_SEQUENCE_SHORT_GREEN);
   led_sequence_play(LED_SEQUENCE_SHORT_BLUE);
   led_sequence_play(LED_SEQUENCE_SHORT_YELLOW);
-  nrf_delay_ms(2000);
+  nrf_lp_delay_ms(2000);
   nrf_gpio_pin_clear(19); //reset
-  nrf_delay_ms(10);
+  nrf_lp_delay_ms(10);
   nrf_gpio_pin_clear(BUTTON_1); //button1
-  nrf_delay_ms(10);
+  nrf_lp_delay_ms(10);
   app_timer_stop(ANT_Search_timer);
-  nrf_delay_ms(10);
+  nrf_lp_delay_ms(10);
   app_timer_stop(m_timer_button_press_timeout);
-  nrf_delay_ms(10);
+  nrf_lp_delay_ms(10);
   app_timer_stop(m_timer_button_long_press_timeout);
-  nrf_delay_ms(10);
+  nrf_lp_delay_ms(10);
   app_timer_stop(bluetooth_timer);
-  nrf_delay_ms(10);
+  nrf_lp_delay_ms(10);
   sd_clock_hfclk_release();
-  nrf_delay_ms(10);
+  nrf_lp_delay_ms(10);
   // Disable TWI ready for sleep
   NRF_TWI0->ENABLE = TWI_ENABLE_ENABLE_Disabled << TWI_ENABLE_ENABLE_Pos;
-  nrf_delay_ms(10);
+  nrf_lp_delay_ms(10);
   NRF_SPI0->ENABLE = 0;
-  nrf_delay_ms(10);
+  nrf_lp_delay_ms(10);
   NRF_UART0->ENABLE = 0;
-  nrf_delay_ms(10);
+  nrf_lp_delay_ms(10);
 
   // shut down the dcdc
   sd_power_dcdc_mode_set(NRF_POWER_DCDC_DISABLE);
   sd_power_pof_enable(0);
-  nrf_delay_ms(100);
+  nrf_lp_delay_ms(100);
 
   nrf_gpio_cfg_default(LED1_G);
   nrf_gpio_cfg_default(LED2_R);
@@ -1013,9 +1013,9 @@ void shutdown(void)
   nrf_gpio_cfg_default(BUTTON_1);
   nrf_gpio_cfg_default(19);
   sd_clock_hfclk_release();
-  nrf_delay_ms(10);
+  nrf_lp_delay_ms(10);
 
-  nrf_delay_ms(WAIT_TIME);
+  nrf_lp_delay_ms(WAIT_TIME);
   nrf_pwr_mgmt_shutdown(NRF_PWR_MGMT_SHUTDOWN_GOTO_SYSOFF);
 }
 
@@ -1492,11 +1492,11 @@ void check_interrupt_flags(void)
         //turn off config mode on reboot
         //INDICATE ENTERING BOOTLOADER MODE
       led_sequence_play(LED_EVENT_ENTER_DFU);
-      nrf_delay_ms(3000);
+      nrf_lp_delay_ms(3000);
       led_sequence_play(LED_EVENT_ENTER_DFU);
-      nrf_delay_ms(3000);
+      nrf_lp_delay_ms(3000);
       eeprom_write_variables(old_ant_device_id, 0, ebike, garmin, brake); // disable BLUETOOTH on restart}
-      nrf_delay_ms(WAIT_TIME);
+      nrf_lp_delay_ms(WAIT_TIME);
       nrf_power_gpregret_set(BOOTLOADER_DFU_START);
       wait_and_reset();
       break;
@@ -1507,7 +1507,7 @@ void check_interrupt_flags(void)
 
     // save changes and keep in  configuration mode
     eeprom_write_variables(old_ant_device_id, 1, ebike, garmin, brake);
-    nrf_delay_ms(WAIT_TIME);
+    nrf_lp_delay_ms(WAIT_TIME);
     wait_and_reset();
   }
   //check to see if brightness change is requested'
@@ -1529,7 +1529,7 @@ void check_interrupt_flags(void)
   if (enable_configuration)
   {
     eeprom_write_variables(old_ant_device_id, 1, ebike, garmin, brake); // Enable BLUETOOTH on restart}
-    nrf_delay_ms(WAIT_TIME);
+    nrf_lp_delay_ms(WAIT_TIME);
     wait_and_reset();
   }
 
@@ -1537,7 +1537,7 @@ void check_interrupt_flags(void)
   if (disable_configuration)
   {
     eeprom_write_variables(old_ant_device_id, 0, ebike, garmin, brake); // Disable BLUETOOTH on restart}
-    nrf_delay_ms(WAIT_TIME);
+    nrf_lp_delay_ms(WAIT_TIME);
     wait_and_reset();
   }
 }
