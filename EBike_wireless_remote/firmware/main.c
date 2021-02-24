@@ -656,7 +656,6 @@ static void timer_button_long_press_timeout_handler(void *p_context)
 
     if (nrf_gpio_pin_read(STANDBY__PIN) == 0)
     {
-    
 
       new_ant_device_id = 0x99;
     }
@@ -776,7 +775,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       if (walk_mode)
       {
         //cancel walk_mode
-        led_clear_queue();
+        led_sequence_play_next(LED_EVENT_WALK_ASSIST_ACTIVE);
         m_button_long_press = true;
         buttons_send_page16(&m_ant_lev, walk_mode, m_button_long_press);
         walk_mode = 0;
@@ -814,7 +813,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       {
 
         brake_flag = false;
-        led_clear_queue();
+        led_sequence_play_now(LED_EVENT_SHORT_RED);
         m_button_long_press = true;
         buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
       }
@@ -1493,7 +1492,7 @@ void check_interrupt_flags(void)
         //turn off config mode on reboot
         //INDICATE ENTERING BOOTLOADER MODE
       led_sequence_play(LED_EVENT_ENTER_DFU);
-       nrf_delay_ms(3000);
+      nrf_delay_ms(3000);
       led_sequence_play(LED_EVENT_ENTER_DFU);
       nrf_delay_ms(3000);
       eeprom_write_variables(old_ant_device_id, 0, ebike, garmin, brake); // disable BLUETOOTH on restart}
