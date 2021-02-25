@@ -247,6 +247,7 @@ void check_motor_init()
     if (motor_on)
     {
       {
+        nrf_lp_delay_ms(500);
         led_sequence_play_next(LED_EVENT_MOTOR_OFF);
         motor_on = false;
         disp_soc(motor_soc_state);
@@ -270,7 +271,7 @@ void check_motor_init()
     }
     break;
   case 2: //motor initializing
-
+    nrf_lp_delay_ms(500);
     led_sequence_play(LED_EVENT_MOTOR_ON_WAIT);
     soc_disp = true; //show the soc when motor turns on
 
