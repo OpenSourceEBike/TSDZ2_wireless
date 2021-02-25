@@ -350,7 +350,7 @@ void ant_lev_evt_handler_pre(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
     break;
   case MOTOR_INIT_ERROR_FIRMWARE_VERSION:
     p_profile->common.gear_state = (12 | (p_profile->common.gear_state & 0x03));
-    p_profile->page_16.current_rear_gear = 3;
+   // p_profile->page_16.current_rear_gear = 3;
     break;
   case MOTOR_INIT_ERROR_SET_CONFIGURATIONS:
     p_profile->common.gear_state = (16 | (p_profile->common.gear_state & 0x03));
@@ -518,7 +518,7 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
       if (ui_vars.ui8_walk_assist_feature_enabled)
       {
         ui_vars.ui8_walk_assist = 0;
-        ui8_walk_assist_state_process_locally = 0;
+        ui8_walk_assist_state_process_locally = 1;
       }
       // disable brakes: be as fast as possible
       nrf_gpio_port_out_set(NRF_P0, 1UL << BRAKE__PIN);

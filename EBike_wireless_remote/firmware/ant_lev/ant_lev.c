@@ -20,6 +20,8 @@
 #include "nrf_delay.h"
 #include "ledalert.h"
 static u_int8_t desired_travel_mode;
+bool walk_mode_check;
+bool brake_mode_check;
 #define COMMON_DATA_INTERVAL 20 /**< Common data page is sent every 20th message. */
 
 void shutdown(void);
@@ -54,8 +56,8 @@ void send_page16(ant_lev_profile_t *p_profile)
     do
     {
         err_code = sd_ant_acknowledge_message_tx(p_profile->channel_number, sizeof(p_message_payload), p_message_payload);
-   // } while (err_code == NRF_ANT_ERROR_TRANSFER_IN_PROGRESS);
-    }while (err_code );
+        // } while (err_code == NRF_ANT_ERROR_TRANSFER_IN_PROGRESS);
+    } while (err_code);
 
     //reset the on/off and brake flags
     p_profile->page_16.current_front_gear = 0;
@@ -147,7 +149,7 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
             if (p_profile->page_16.travel_mode == 56)
             {
                 desired_travel_mode = 56;
-               led_sequence_play_next(LED_EVENT_ASSIST_LIMITS_REACHED);
+                led_sequence_play_next(LED_EVENT_ASSIST_LIMITS_REACHED);
             }
             else
 
@@ -158,7 +160,7 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
 
                 if (p_profile->page_16.travel_mode == 56)
                 {
-                 led_sequence_play_next(LED_EVENT_ASSIST_LIMITS_REACHED);
+                    led_sequence_play_next(LED_EVENT_ASSIST_LIMITS_REACHED);
                 }
             }
         }
@@ -173,10 +175,12 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
         else if (button == BRAKE__PIN)
         {
             p_profile->page_16.current_rear_gear = 15;
+            brake_mode_check = true; //put in check to confirm it took
         }
         else if (button == 55) //walk mode
         {
             p_profile->page_16.current_rear_gear = 14;
+            walk_mode_check = true; //put in check to confirm it took
         }
         else if (button == 54) //light mode
         {
@@ -196,10 +200,12 @@ bool buttons_send_page16(ant_lev_profile_t *p_profile, button_pins_t button, boo
         else if (button == 55) //clear walk_mode command
         {
             p_profile->page_16.current_rear_gear = 0;
+            walk_mode_check = false;
         }
         else if (button == BRAKE__PIN)
         {
             p_profile->page_16.current_rear_gear = 0;
+            brake_mode_check = false;
         }
     }
     send_page16(p_profile);
@@ -219,6 +225,30 @@ static void disp_message_decode(ant_lev_profile_t *p_profile, uint8_t *p_message
     {
     case ANT_LEV_PAGE_16:
         ant_lev_page_16_decode(p_lev_message_payload->page_payload, &(p_profile->page_16));
+        //do receive checks
+        
+        //brake mode check
+        if ((brake_mode_check) && (p_profile->page_16.current_rear_gear != 15))
+        {
+            //send it again as it was missed with fast button presses
+            p_profile->page_16.current_rear_gear = 15;
+            send_page16(p_profile);
+        }
+        //travel mode check
+        if (desired_travel_mode != p_profile->page_16.travel_mode)
+        {
+            //send it again as it was missed with fast button presses
+            p_profile->page_16.travel_mode = desired_travel_mode;
+            send_page16(p_profile);
+        }
+        // walk_mode check
+        if ((walk_mode_check) && (p_profile->page_16.current_rear_gear != 14))
+        {
+            //send it again as it was missed with fast button presses
+            p_profile->page_16.current_rear_gear = 14;
+            send_page16(p_profile);
+        }
+
         break;
 
     case ANT_LEV_PAGE_1:
@@ -266,12 +296,8 @@ void ant_lev_disp_evt_handler(ant_evt_t *p_ant_evt, void *p_context)
         ant_lev_disp_cb_t *p_lev_cb = p_profile->_cb.p_sens_cb;
         //  ant_request_controller_disp_evt_handler(&(p_lev_cb->req_controller), p_ant_evt);
         disp_message_decode(p_profile, p_message_payload);
-        if (desired_travel_mode != p_profile->page_16.travel_mode)
-        {
-            //send it again as it was missed with fast button presses
-            p_profile->page_16.travel_mode = desired_travel_mode;
-            send_page16(p_profile);
-        }
+        // check that brake mode, walk mode, and travel modes are set correctly in the motor
+
         switch (p_ant_evt->event)
         {
 
@@ -287,12 +313,14 @@ void ant_lev_disp_evt_handler(ant_evt_t *p_ant_evt, void *p_context)
                                                          p_message_payload);
                 APP_ERROR_CHECK(err_code);
             }
+            /*
             if (desired_travel_mode != p_profile->page_16.travel_mode)
             {
                 //send it again it was missed with fast button presses
                 p_profile->page_16.travel_mode = desired_travel_mode;
                 send_page16(p_profile);
             }
+            */
 
             /*           else
             {
@@ -310,12 +338,14 @@ void ant_lev_disp_evt_handler(ant_evt_t *p_ant_evt, void *p_context)
             if (p_ant_evt->message.ANT_MESSAGE_ucMesgID == MESG_BROADCAST_DATA_ID || p_ant_evt->message.ANT_MESSAGE_ucMesgID == MESG_ACKNOWLEDGED_DATA_ID || p_ant_evt->message.ANT_MESSAGE_ucMesgID == MESG_BURST_DATA_ID)
             {
                 disp_message_decode(p_profile, p_ant_evt->message.ANT_MESSAGE_aucPayload);
+                /*
                 if (desired_travel_mode != p_profile->page_16.travel_mode)
                 {
                     //send it again it was missed with fast button presses
                     p_profile->page_16.travel_mode = desired_travel_mode;
                     send_page16(p_profile);
                 }
+                */
             }
             break;
         case EVENT_RX_SEARCH_TIMEOUT:

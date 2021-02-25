@@ -285,4 +285,4 @@ void led_sequence_play_now_until(uint8_t ui8_sequence);          // used if you 
 void led_sequence_cancel_play_until();                           // Cancel repeating sequence
 void led_set_global_brightness(uint8_t ui8_global_brightness);   // Default is 1 - lowest 'on'. 7 currently is highest. 0 will switch leds off
 void led_clear_queue_and_stop_current_sequence(void);
-void led_clear_queue();
+
