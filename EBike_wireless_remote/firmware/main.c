@@ -67,7 +67,6 @@ uint8_t motor_soc_state;
 bool motor_display_soc = false;
 bool display_assist = false;
 uint8_t walk_mode = 0;
-bool brake_flag = false;
 uint8_t light_mode = 0;
 bool disp_config_flag = false;
 
@@ -248,6 +247,7 @@ void check_motor_init()
     if (motor_on)
     {
       {
+        nrf_lp_delay_ms(500);
         led_sequence_play_next(LED_EVENT_MOTOR_OFF);
         motor_on = false;
         disp_soc(motor_soc_state);
@@ -271,7 +271,7 @@ void check_motor_init()
     }
     break;
   case 2: //motor initializing
-
+    nrf_lp_delay_ms(500);
     led_sequence_play(LED_EVENT_MOTOR_ON_WAIT);
     soc_disp = true; //show the soc when motor turns on
 
@@ -687,6 +687,8 @@ static void timer_button_long_press_timeout_handler(void *p_context)
                       //slow flash
       m_button_long_press = false;
       buttons_send_page16(&m_ant_lev, walk_mode, m_button_long_press);
+      //check for walk mode
+      led_sequence_play_next_until(LED_EVENT_WALK_ASSIST_ACTIVE);
     }
     else
     {
@@ -775,7 +777,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       if (walk_mode)
       {
         //cancel walk_mode
-        led_sequence_play_next(LED_EVENT_WALK_ASSIST_ACTIVE);
+        led_sequence_cancel_play_until();
         m_button_long_press = true;
         buttons_send_page16(&m_ant_lev, walk_mode, m_button_long_press);
         walk_mode = 0;
@@ -812,10 +814,9 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       else if ((button_pin == BRAKE__PIN) && (motor_init_state == 1))
       {
 
-        brake_flag = false;
-        led_sequence_play_now(LED_EVENT_SHORT_RED);
+        led_sequence_cancel_play_until();
         m_button_long_press = true;
-        buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
+        buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press); //critical command - send twice
       }
       else if ((button_pin == STANDBY__PIN) && (!m_button_long_press))
       { //display the battery SOC
@@ -906,9 +907,8 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       {
         //set the brake flag in the rear gearing to signal that the brake has been pressed
         buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
-        brake_flag = true;
+        led_sequence_play_next_until(LED_EVENT_SHORT_RED);
       }
-
       else
       {
         err_code = app_timer_start(m_timer_button_long_press_timeout, BUTTON_LONG_PRESS_TIMEOUT, NULL); //start the long press timer
@@ -1440,14 +1440,6 @@ void check_interrupt_flags(void)
     }
     disp_config_flag = false;
   }
-
-  if (brake_flag)
-  {
-    led_sequence_play(LED_EVENT_SHORT_RED);
-  }
-  //check for walk mode
-  if (walk_mode)
-    led_sequence_play(LED_EVENT_WALK_ASSIST_ACTIVE);
 
   //need flags to handle interrupt events for flash write
   //this is required due to interrupt priority
