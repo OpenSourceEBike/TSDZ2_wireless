@@ -813,11 +813,9 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       else if ((button_pin == BRAKE__PIN) && (motor_init_state == 1))
       {
 
-       // nrf_delay_ms(500);
         led_sequence_cancel_play_until();
         m_button_long_press = true;
         buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press); //critical command - send twice
-        
       }
       else if ((button_pin == STANDBY__PIN) && (!m_button_long_press))
       { //display the battery SOC
@@ -1441,8 +1439,6 @@ void check_interrupt_flags(void)
     }
     disp_config_flag = false;
   }
-
-  
 
   //need flags to handle interrupt events for flash write
   //this is required due to interrupt priority

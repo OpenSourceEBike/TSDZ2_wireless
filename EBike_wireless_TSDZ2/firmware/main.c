@@ -57,7 +57,7 @@
 
 extern uint8_t ui8_g_battery_soc;
 ui_vars_t *mp_ui_vars;
-bool brake_flag = false;
+
 
 volatile uint8_t ui8_m_enter_bootloader = 0;
 volatile uint8_t ui8_m_ant_device_id = 0;
@@ -503,27 +503,32 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
       if (ui_vars.ui8_walk_assist_feature_enabled)
       {
         ui_vars.ui8_walk_assist = 1;
+        ui8_walk_assist_timeout = 2;
         ui8_walk_assist_state_process_locally = 0;
+        led_sequence_play_now_until(LED_EVENT_WALK_ASSIST_ACTIVE);
       }
     }
     if (p_profile->page_16.current_rear_gear == 15)
     {
       // enable brakes: be as fast as possible
       nrf_gpio_port_out_clear(NRF_P0, 1UL << BRAKE__PIN);
+      led_sequence_play_next_until(LED_EVENT_SHORT_RED);
     }
     if (p_profile->page_16.current_rear_gear == 0)
     {
       //this state should clear both brakes and walk mode
+     
       // disable walk mode
-      if (ui_vars.ui8_walk_assist_feature_enabled)
+      if (ui_vars.ui8_walk_assist = 1)
       {
         ui_vars.ui8_walk_assist = 0;
         ui8_walk_assist_state_process_locally = 1;
       }
       // disable brakes: be as fast as possible
       nrf_gpio_port_out_set(NRF_P0, 1UL << BRAKE__PIN);
-      ui_vars.ui8_walk_assist = 0;
+       led_sequence_cancel_play_until();
     }
+    
     if (p_profile->page_16.current_front_gear == 3)
     {
 
