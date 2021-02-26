@@ -345,7 +345,7 @@ void led_alert(uint8_t ui8_sequence)
 
     // Turn on the timer that clocks the sequence
     app_timer_start(led_sequence_clock_timer,APP_TIMER_TICKS(LED_CLOCK_MS), NULL); // should we check the return code?
-    led_sequence_clock(&led_sequence_clock);
+    //led_sequence_clock(&led_sequence_clock);
 }
 
 void led_sequence_play(uint8_t ui8_sequence)
