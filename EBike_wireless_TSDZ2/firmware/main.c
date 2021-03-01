@@ -519,7 +519,7 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
       //this state should clear both brakes and walk mode
      
       // disable walk mode
-      if (ui_vars.ui8_walk_assist = 1)
+      if (ui_vars.ui8_walk_assist == 1)
       {
         ui_vars.ui8_walk_assist = 0;
         ui8_walk_assist_state_process_locally = 1;
