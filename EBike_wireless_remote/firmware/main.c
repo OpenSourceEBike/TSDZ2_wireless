@@ -250,7 +250,7 @@ void check_motor_init()
         nrf_lp_delay_ms(500);
         led_sequence_play_next(LED_EVENT_MOTOR_OFF);
         motor_on = false;
-        disp_soc(motor_soc_state);
+       // disp_soc(motor_soc_state);
       }
     }
     //key_disp = false;
@@ -814,7 +814,8 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       else if ((button_pin == BRAKE__PIN) && (motor_init_state == 1))
       {
 
-        led_sequence_cancel_play_until();
+        //led_sequence_cancel_play_until();
+        bsp_board_leds_off();
         m_button_long_press = true;
         buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press); //critical command - send twice
       }
@@ -907,7 +908,8 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       {
         //set the brake flag in the rear gearing to signal that the brake has been pressed
         buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
-        led_sequence_play_next_until(LED_EVENT_SHORT_RED);
+        //led_sequence_play_next_until(LED_SEQUENCE_EXTRA_LONGRED);
+        bsp_board_led_on(LED_R__PIN);
       }
       else
       {
