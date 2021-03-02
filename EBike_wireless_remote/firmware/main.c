@@ -446,7 +446,7 @@ APP_TIMER_DEF(bluetooth_timer);
 APP_TIMER_DEF(brake_timer);
 
 #define BLUETOOTH_TIMEOUT APP_TIMER_TICKS(1000 * 60 * 5) //turn off bluetooth after 5 min
-#define BRAKE_TIMEOUT APP_TIMER_TICKS(1000 * 10)         //turn off bluetooth after 10 seconds
+#define BRAKE_TIMEOUT APP_TIMER_TICKS(1000 * 10)         //turn off brake after 10 seconds
 void shutdown(void);
 
 uint16_t cnt_1;
