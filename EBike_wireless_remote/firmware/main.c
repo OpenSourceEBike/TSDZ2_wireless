@@ -443,10 +443,9 @@ bool m_timer_buttons_send_running = false;
 //set default  old ant ID for reset;
 
 APP_TIMER_DEF(bluetooth_timer);
-APP_TIMER_DEF(brake_timer);
 
 #define BLUETOOTH_TIMEOUT APP_TIMER_TICKS(1000 * 60 * 5) //turn off bluetooth after 5 min
-#define BRAKE_TIMEOUT APP_TIMER_TICKS(1000 * 5)         //turn off brake after 5 seconds
+
 void shutdown(void);
 
 uint16_t cnt_1;
@@ -607,11 +606,7 @@ static void ANT_Search_timeout(void *p_context) //check every 400 ms
     return;
   }
 }
-static void brake_timer_timeout(void *p_context)
-{
-  UNUSED_PARAMETER(p_context);
-  bsp_board_leds_off();
-}
+
 static void bluetooth_timer_timeout(void *p_context)
 {
   UNUSED_PARAMETER(p_context);
@@ -698,7 +693,8 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     }
     else
     {
-      led_sequence_play_next(LED_EVENT_SHORT_RED);
+      if (nrf_gpio_pin_read(STANDBY__PIN) != 0)
+        led_sequence_play_next(LED_EVENT_SHORT_RED);
     }
     if (nrf_gpio_pin_read(PLUS__PIN) == 0)
     {
@@ -820,10 +816,8 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       else if ((button_pin == BRAKE__PIN) && (motor_init_state == 1))
       {
 
-        //led_sequence_cancel_play_until();
-        bsp_board_leds_off();
-        err_code = app_timer_stop(brake_timer);
-        APP_ERROR_CHECK(err_code);
+        led_sequence_play_now(LED_SEQUENCE_OFF_100MS);
+
         m_button_long_press = true;
         buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press); //critical command - send twice
       }
@@ -916,10 +910,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       {
         //set the brake flag in the rear gearing to signal that the brake has been pressed
         buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
-        //led_sequence_play_next_until(LED_SEQUENCE_EXTRA_LONGRED);
-        bsp_board_led_on(LED_R__PIN);
-        err_code = app_timer_start(brake_timer, BRAKE_TIMEOUT, NULL);
-        APP_ERROR_CHECK(err_code);
+        led_sequence_play_next(LED_SEQUENCE_EXTRA_LONGRED);
       }
       else
       {
@@ -1001,8 +992,6 @@ void shutdown(void)
   app_timer_stop(m_timer_button_long_press_timeout);
   nrf_lp_delay_ms(10);
   app_timer_stop(bluetooth_timer);
-  nrf_lp_delay_ms(10);
-  app_timer_stop(brake_timer);
   nrf_lp_delay_ms(10);
   sd_clock_hfclk_release();
   nrf_lp_delay_ms(10);
@@ -1554,8 +1543,6 @@ static void init_app_timers(void)
   APP_ERROR_CHECK(err_code);
 
   err_code = app_timer_create(&bluetooth_timer, APP_TIMER_MODE_SINGLE_SHOT, bluetooth_timer_timeout);
-  APP_ERROR_CHECK(err_code);
-  err_code = app_timer_create(&brake_timer, APP_TIMER_MODE_SINGLE_SHOT, brake_timer_timeout);
   APP_ERROR_CHECK(err_code);
 
   err_code = app_timer_stop(bluetooth_timer);
