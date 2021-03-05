@@ -677,7 +677,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
 
       buttons_send_pag73(&m_antplus_controls, ENTER__PIN, 0);
 
-      led_sequence_play(LED_EVENT_SHORT_GREEN);
+      led_sequence_play(LED_EVENT_GARMIN_PAGEUP);
     }
 
     if ((nrf_gpio_pin_read(MINUS__PIN) == 0) && (motor_init_state == 1))
@@ -694,7 +694,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     else
     {
       if (nrf_gpio_pin_read(STANDBY__PIN) != 0)
-        led_sequence_play_next(LED_EVENT_SHORT_RED);
+        led_sequence_play_next(LED_EVENT_BUTTON_INACTIVE);
     }
     if (nrf_gpio_pin_read(PLUS__PIN) == 0)
     {
@@ -733,7 +733,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       {
         if (motor_init_state == 0) //motor is off
         {
-          led_sequence_play_next(LED_EVENT_SHORT_RED);
+          led_sequence_play_next(LED_EVENT_BUTTON_INACTIVE);
         }
       }
       if (button_pin == ENTER__PIN)
@@ -809,14 +809,14 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
           }
           else
           {
-            led_sequence_play_next(LED_EVENT_SHORT_RED);
+            led_sequence_play_next(LED_EVENT_BUTTON_INACTIVE);
           }
         }
       }
       else if ((button_pin == BRAKE__PIN) && (motor_init_state == 1))
       {
 
-        led_sequence_play_now(LED_SEQUENCE_OFF_100MS);
+        led_sequence_play_now(LED_EVENT_BRAKE_OFF);
 
         m_button_long_press = true;
         buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press); //critical command - send twice
@@ -829,7 +829,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         }
         else
         {
-          led_sequence_play(LED_EVENT_SHORT_RED); //inactive
+          led_sequence_play(LED_EVENT_BUTTON_INACTIVE); //inactive
           motor_display_soc = false;              //flag needed due to interrupt priority
         }
       }
@@ -851,7 +851,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
           }
           else
           {
-            led_sequence_play_next(LED_EVENT_SHORT_RED);
+            led_sequence_play_next(LED_EVENT_BUTTON_INACTIVE);
           }
         }
       }
@@ -861,12 +861,12 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
         if (garmin)
         {
           buttons_send_pag73(&m_antplus_controls, button_pin, 1);
-          led_sequence_play(LED_EVENT_SHORT_GREEN);
+          led_sequence_play(LED_EVENT_GARMIN_PAGEUP);
         }
         else
         {
           //garmin not activated, flash red led
-          led_sequence_play(LED_EVENT_SHORT_RED);
+          led_sequence_play(LED_EVENT_BUTTON_INACTIVE);
         }
       }
 
@@ -910,7 +910,7 @@ static void button_event_handler(uint8_t pin_no, uint8_t button_action)
       {
         //set the brake flag in the rear gearing to signal that the brake has been pressed
         buttons_send_page16(&m_ant_lev, BRAKE__PIN, m_button_long_press);
-        led_sequence_play_next(LED_SEQUENCE_EXTRA_LONGRED);
+        led_sequence_play_next(LED_EVENT_BRAKE_ON);
       }
       else
       {
@@ -1513,7 +1513,7 @@ void check_interrupt_flags(void)
     if (brightness > 7)
       brightness = 1;
     led_set_global_brightness(brightness);
-    led_sequence_play_next(LED_SEQUENCE_LONGRED_LONGGREEN_LONGBLUE);
+    led_sequence_play_next(LED_EVENT_BRIGHTNESS_CHECK);
     brightness_flag = false;
   }
   // check to see if low power mode is requested
