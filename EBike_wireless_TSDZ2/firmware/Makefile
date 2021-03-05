@@ -17,7 +17,7 @@ BOOTLOADER_DIR = $(PROJ_DIR)/../../EBike_wireless_bootloader/firmware
 BOOTLOADER_HEX = $(BOOTLOADER_DIR)/_build/TSDZ2_bootloader_with_sd.hex
 
 APP_VER_MAJOR = 0
-APP_VER_MINOR = 6
+APP_VER_MINOR = 7
 # Source files common to all targets
 SRC_FILES += \
   $(SDK_ROOT)/modules/nrfx/mdk/gcc_startup_nrf52840.S \
