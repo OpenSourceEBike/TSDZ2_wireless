@@ -170,8 +170,8 @@ static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID; /**< Handle of the curr
 
 /**< Universally unique service identifiers. */
 static ble_uuid_t m_adv_uuids[] =
-    {
-        {ANT_ID_UUID_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN},
+{
+  {ANT_ID_UUID_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN},
 };
 
 /**@brief Clear bond information from persistent storage.
@@ -762,6 +762,11 @@ static void tsdz2_write_handler_periodic(uint8_t *p_data, uint16_t len)
   }
 }
 
+static void tsdz2_write_handler_short(uint8_t *p_data, uint16_t len)
+{
+
+}
+
 static void tsdz2_write_handler_configurations(uint8_t *p_data, uint16_t len)
 {
   static uint8_t data[BLE_TSDZ2_CONFIGURATIONS_LEN];
@@ -1000,6 +1005,7 @@ static void services_init(void)
 
   init_tsdz2.tsdz2_write_handler_periodic = tsdz2_write_handler_periodic;
   init_tsdz2.tsdz2_write_handler_configurations = tsdz2_write_handler_configurations;
+  init_tsdz2.tsdz2_write_handler_short = tsdz2_write_handler_short;
 
   err_code = ble_service_tsdz2_init(&m_ble_tsdz2_service, &init_tsdz2);
   APP_ERROR_CHECK(err_code);
@@ -1278,6 +1284,40 @@ void ble_send_periodic_data(void)
   {
     ret_code_t err_code;
     err_code = ble_tsdz2_periodic_on_change(m_conn_handle, &m_ble_tsdz2_service, tx_data);
+    if (err_code == NRF_SUCCESS)
+    {
+    }
+  }
+}
+
+void ble_send_short_data(void)
+{
+  // send periodic to mobile app
+  uint8_t tx_data[BLE_TSDZ2_SHORT_LEN] = {0};
+  tx_data[0] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
+  tx_data[1] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 >> 8);
+  tx_data[2] = ui_vars.ui8_battery_current_x5;
+  tx_data[3] = (uint8_t)(ui_vars.ui16_wheel_speed_x10 & 0xff);
+  tx_data[4] = (uint8_t)(ui_vars.ui16_wheel_speed_x10 >> 8);
+  tx_data[5] = (uint8_t)((ui_vars.ui8_braking & 1) | ((ui_vars.ui8_lights & 1) << 1));
+  tx_data[6] = ui_vars.ui8_assist_level;
+  tx_data[7] = (uint8_t)(ui_vars.ui16_pedal_power & 0xff);
+  tx_data[8] = (uint8_t)(ui_vars.ui16_pedal_power >> 8);
+  tx_data[9] = ui_vars.ui8_motor_temperature;
+  tx_data[10] = ui_vars.ui8_throttle;
+  tx_data[11] = ui8_g_battery_soc;
+  tx_data[12] = ui_vars.ui8_pedal_weight;
+  tx_data[13] = ui_vars.ui8_pedal_cadence_filtered;
+  tx_data[14] = ui_vars.ui8_duty_cycle;
+  tx_data[15] = (uint8_t)(ui_vars.ui16_motor_speed_erps & 0xff);
+  tx_data[16] = (uint8_t)(ui_vars.ui16_motor_speed_erps >> 8);
+  tx_data[17] = ui_vars.ui8_motor_current_x5;
+  tx_data[18] = ui_vars.ui8_error_states;
+
+  if (m_conn_handle != BLE_CONN_HANDLE_INVALID)
+  {
+    ret_code_t err_code;
+    err_code = ble_tsdz2_short_on_change(m_conn_handle, &m_ble_tsdz2_service, tx_data);
     if (err_code == NRF_SUCCESS)
     {
     }
@@ -1734,6 +1774,7 @@ int main(void)
 
       ble_send_periodic_data();
       ble_update_configurations_data();
+      ble_send_short_data();
       TSDZ2_power_manage();
 
       if (ui8_walk_assist_state_process_locally) walk_assist_state();
