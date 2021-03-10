@@ -171,7 +171,7 @@ static uint16_t m_conn_handle = BLE_CONN_HANDLE_INVALID; /**< Handle of the curr
 /**< Universally unique service identifiers. */
 static ble_uuid_t m_adv_uuids[] =
 {
-  {ANT_ID_UUID_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN},
+  {TSDZ2_UUID_SERVICE, BLE_UUID_TYPE_VENDOR_BEGIN},
 };
 
 /**@brief Clear bond information from persistent storage.
