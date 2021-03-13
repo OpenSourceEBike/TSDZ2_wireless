@@ -6,7 +6,7 @@
     "configurations": [
 
         {
-            "name": "NRF52 Flash and Debug",
+            "name": "Flash Debug",
             "type": "cppdbg",
             "request": "launch",
             "args": [],
@@ -57,7 +57,7 @@
             ]
         },
         {
-            "name": "NRF52 Debug",
+            "name": "Debug",
             "type": "cppdbg",
             "request": "launch",
             "args": [],

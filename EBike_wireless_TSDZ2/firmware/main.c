@@ -129,7 +129,7 @@ LEV_SENS_PROFILE_CONFIG_DEF(m_ant_lev,
 
 static ant_lev_profile_t m_ant_lev;
 
-NRF_SDH_ANT_OBSERVER(m_ant_observer, ANT_LEV_ANT_OBSERVER_PRIO, ant_lev_sens_evt_handler, &m_ant_lev);
+// NRF_SDH_ANT_OBSERVER(m_ant_observer, ANT_LEV_ANT_OBSERVER_PRIO, ant_lev_sens_evt_handler, &m_ant_lev);
 
 #define DEVICE_NAME "TSDZ2_wireless" /**< Name of device. Will be included in the advertising data. */
 
@@ -573,33 +573,70 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
 
 static void ant_setup(void)
 {
+  // ret_code_t err_code;
+
+  // err_code = nrf_sdh_ant_enable();
+  // APP_ERROR_CHECK(err_code);
+
+  // err_code = ant_plus_key_set(ANTPLUS_NETWORK_NUM);
+  // APP_ERROR_CHECK(err_code);
+
+  // ui_vars_t *p_ui_vars = get_ui_vars();
+  // m_ant_lev_channel_lev_sens_config.device_number = p_ui_vars->ui8_ant_device_id;
+
+  // err_code = ant_lev_sens_init(&m_ant_lev,
+  //                              &m_ant_lev_channel_lev_sens_config,
+  //                              LEV_SENS_PROFILE_CONFIG(m_ant_lev));
+  // APP_ERROR_CHECK(err_code);
+
+  // // fill manufacturer's common data page.
+  // m_ant_lev.page_80 = ANT_COMMON_page80(LEV_HW_REVISION,
+  //                                       LEV_MANUFACTURER_ID,
+  //                                       LEV_MODEL_NUMBER);
+  // // fill product's common data page.
+  // m_ant_lev.page_81 = ANT_COMMON_page81(LEV_SW_REVISION_MAJOR,
+  //                                       LEV_SW_REVISION_MINOR,
+  //                                       LEV_SERIAL_NUMBER);
+
+  // err_code = ant_lev_sens_open(&m_ant_lev);
+  // APP_ERROR_CHECK(err_code);
+
+// Telemetry Master channel
+#define TELEMETRY_CHANNEL 0
+#define TELEMETRY_ANT_NETWORK_NUM 0
+#define TELEMETRY_CHAN_ID_DEV_TYPE 0x7b
+#define TELEMETRY_CHAN_ID_TRANS_TYPE 5
+#define TELEMETRY_CHAN_PERIOD 16384
+#define TELEMETRY_RF_FREQ 48
+
   ret_code_t err_code;
 
-  err_code = nrf_sdh_ant_enable();
-  APP_ERROR_CHECK(err_code);
+	/* Telemetry */
+	ant_channel_config_t t_channel_config = {
+		.channel_number    = 0,
+		.channel_type      = CHANNEL_TYPE_MASTER,
+		.ext_assign        = 0x00,
+		.rf_freq           = TELEMETRY_RF_FREQ,
+		.transmission_type = TELEMETRY_CHAN_ID_TRANS_TYPE,
+		.device_type       = TELEMETRY_CHAN_ID_DEV_TYPE,
+		.device_number     = 1,
+		.channel_period    = TELEMETRY_CHAN_PERIOD,
+		.network_number    = TELEMETRY_ANT_NETWORK_NUM,
+	};
 
-  err_code = ant_plus_key_set(ANTPLUS_NETWORK_NUM);
-  APP_ERROR_CHECK(err_code);
+	err_code = ant_channel_init(&t_channel_config);
+	APP_ERROR_CHECK(err_code);
 
-  ui_vars_t *p_ui_vars = get_ui_vars();
-  m_ant_lev_channel_lev_sens_config.device_number = p_ui_vars->ui8_ant_device_id;
+	err_code = sd_ant_channel_open(0);
+	APP_ERROR_CHECK(err_code);
 
-  err_code = ant_lev_sens_init(&m_ant_lev,
-                               &m_ant_lev_channel_lev_sens_config,
-                               LEV_SENS_PROFILE_CONFIG(m_ant_lev));
-  APP_ERROR_CHECK(err_code);
+  t_channel_config.channel_number = 1;
+  t_channel_config.device_number = 2;
+  err_code = ant_channel_init(&t_channel_config);
+	APP_ERROR_CHECK(err_code);
 
-  // fill manufacturer's common data page.
-  m_ant_lev.page_80 = ANT_COMMON_page80(LEV_HW_REVISION,
-                                        LEV_MANUFACTURER_ID,
-                                        LEV_MODEL_NUMBER);
-  // fill product's common data page.
-  m_ant_lev.page_81 = ANT_COMMON_page81(LEV_SW_REVISION_MAJOR,
-                                        LEV_SW_REVISION_MINOR,
-                                        LEV_SERIAL_NUMBER);
-
-  err_code = ant_lev_sens_open(&m_ant_lev);
-  APP_ERROR_CHECK(err_code);
+	err_code = sd_ant_channel_open(1);
+	APP_ERROR_CHECK(err_code);
 }
 
 static void main_timer_timeout(void *p_context)
@@ -1753,6 +1790,85 @@ static void handle_buttons() {
 	buttons_clock(); // Note: this is done _after_ button events is checked to provide a 50ms debounce
 }
 
+static void softdevice_setup(void)
+{
+	ret_code_t err_code;
+
+	err_code = nrf_sdh_enable_request();
+	APP_ERROR_CHECK(err_code);
+
+	ASSERT(nrf_sdh_is_enabled());
+
+	err_code = nrf_sdh_ant_enable();
+	APP_ERROR_CHECK(err_code);
+}
+
+static uint8_t payload_unchanged(uint8_t *new)
+{
+	static uint8_t old[ANT_STANDARD_DATA_PAYLOAD_SIZE];
+
+	if (memcmp(old, new, ANT_STANDARD_DATA_PAYLOAD_SIZE) == 0)
+		return 1;
+
+	memcpy(old, new, ANT_STANDARD_DATA_PAYLOAD_SIZE);
+
+	return 0;
+}
+
+void telemetry_update(void)
+{
+#define PAGE_0 0x00
+#define PAGE_16 0x10
+
+	ret_code_t err_code;
+	uint8_t payload[ANT_STANDARD_DATA_PAYLOAD_SIZE];
+  memset(&payload, 0, ANT_STANDARD_DATA_PAYLOAD_SIZE);
+
+	payload[0] = 1; // Page 0
+  // payload[1] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
+  // payload[2] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 >> 8);
+
+payload[1] = 2;
+payload[2] = 3;
+payload[3] = 4;
+
+	if (payload_unchanged(payload))
+		return;
+
+	err_code = sd_ant_broadcast_message_tx(
+			0,
+			ANT_STANDARD_DATA_PAYLOAD_SIZE,
+			payload);
+	APP_ERROR_CHECK(err_code);
+}
+
+void telemetry_update1(void)
+{
+#define PAGE_0 0x00
+#define PAGE_16 0x10
+
+	ret_code_t err_code;
+	uint8_t payload[ANT_STANDARD_DATA_PAYLOAD_SIZE];
+  memset(&payload, 0, ANT_STANDARD_DATA_PAYLOAD_SIZE);
+
+	payload[0] = 6; // Page 0
+  // payload[1] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
+  // payload[2] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 >> 8);
+
+payload[1] = 7;
+payload[2] = 8;
+payload[3] = 9;
+
+	if (payload_unchanged(payload))
+		return;
+
+	err_code = sd_ant_broadcast_message_tx(
+			1,
+			ANT_STANDARD_DATA_PAYLOAD_SIZE,
+			payload);
+	APP_ERROR_CHECK(err_code);
+}
+
 int main(void)
 {
   mp_ui_vars = get_ui_vars();
@@ -1776,7 +1892,9 @@ int main(void)
     NVIC_SystemReset(); //reboot into bootloader
   }
 
-  ble_init();
+  // ble_init();
+softdevice_setup();
+
   ant_setup();
   uart_init();
   led_init();
@@ -1805,9 +1923,12 @@ int main(void)
       copy_rt_ui_vars();
       rt_processing_start();
 
-      ble_send_periodic_data();
-      ble_update_configurations_data();
-      ble_send_short_data();
+      // ble_send_periodic_data();
+      // ble_update_configurations_data();
+      // ble_send_short_data();
+telemetry_update();
+telemetry_update1();
+
       TSDZ2_power_manage();
 
       if (ui8_walk_assist_state_process_locally) walk_assist_state();
