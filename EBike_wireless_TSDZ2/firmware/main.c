@@ -1292,27 +1292,60 @@ void ble_send_periodic_data(void)
 
 void ble_send_short_data(void)
 {
+  // - Garmin Edge datafields only update every 1 second
+  // - send data in less bytes possible, assuming wireless data transmitting uses more power than processing power 
+
   // send periodic to mobile app
   uint8_t tx_data[BLE_TSDZ2_SHORT_LEN] = {0};
-  tx_data[0] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
-  tx_data[1] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 >> 8);
+  // battery voltage: 10 bits, max 102.3 volts
+  tx_data[0] = (uint8_t) (ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
+  tx_data[1] = (uint8_t) ((ui_vars.ui16_battery_voltage_filtered_x10 >> 8) & 0x03);
+  // brakes: 1 bit
+  // lights: 1 bit 
+  tx_data[1] |= (uint8_t) (((ui_vars.ui8_braking & 1) << 2) | ((ui_vars.ui8_lights & 1) << 3));
+  // throttle: 8 bits, max of 255 | 4 bits here
+  tx_data[1] |= (uint8_t) (ui_vars.ui8_throttle << 4);
+
+  // battery current: 8 bits, max of 51 amps
   tx_data[2] = ui_vars.ui8_battery_current_x5;
-  tx_data[3] = (uint8_t)(ui_vars.ui16_wheel_speed_x10 & 0xff);
-  tx_data[4] = (uint8_t)(ui_vars.ui16_wheel_speed_x10 >> 8);
-  tx_data[5] = (uint8_t)((ui_vars.ui8_braking & 1) | ((ui_vars.ui8_lights & 1) << 1));
-  tx_data[6] = ui_vars.ui8_assist_level;
-  tx_data[7] = (uint8_t)(ui_vars.ui16_pedal_power & 0xff);
-  tx_data[8] = (uint8_t)(ui_vars.ui16_pedal_power >> 8);
-  tx_data[9] = ui_vars.ui8_motor_temperature;
-  tx_data[10] = ui_vars.ui8_throttle;
-  tx_data[11] = ui8_g_battery_soc;
-  tx_data[12] = ui_vars.ui8_pedal_weight;
-  tx_data[13] = ui_vars.ui8_pedal_cadence_filtered;
-  tx_data[14] = ui_vars.ui8_duty_cycle;
-  tx_data[15] = (uint8_t)(ui_vars.ui16_motor_speed_erps & 0xff);
-  tx_data[16] = (uint8_t)(ui_vars.ui16_motor_speed_erps >> 8);
-  tx_data[17] = ui_vars.ui8_motor_current_x5;
-  tx_data[18] = ui_vars.ui8_error_states;
+
+  // battery SOC: 7 bits, max of 127 (only needs 100)
+  tx_data[3] = (ui8_g_battery_soc & 0x7f);
+  // throttle: 8 bits, max of 255 | 1 bit here
+  tx_data[3] |= (uint8_t) ((ui_vars.ui8_throttle & 0x10) << 4);
+
+  // battery power usage: 16 bits, max of ~6.5kwh
+  tx_data[4] = (uint8_t) (ui_vars.ui32_wh_x10 & 0xff);
+  tx_data[5] = (uint8_t) (ui_vars.ui32_wh_x10 >> 8);
+
+  // motor current: 8 bits, max of 51 amps
+  tx_data[6] = ui_vars.ui8_motor_current_x5;
+
+  // motor temperature: 8 bits, max of 255 degrees
+  tx_data[7] = ui_vars.ui8_motor_temperature;
+
+  // motor speed: 11 bits, max of 2047 erps
+  tx_data[8] = (uint8_t) (ui_vars.ui16_motor_speed_erps & 0xff);
+  tx_data[9] = (uint8_t) ((ui_vars.ui16_motor_speed_erps >> 8) & 0x07);
+  // assist level: 5 bits, max of 31
+  tx_data[9] |= (ui_vars.ui8_assist_level << 3);
+
+  // wheel speed: 10 bits, max of 102.3 km/h
+  tx_data[10] = (uint8_t) (ui_vars.ui16_wheel_speed_x10 & 0xff);
+  tx_data[11] = (uint8_t) ((ui_vars.ui16_wheel_speed_x10 >> 8) & 0x03);
+  // duty_cycle: 8 bits, max of 255 | 6 bits here
+  tx_data[11] |= (uint8_t) (ui_vars.ui8_duty_cycle << 10);
+
+  // pedal power: 11 bits, max of 2047 watts
+  tx_data[12] = (uint8_t) (ui_vars.ui16_pedal_power & 0xff);
+  tx_data[13] = (uint8_t) ((ui_vars.ui16_pedal_power >> 8) & 0x07);
+  // duty_cycle: 8 bits, max of 255 | 2 bits here
+  tx_data[13] |= (uint8_t) ((ui_vars.ui8_duty_cycle & 0xC0) >> 3);
+  // throttle: 8 bits, max of 255 | 1 bit here
+  tx_data[13] |= ui_vars.ui8_throttle & 0xE0;
+
+  // cadence: 8 bits, max of 255
+  tx_data[14] = ui_vars.ui8_pedal_cadence_filtered;
 
   if (m_conn_handle != BLE_CONN_HANDLE_INVALID)
   {
