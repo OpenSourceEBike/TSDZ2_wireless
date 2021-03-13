@@ -1,5 +1,3 @@
-// vim: syntax=c
-
 using Toybox.Application;
 
 class Main extends Application.AppBase {

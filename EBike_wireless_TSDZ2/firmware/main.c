@@ -605,7 +605,7 @@ static void ant_setup(void)
 #define TELEMETRY_ANT_NETWORK_NUM 0
 #define TELEMETRY_CHAN_ID_DEV_TYPE 2
 #define TELEMETRY_CHAN_ID_TRANS_TYPE 1
-#define TELEMETRY_CHAN_PERIOD 16384
+#define TELEMETRY_CHAN_PERIOD 8192
 #define TELEMETRY_RF_FREQ 66
 
   ret_code_t err_code;

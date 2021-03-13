@@ -22,7 +22,7 @@ class DataField extends WatchUi.SimpleDataField {
 // 12 - assist level
 
   var fieldData = 0;
-  var fieldDataID = 5;
+  var fieldDataID = 0;
 
   function initialize(device) {
     SimpleDataField.initialize();
@@ -50,7 +50,7 @@ class DataField extends WatchUi.SimpleDataField {
 
     } else if (ant_device.searching) {
 
-      return "Searching... id: " + ant_device.deviceNum;
+      return "Searching...";
 
     } else if (!id_displayed || !ant_device.data_valid) {
 
