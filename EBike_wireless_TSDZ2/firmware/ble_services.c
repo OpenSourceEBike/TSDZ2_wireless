@@ -106,6 +106,7 @@ uint32_t ble_service_tsdz2_init(ble_tsdz2_t * p_tsdz2, const ble_tsdz2_init_t * 
 
   p_tsdz2->tsdz2_write_handler_periodic = p_tsdz2_init->tsdz2_write_handler_periodic;
   p_tsdz2->tsdz2_write_handler_configurations = p_tsdz2_init->tsdz2_write_handler_configurations;
+  p_tsdz2->tsdz2_write_handler_short = p_tsdz2_init->tsdz2_write_handler_short;
 
   // Add service.
   ble_uuid128_t base_uuid = {TSDZ2_UUID_BASE};
@@ -149,6 +150,23 @@ uint32_t ble_service_tsdz2_init(ble_tsdz2_t * p_tsdz2, const ble_tsdz2_init_t * 
   err_code = characteristic_add(p_tsdz2->service_handle, &add_char_params, &p_tsdz2->tsdz2_configurations_char_handles);
   VERIFY_SUCCESS(err_code);
 
+  memset(&add_char_params, 0, sizeof(add_char_params));
+add_char_params.uuid             = TSDZ2_SHORT_UUID_CHAR;
+  add_char_params.uuid_type        = p_tsdz2->uuid_type;
+  add_char_params.is_var_len       = true;
+  add_char_params.init_len         = sizeof(uint8_t);
+  add_char_params.max_len          = BLE_TSDZ2_SHORT_LEN;
+  add_char_params.char_props.read  = 1;
+  add_char_params.char_props.write = 1;
+  add_char_params.char_props.notify = 1;
+
+  add_char_params.read_access       = SEC_OPEN;
+  add_char_params.write_access      = SEC_OPEN;
+  add_char_params.cccd_write_access = SEC_OPEN;
+
+  err_code = characteristic_add(p_tsdz2->service_handle, &add_char_params, &p_tsdz2->tsdz2_short_char_handles);
+  VERIFY_SUCCESS(err_code);
+
   return err_code;
 }
 
@@ -175,6 +193,23 @@ uint32_t ble_tsdz2_periodic_on_change(uint16_t conn_handle, ble_tsdz2_t * p_ble_
   memset(&params, 0, sizeof(params));
   params.type   = BLE_GATT_HVX_NOTIFICATION;
   params.handle = p_ble_tsdz2_t->tsdz2_periodic_char_handles.value_handle;
+  params.p_data = p_value;
+  params.p_len  = &len;
+
+  err_code = sd_ble_gatts_hvx(conn_handle, &params);
+
+  return err_code;
+}
+
+uint32_t ble_tsdz2_short_on_change(uint16_t conn_handle, ble_tsdz2_t * p_ble_tsdz2_t, uint8_t *p_value)
+{
+  ret_code_t err_code;
+  ble_gatts_hvx_params_t params;
+  uint16_t len = BLE_TSDZ2_SHORT_LEN;
+
+  memset(&params, 0, sizeof(params));
+  params.type   = BLE_GATT_HVX_NOTIFICATION;
+  params.handle = p_ble_tsdz2_t->tsdz2_short_char_handles.value_handle;
   params.p_data = p_value;
   params.p_len  = &len;
 
