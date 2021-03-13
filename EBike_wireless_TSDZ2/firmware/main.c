@@ -602,12 +602,11 @@ static void ant_setup(void)
   // APP_ERROR_CHECK(err_code);
 
 // Telemetry Master channel
-#define TELEMETRY_CHANNEL 0
 #define TELEMETRY_ANT_NETWORK_NUM 0
-#define TELEMETRY_CHAN_ID_DEV_TYPE 0x7b
-#define TELEMETRY_CHAN_ID_TRANS_TYPE 5
+#define TELEMETRY_CHAN_ID_DEV_TYPE 2
+#define TELEMETRY_CHAN_ID_TRANS_TYPE 1
 #define TELEMETRY_CHAN_PERIOD 16384
-#define TELEMETRY_RF_FREQ 48
+#define TELEMETRY_RF_FREQ 66
 
   ret_code_t err_code;
 
@@ -1817,20 +1816,13 @@ static uint8_t payload_unchanged(uint8_t *new)
 
 void telemetry_update(void)
 {
-#define PAGE_0 0x00
-#define PAGE_16 0x10
-
 	ret_code_t err_code;
 	uint8_t payload[ANT_STANDARD_DATA_PAYLOAD_SIZE];
   memset(&payload, 0, ANT_STANDARD_DATA_PAYLOAD_SIZE);
 
-	payload[0] = 1; // Page 0
-  // payload[1] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
-  // payload[2] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 >> 8);
-
-payload[1] = 2;
-payload[2] = 3;
-payload[3] = 4;
+	payload[0] = 0; // Page
+  payload[1] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
+  payload[2] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 >> 8);
 
 	if (payload_unchanged(payload))
 		return;
@@ -1844,26 +1836,18 @@ payload[3] = 4;
 
 void telemetry_update1(void)
 {
-#define PAGE_0 0x00
-#define PAGE_16 0x10
-
 	ret_code_t err_code;
 	uint8_t payload[ANT_STANDARD_DATA_PAYLOAD_SIZE];
   memset(&payload, 0, ANT_STANDARD_DATA_PAYLOAD_SIZE);
 
-	payload[0] = 6; // Page 0
-  // payload[1] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
-  // payload[2] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 >> 8);
-
-payload[1] = 7;
-payload[2] = 8;
-payload[3] = 9;
+	payload[0] = 1; // Page
+  payload[3] = ui_vars.ui8_motor_temperature;
 
 	if (payload_unchanged(payload))
 		return;
 
 	err_code = sd_ant_broadcast_message_tx(
-			1,
+      1,
 			ANT_STANDARD_DATA_PAYLOAD_SIZE,
 			payload);
 	APP_ERROR_CHECK(err_code);
