@@ -602,10 +602,8 @@ static void ant_setup(void)
   APP_ERROR_CHECK(err_code);
 
   // now setup the ANT generic channels
-  uint8_t temp[] = {0, 0, 0, 0, 0, 0, 0, 0};
-  err_code = sd_ant_network_address_set(1, temp);
-  APP_ERROR_CHECK(err_code);
-  err_code = sd_ant_network_address_set(2, temp);
+  uint8_t array[] = {0, 0, 0, 0, 0, 0, 0, 0};
+  err_code = sd_ant_network_address_set(1, array);
   APP_ERROR_CHECK(err_code);
 
   // add ANT communications for the Garmin data fields 
@@ -613,7 +611,7 @@ static void ant_setup(void)
     .channel_number    = 1,
     .channel_type      = CHANNEL_TYPE_MASTER,
     .ext_assign        = 0x00,
-    .rf_freq           = 66,
+    .rf_freq           = 67,
     .transmission_type = 1,
     .device_type       = 2,
     .device_number     = 36,
@@ -621,7 +619,7 @@ static void ant_setup(void)
     .network_number    = 1,
   };
 
-  for (uint8_t i = 0; i < 7; i++)
+  for (uint8_t i = 0; i < 14; i++)
   {
     err_code = ant_channel_init(&t_channel_config);
     APP_ERROR_CHECK(err_code);
@@ -631,7 +629,7 @@ static void ant_setup(void)
 
     t_channel_config.channel_number++;
     t_channel_config.device_number++;
-    t_channel_config.network_number++;
+    t_channel_config.rf_freq++;
   }
 }
 
@@ -793,11 +791,6 @@ static void tsdz2_write_handler_periodic(uint8_t *p_data, uint16_t len)
       break;
     }
   }
-}
-
-static void tsdz2_write_handler_short(uint8_t *p_data, uint16_t len)
-{
-
 }
 
 static void tsdz2_write_handler_configurations(uint8_t *p_data, uint16_t len)
@@ -1038,7 +1031,6 @@ static void services_init(void)
 
   init_tsdz2.tsdz2_write_handler_periodic = tsdz2_write_handler_periodic;
   init_tsdz2.tsdz2_write_handler_configurations = tsdz2_write_handler_configurations;
-  init_tsdz2.tsdz2_write_handler_short = tsdz2_write_handler_short;
 
   err_code = ble_service_tsdz2_init(&m_ble_tsdz2_service, &init_tsdz2);
   APP_ERROR_CHECK(err_code);
@@ -1271,6 +1263,19 @@ void eeprom_write_variables_and_reset(void)
   NVIC_SystemReset();
 }
 
+
+
+
+
+
+
+
+
+// 12 - assist level
+// 13 - throttle
+// 14 - odometer
+
+
 void ble_send_periodic_data(void)
 {
   // send periodic to mobile app
@@ -1317,73 +1322,6 @@ void ble_send_periodic_data(void)
   {
     ret_code_t err_code;
     err_code = ble_tsdz2_periodic_on_change(m_conn_handle, &m_ble_tsdz2_service, tx_data);
-    if (err_code == NRF_SUCCESS)
-    {
-    }
-  }
-}
-
-void ble_send_short_data(void)
-{
-  // - Garmin Edge datafields only update every 1 second
-  // - send data in less bytes possible, assuming wireless data transmitting uses more power than processing power 
-
-  // send periodic to mobile app
-  uint8_t tx_data[BLE_TSDZ2_SHORT_LEN] = {0};
-  // battery voltage: 10 bits, max 102.3 volts
-  tx_data[0] = (uint8_t) (ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
-  tx_data[1] = (uint8_t) ((ui_vars.ui16_battery_voltage_filtered_x10 >> 8) & 0x03);
-  // brakes: 1 bit
-  // lights: 1 bit 
-  tx_data[1] |= (uint8_t) (((ui_vars.ui8_braking & 1) << 2) | ((ui_vars.ui8_lights & 1) << 3));
-  // throttle: 8 bits, max of 255 | 4 bits here
-  tx_data[1] |= (uint8_t) (ui_vars.ui8_throttle << 4);
-
-  // battery current: 8 bits, max of 51 amps
-  tx_data[2] = ui_vars.ui8_battery_current_x5;
-
-  // battery SOC: 7 bits, max of 127 (only needs 100)
-  tx_data[3] = (ui8_g_battery_soc & 0x7f);
-  // throttle: 8 bits, max of 255 | 1 bit here
-  tx_data[3] |= (uint8_t) ((ui_vars.ui8_throttle & 0x10) << 4);
-
-  // battery power usage: 16 bits, max of ~6.5kwh
-  tx_data[4] = (uint8_t) (ui_vars.ui32_wh_x10 & 0xff);
-  tx_data[5] = (uint8_t) (ui_vars.ui32_wh_x10 >> 8);
-
-  // motor current: 8 bits, max of 51 amps
-  tx_data[6] = ui_vars.ui8_motor_current_x5;
-
-  // motor temperature: 8 bits, max of 255 degrees
-  tx_data[7] = ui_vars.ui8_motor_temperature;
-
-  // motor speed: 11 bits, max of 2047 erps
-  tx_data[8] = (uint8_t) (ui_vars.ui16_motor_speed_erps & 0xff);
-  tx_data[9] = (uint8_t) ((ui_vars.ui16_motor_speed_erps >> 8) & 0x07);
-  // assist level: 5 bits, max of 31
-  tx_data[9] |= (ui_vars.ui8_assist_level << 3);
-
-  // wheel speed: 10 bits, max of 102.3 km/h
-  tx_data[10] = (uint8_t) (ui_vars.ui16_wheel_speed_x10 & 0xff);
-  tx_data[11] = (uint8_t) ((ui_vars.ui16_wheel_speed_x10 >> 8) & 0x03);
-  // duty_cycle: 8 bits, max of 255 | 6 bits here
-  tx_data[11] |= (uint8_t) (ui_vars.ui8_duty_cycle << 10);
-
-  // pedal power: 11 bits, max of 2047 watts
-  tx_data[12] = (uint8_t) (ui_vars.ui16_pedal_power & 0xff);
-  tx_data[13] = (uint8_t) ((ui_vars.ui16_pedal_power >> 8) & 0x07);
-  // duty_cycle: 8 bits, max of 255 | 2 bits here
-  tx_data[13] |= (uint8_t) ((ui_vars.ui8_duty_cycle & 0xC0) >> 3);
-  // throttle: 8 bits, max of 255 | 1 bit here
-  tx_data[13] |= ui_vars.ui8_throttle & 0xE0;
-
-  // cadence: 8 bits, max of 255
-  tx_data[14] = ui_vars.ui8_pedal_cadence_filtered;
-
-  if (m_conn_handle != BLE_CONN_HANDLE_INVALID)
-  {
-    ret_code_t err_code;
-    err_code = ble_tsdz2_short_on_change(m_conn_handle, &m_ble_tsdz2_service, tx_data);
     if (err_code == NRF_SUCCESS)
     {
     }
@@ -1786,54 +1724,194 @@ static void handle_buttons() {
 	buttons_clock(); // Note: this is done _after_ button events is checked to provide a 50ms debounce
 }
 
-static uint8_t payload_unchanged(uint8_t *new)
+static uint8_t payload_unchanged(uint8_t *old, uint8_t *new, uint8_t len)
 {
-	static uint8_t old[ANT_STANDARD_DATA_PAYLOAD_SIZE];
-
-	if (memcmp(old, new, ANT_STANDARD_DATA_PAYLOAD_SIZE) == 0)
+	if (memcmp(old, new, len) == 0)
 		return 1;
 
-	memcpy(old, new, ANT_STANDARD_DATA_PAYLOAD_SIZE);
+	memcpy(old, new, len);
 
 	return 0;
 }
 
-void ant_channel1_update(void)
+void ant_channels_update(void)
 {
 	ret_code_t err_code;
-	uint8_t payload[ANT_STANDARD_DATA_PAYLOAD_SIZE];
-  memset(&payload, 0, ANT_STANDARD_DATA_PAYLOAD_SIZE);
 
-	payload[0] = 1; // Page
-  payload[1] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
-  payload[2] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 >> 8);
+  #define PAYLOAD_1_LEN 3
+	uint8_t payload_1[PAYLOAD_1_LEN];
+  static uint8_t payload_1_previous[PAYLOAD_1_LEN];
+	payload_1[0] = 1; // Page
+  payload_1[1] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
+  payload_1[2] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 >> 8);
 
-	if (payload_unchanged(payload))
+	if (payload_unchanged(payload_1_previous, payload_1, PAYLOAD_1_LEN))
 		return;
 
-	err_code = sd_ant_broadcast_message_tx(
-			1,
-			3,
-			payload);
+	err_code = sd_ant_broadcast_message_tx(1, PAYLOAD_1_LEN, payload_1);
 	APP_ERROR_CHECK(err_code);
-}
 
-void ant_channel2_update(void)
-{
-	ret_code_t err_code;
-	uint8_t payload[ANT_STANDARD_DATA_PAYLOAD_SIZE];
-  memset(&payload, 0, ANT_STANDARD_DATA_PAYLOAD_SIZE);
 
-	payload[0] = 2; // Page
-  payload[1] = ui_vars.ui8_motor_temperature;
+  #define PAYLOAD_2_LEN 2
+	uint8_t payload_2[PAYLOAD_2_LEN];
+  static uint8_t payload_2_previous[PAYLOAD_2_LEN];
+	payload_2[0] = 2; // Page
+  payload_2[1] = ui_vars.ui8_battery_current_x5;
 
-	if (payload_unchanged(payload))
+	if (payload_unchanged(payload_2_previous, payload_2, PAYLOAD_2_LEN))
 		return;
 
-	err_code = sd_ant_broadcast_message_tx(
-      2,
-			2,
-			payload);
+	err_code = sd_ant_broadcast_message_tx(2, PAYLOAD_2_LEN, payload_2);
+	APP_ERROR_CHECK(err_code);
+
+
+  #define PAYLOAD_3_LEN 2
+	uint8_t payload_3[PAYLOAD_3_LEN];
+  static uint8_t payload_3_previous[PAYLOAD_3_LEN];
+	payload_3[0] = 3; // Page
+  payload_3[1] = ui8_g_battery_soc;
+
+	if (payload_unchanged(payload_3_previous, payload_3, PAYLOAD_3_LEN))
+		return;
+
+	err_code = sd_ant_broadcast_message_tx(3, PAYLOAD_3_LEN, payload_3);
+	APP_ERROR_CHECK(err_code);
+
+
+  #define PAYLOAD_4_LEN 3
+	uint8_t payload_4[PAYLOAD_4_LEN];
+  static uint8_t payload_4_previous[PAYLOAD_4_LEN];
+	payload_4[0] = 4; // Page
+  payload_4[1] = (uint8_t) (ui_vars.ui32_wh_x10 & 0xff);
+  payload_4[2] = (uint8_t) (ui_vars.ui32_wh_x10 >> 8);
+
+	if (payload_unchanged(payload_4_previous, payload_4, PAYLOAD_4_LEN))
+		return;
+
+	err_code = sd_ant_broadcast_message_tx(4, PAYLOAD_4_LEN, payload_4);
+	APP_ERROR_CHECK(err_code);
+
+
+  #define PAYLOAD_5_LEN 2
+	uint8_t payload_5[PAYLOAD_5_LEN];
+  static uint8_t payload_5_previous[PAYLOAD_5_LEN];
+	payload_5[0] = 5; // Page
+  payload_5[1] = ui_vars.ui8_motor_current_x5;
+
+	if (payload_unchanged(payload_5_previous, payload_5, PAYLOAD_5_LEN))
+		return;
+
+	err_code = sd_ant_broadcast_message_tx(5, PAYLOAD_5_LEN, payload_5);
+	APP_ERROR_CHECK(err_code);
+
+
+  #define PAYLOAD_6_LEN 3
+	uint8_t payload_6[PAYLOAD_6_LEN];
+  static uint8_t payload_6_previous[PAYLOAD_6_LEN];
+	payload_6[0] = 6; // Page
+  payload_6[1] = (uint8_t) (ui_vars.ui16_motor_power & 0xff);
+  payload_6[2] = (uint8_t) (ui_vars.ui16_motor_power >> 8);
+
+	if (payload_unchanged(payload_6_previous, payload_6, PAYLOAD_6_LEN))
+		return;
+
+	err_code = sd_ant_broadcast_message_tx(6, PAYLOAD_6_LEN, payload_6);
+	APP_ERROR_CHECK(err_code);
+
+
+  #define PAYLOAD_7_LEN 2
+	uint8_t payload_7[PAYLOAD_7_LEN];
+  static uint8_t payload_7_previous[PAYLOAD_7_LEN];
+	payload_7[0] = 7; // Page
+  payload_7[1] = ui_vars.ui8_duty_cycle;
+
+	if (payload_unchanged(payload_7_previous, payload_7, PAYLOAD_7_LEN))
+		return;
+
+	err_code = sd_ant_broadcast_message_tx(7, PAYLOAD_7_LEN, payload_7);
+	APP_ERROR_CHECK(err_code);
+
+
+  #define PAYLOAD_8_LEN 3
+	uint8_t payload_8[PAYLOAD_8_LEN];
+  static uint8_t payload_8_previous[PAYLOAD_8_LEN];
+	payload_8[0] = 8; // Page
+  payload_8[1] = (uint8_t) (ui_vars.ui16_motor_speed_erps & 0xff);
+  payload_8[2] = (uint8_t) (ui_vars.ui16_motor_speed_erps >> 8);
+
+	if (payload_unchanged(payload_8_previous, payload_8, PAYLOAD_8_LEN))
+		return;
+
+	err_code = sd_ant_broadcast_message_tx(8, PAYLOAD_8_LEN, payload_8);
+	APP_ERROR_CHECK(err_code);
+
+
+  #define PAYLOAD_9_LEN 2
+	uint8_t payload_9[PAYLOAD_9_LEN];
+  static uint8_t payload_9_previous[PAYLOAD_9_LEN];
+	payload_9[0] = 9; // Page
+  payload_9[1] = ui_vars.ui8_motor_temperature;
+
+	if (payload_unchanged(payload_9_previous, payload_9, PAYLOAD_9_LEN))
+		return;
+
+	err_code = sd_ant_broadcast_message_tx(9, PAYLOAD_9_LEN, payload_9);
+	APP_ERROR_CHECK(err_code);
+
+
+  #define PAYLOAD_10_LEN 2
+	uint8_t payload_10[PAYLOAD_10_LEN];
+  static uint8_t payload_10_previous[PAYLOAD_10_LEN];
+	payload_10[0] = 10; // Page
+  payload_10[1] = ui_vars.ui8_pedal_cadence_filtered;
+
+	if (payload_unchanged(payload_10_previous, payload_10, PAYLOAD_10_LEN))
+		return;
+
+	err_code = sd_ant_broadcast_message_tx(10, PAYLOAD_10_LEN, payload_10);
+	APP_ERROR_CHECK(err_code);
+  
+
+  #define PAYLOAD_11_LEN 3
+	uint8_t payload_11[PAYLOAD_11_LEN];
+  static uint8_t payload_11_previous[PAYLOAD_11_LEN];
+	payload_11[0] = 11; // Page
+  payload_11[1] = (uint8_t)(ui_vars.ui16_pedal_power & 0xff);
+  payload_11[2] = (uint8_t)(ui_vars.ui16_pedal_power >> 8);
+
+	if (payload_unchanged(payload_11_previous, payload_11, PAYLOAD_11_LEN))
+		return;
+
+	err_code = sd_ant_broadcast_message_tx(11, PAYLOAD_11_LEN, payload_11);
+	APP_ERROR_CHECK(err_code);
+
+
+  #define PAYLOAD_12_LEN 2
+	uint8_t payload_12[PAYLOAD_12_LEN];
+  static uint8_t payload_12_previous[PAYLOAD_12_LEN];
+	payload_12[0] = 12; // Page
+  payload_12[1] = ui_vars.ui8_assist_level;
+
+	if (payload_unchanged(payload_12_previous, payload_12, PAYLOAD_12_LEN))
+		return;
+
+	err_code = sd_ant_broadcast_message_tx(12, PAYLOAD_12_LEN, payload_12);
+	APP_ERROR_CHECK(err_code);
+
+
+  #define PAYLOAD_13_LEN 5
+	uint8_t payload_13[PAYLOAD_13_LEN];
+  static uint8_t payload_13_previous[PAYLOAD_13_LEN];
+	payload_13[0] = 13; // Page
+  payload_13[1] = (uint8_t)(ui_vars.ui32_odometer_x10 & 0xff);
+  payload_13[2] = (uint8_t)(ui_vars.ui32_odometer_x10 >> 8);
+  payload_13[3] = (uint8_t)(ui_vars.ui32_odometer_x10 >> 16);
+  payload_13[4] = (uint8_t)(ui_vars.ui32_odometer_x10 >> 24);
+
+	if (payload_unchanged(payload_13_previous, payload_13, PAYLOAD_13_LEN))
+		return;
+
+	err_code = sd_ant_broadcast_message_tx(13, PAYLOAD_13_LEN, payload_13);
 	APP_ERROR_CHECK(err_code);
 }
 
@@ -1889,12 +1967,12 @@ int main(void)
       copy_rt_ui_vars();
       rt_processing_start();
 
-      ble_send_periodic_data();
-      ble_update_configurations_data();
-      ble_send_short_data();
+      // calc motor power
+      ui_vars.ui16_motor_power = ui_vars.ui16_battery_voltage_filtered_x10 * ui_vars.ui8_battery_current_x5;
 
-      ant_channel1_update();
-      ant_channel2_update();
+      ble_send_periodic_data();
+      ant_channels_update();
+      ble_update_configurations_data();
 
       TSDZ2_power_manage();
 

@@ -188,6 +188,7 @@ typedef struct ui_vars_struct {
 	uint8_t ui8_battery_current_x5;
   uint16_t ui16_battery_power_loss;
 	uint8_t ui8_motor_current_x5;
+  uint16_t ui16_motor_power;
 	uint8_t ui8_adc_throttle;
 	uint8_t ui8_throttle;
 	uint16_t ui16_adc_pedal_torque_sensor;

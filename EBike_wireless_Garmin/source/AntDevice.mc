@@ -4,38 +4,26 @@ using Toybox.System;
 using Toybox.Ant;
 
 class AntDevice extends Ant.GenericChannel {
-
-
-
-  const ANT_CHANNEL = 1;
-
-
-
-
-  const DEV_NUMBER = 36; // 0 wildcard
+  const ANT_CHANNEL = 1 + (fieldDataID - 1);
+  const DEV_NUMBER = 36 + (fieldDataID - 1);
   const DEVICE_TYPE = 2;
   const PERIOD = 8192;
-  const CHANNEL = 66;
+  const CHANNEL = 67 + (fieldDataID - 1);
   var device_cfg;
 
   const REOPEN_DELAY = 3; // 20
   var open_delay = 1;
   var opened = false;
   var searching = false;
-var deviceNum;
-var data_valid = false;
-
-
+  var deviceNum;
+  var data_valid = false;
     var fieldData = 0;
-  var fieldDataID = 0;
-
-var chan_ass;
+    var chan_ass;
 
   function initialize() {
     chan_ass = new Ant.ChannelAssignment(
         Ant.CHANNEL_TYPE_RX_ONLY,
         Ant.NETWORK_PUBLIC);
-//    chan_ass.setBackgroundScan(true);
     GenericChannel.initialize(method(:onMessage), chan_ass);
 
     device_cfg = new Ant.DeviceConfig({
@@ -119,7 +107,11 @@ var chan_ass;
         }
 
           switch (fieldDataID) {
-            case 0: // battery voltage
+            case 0:
+              fieldData = (payload[1] | (payload[2] << 8)) / 10.0;
+              break;
+
+            case 1:
               fieldData = (payload[1] | (payload[2] << 8)) / 10.0;
               break;
 
