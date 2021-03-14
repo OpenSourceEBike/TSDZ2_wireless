@@ -12,7 +12,7 @@ class AntDevice extends Ant.GenericChannel {
 
 
 
-  const DEV_NUMBER = 0; // 0 wildcard
+  const DEV_NUMBER = 36; // 0 wildcard
   const DEVICE_TYPE = 2;
   const PERIOD = 8192;
   const CHANNEL = 66;
@@ -81,42 +81,28 @@ var chan_ass;
 
     hidden function doChResponse(id, code) {
         if (id == Ant.MSG_ID_RF_EVENT && code == Ant.MSG_CODE_EVENT_RX_FAIL) {
-//            debug("rx fail");
-//            fieldData = 9901;
         } else if (id == Ant.MSG_ID_RF_EVENT && code == Ant.MSG_CODE_EVENT_RX_SEARCH_TIMEOUT) {
-//            debug("search timeout");
             opened = false;
             searching = false;
             data_valid = false;
             close();
-//            GenericChannel.release();
             fieldData = 9902;
         } else if (id == Ant.MSG_ID_RF_EVENT && code == Ant.MSG_CODE_EVENT_RX_FAIL_GO_TO_SEARCH) {
-//            debug("rx fail go to search");
             opened = false;
             searching = false;
             data_valid = false;
             close();
-//            GenericChannel.release();
-            fieldData = 9903;
         } else if (id == Ant.MSG_ID_RF_EVENT && code == Ant.MSG_CODE_EVENT_CHANNEL_CLOSED) {
-//            debug("channel closed");
             opened = false;
             data_valid = false;
             close();
-//            GenericChannel.release();
-            fieldData = 9904;
         } else {
-//            debug("channel response, id: " + id.format("%02x") + " code: " + code.format("%02x"));
-            fieldData = 9905;
         }
     }
 
   function onMessage(msg) {
     var payload = msg.getPayload();
     var msgId = msg.messageId;
-
-//        chan_ass.setBackgroundScan(false);
 
         if (msgId == Ant.MSG_ID_CHANNEL_RESPONSE_EVENT) {
 
@@ -125,22 +111,22 @@ var chan_ass;
 
         } else if (msgId == Ant.MSG_ID_BROADCAST_DATA) {
 
-          deviceNum = msg.deviceNumber;
+            deviceNum = msg.deviceNumber;
 
-      //      if (payload[0] != ANT_CHANNEL) {
-      //          // Page 0
-      //          return;
-      //      }
-
-        switch (fieldDataID) {
-          case 0: // battery voltage
-            fieldData = (payload[1] | (payload[2] << 8)) / 10.0;
-            break;
-
-          case 5: // motor temperature
-            fieldData = payload[3];
-            break;
+        if ((payload[0] != ANT_CHANNEL) &&
+             (deviceNum != DEV_NUMBER)) {
+            return;
         }
+
+          switch (fieldDataID) {
+            case 0: // battery voltage
+              fieldData = (payload[1] | (payload[2] << 8)) / 10.0;
+              break;
+
+            case 5: // motor temperature
+              fieldData = payload[1];
+              break;
+          }
 
         data_valid = true;
         searching = false;

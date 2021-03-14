@@ -22,7 +22,7 @@ class DataField extends WatchUi.SimpleDataField {
 // 12 - assist level
 
   var fieldData = 0;
-  var fieldDataID = 0;
+  const fieldDataID = 0;
 
   function initialize(device) {
     SimpleDataField.initialize();
@@ -59,6 +59,17 @@ class DataField extends WatchUi.SimpleDataField {
 
     }
 
-    return ant_device.getData(fieldDataID);
+    var return_value;
+    switch (fieldDataID) {
+      case 0:
+      return_value = ant_device.getData(fieldDataID).format("%.1f");
+        break;
+
+      case 5:
+          return_value = ant_device.getData(fieldDataID);
+        break;
+    }
+
+    return return_value;
   }
 }

@@ -265,12 +265,5 @@ ret_code_t ant_lev_sens_open(ant_lev_profile_t *p_profile)
     uint32_t err_code;
     uint8_t p_message_payload[ANT_STANDARD_DATA_PAYLOAD_SIZE];
 
-    sens_message_encode(p_profile, p_message_payload);
-    err_code =
-        sd_ant_broadcast_message_tx(p_profile->channel_number,
-                                    sizeof(p_message_payload),
-                                    p_message_payload);
-    APP_ERROR_CHECK(err_code);
-
     return sd_ant_channel_open(p_profile->channel_number);
 }
