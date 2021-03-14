@@ -60,6 +60,8 @@ ui_vars_t *mp_ui_vars;
 
 
 volatile uint8_t ui8_m_enter_bootloader = 0;
+volatile uint8_t ui8_m_ant_lev_change_state = 0;
+volatile uint8_t ui8_m_ant_lev_state = 0;
 volatile uint8_t ui8_m_ant_device_id = 0;
 volatile uint8_t ui8_m_flash_configurations = 0;
 
@@ -129,7 +131,7 @@ LEV_SENS_PROFILE_CONFIG_DEF(m_ant_lev,
 
 static ant_lev_profile_t m_ant_lev;
 
-// NRF_SDH_ANT_OBSERVER(m_ant_observer, ANT_LEV_ANT_OBSERVER_PRIO, ant_lev_sens_evt_handler, &m_ant_lev);
+NRF_SDH_ANT_OBSERVER(m_ant_observer, ANT_LEV_ANT_OBSERVER_PRIO, ant_lev_sens_evt_handler, &m_ant_lev);
 
 #define DEVICE_NAME "TSDZ2_wireless" /**< Name of device. Will be included in the advertising data. */
 
@@ -573,69 +575,68 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
 
 static void ant_setup(void)
 {
-  // ret_code_t err_code;
-
-  // err_code = nrf_sdh_ant_enable();
-  // APP_ERROR_CHECK(err_code);
-
-  // err_code = ant_plus_key_set(ANTPLUS_NETWORK_NUM);
-  // APP_ERROR_CHECK(err_code);
-
-  // ui_vars_t *p_ui_vars = get_ui_vars();
-  // m_ant_lev_channel_lev_sens_config.device_number = p_ui_vars->ui8_ant_device_id;
-
-  // err_code = ant_lev_sens_init(&m_ant_lev,
-  //                              &m_ant_lev_channel_lev_sens_config,
-  //                              LEV_SENS_PROFILE_CONFIG(m_ant_lev));
-  // APP_ERROR_CHECK(err_code);
-
-  // // fill manufacturer's common data page.
-  // m_ant_lev.page_80 = ANT_COMMON_page80(LEV_HW_REVISION,
-  //                                       LEV_MANUFACTURER_ID,
-  //                                       LEV_MODEL_NUMBER);
-  // // fill product's common data page.
-  // m_ant_lev.page_81 = ANT_COMMON_page81(LEV_SW_REVISION_MAJOR,
-  //                                       LEV_SW_REVISION_MINOR,
-  //                                       LEV_SERIAL_NUMBER);
-
-  // err_code = ant_lev_sens_open(&m_ant_lev);
-  // APP_ERROR_CHECK(err_code);
-
-// Telemetry Master channel
-#define TELEMETRY_ANT_NETWORK_NUM 0
-#define TELEMETRY_CHAN_ID_DEV_TYPE 2
-#define TELEMETRY_CHAN_ID_TRANS_TYPE 1
-#define TELEMETRY_CHAN_PERIOD 8192
-#define TELEMETRY_RF_FREQ 66
-
   ret_code_t err_code;
 
-	/* Telemetry */
-	ant_channel_config_t t_channel_config = {
-		.channel_number    = 0,
-		.channel_type      = CHANNEL_TYPE_MASTER,
-		.ext_assign        = 0x00,
-		.rf_freq           = TELEMETRY_RF_FREQ,
-		.transmission_type = TELEMETRY_CHAN_ID_TRANS_TYPE,
-		.device_type       = TELEMETRY_CHAN_ID_DEV_TYPE,
-		.device_number     = 1,
-		.channel_period    = TELEMETRY_CHAN_PERIOD,
-		.network_number    = TELEMETRY_ANT_NETWORK_NUM,
-	};
+  err_code = nrf_sdh_ant_enable();
+  APP_ERROR_CHECK(err_code);
 
-	err_code = ant_channel_init(&t_channel_config);
-	APP_ERROR_CHECK(err_code);
+  if (mp_ui_vars->ui8_ant_lev_enable)
+  {
+    err_code = ant_plus_key_set(ANTPLUS_NETWORK_NUM);
+    APP_ERROR_CHECK(err_code);
 
-	err_code = sd_ant_channel_open(0);
-	APP_ERROR_CHECK(err_code);
+    ui_vars_t *p_ui_vars = get_ui_vars();
+    m_ant_lev_channel_lev_sens_config.device_number = p_ui_vars->ui8_ant_device_id;
 
-  t_channel_config.channel_number = 1;
-  t_channel_config.device_number = 2;
-  err_code = ant_channel_init(&t_channel_config);
-	APP_ERROR_CHECK(err_code);
+    err_code = ant_lev_sens_init(&m_ant_lev,
+                                &m_ant_lev_channel_lev_sens_config,
+                                LEV_SENS_PROFILE_CONFIG(m_ant_lev));
+    APP_ERROR_CHECK(err_code);
 
-	err_code = sd_ant_channel_open(1);
-	APP_ERROR_CHECK(err_code);
+    // fill manufacturer's common data page.
+    m_ant_lev.page_80 = ANT_COMMON_page80(LEV_HW_REVISION,
+                                          LEV_MANUFACTURER_ID,
+                                          LEV_MODEL_NUMBER);
+    // fill product's common data page.
+    m_ant_lev.page_81 = ANT_COMMON_page81(LEV_SW_REVISION_MAJOR,
+                                          LEV_SW_REVISION_MINOR,
+                                          LEV_SERIAL_NUMBER);
+
+    err_code = ant_lev_sens_open(&m_ant_lev);
+    APP_ERROR_CHECK(err_code);
+  }
+  else
+  {
+    uint8_t channel_number = 0;
+    uint8_t device_number = 1;
+
+    // add ANT communications for the Garmin data fields 
+    ant_channel_config_t t_channel_config = {
+      .channel_number    = 1,
+      .channel_type      = CHANNEL_TYPE_MASTER,
+      .ext_assign        = 0x00,
+      .rf_freq           = 66,
+      .transmission_type = 1,
+      .device_type       = 2,
+      .device_number     = 1,
+      .channel_period    = 8192,
+      .network_number    = 0,
+    };
+
+    for (uint8_t i = 0; i <8; i++)
+    {
+      t_channel_config.channel_number = channel_number;
+      t_channel_config.device_number = device_number;
+      err_code = ant_channel_init(&t_channel_config);
+      APP_ERROR_CHECK(err_code);
+
+      err_code = sd_ant_channel_open(channel_number);
+      APP_ERROR_CHECK(err_code);
+
+      channel_number++;
+      device_number++;
+    }
+  }
 }
 
 static void main_timer_timeout(void *p_context)
@@ -767,6 +768,16 @@ static void ant_id_write_handler(uint16_t conn_handle, ble_ant_id_t *p_ant_id, u
   if (value == 0x99)
   {
     ui8_m_enter_bootloader = 1;
+  }
+  else if (value == 0x98)
+  {
+    ui8_m_ant_lev_change_state = 1;
+    ui8_m_ant_lev_state = 1;
+  }
+  else if (value == 0x97)
+  {
+    ui8_m_ant_lev_change_state = 1;
+    ui8_m_ant_lev_state = 0;
   }
   else
   {
@@ -1789,19 +1800,6 @@ static void handle_buttons() {
 	buttons_clock(); // Note: this is done _after_ button events is checked to provide a 50ms debounce
 }
 
-static void softdevice_setup(void)
-{
-	ret_code_t err_code;
-
-	err_code = nrf_sdh_enable_request();
-	APP_ERROR_CHECK(err_code);
-
-	ASSERT(nrf_sdh_is_enabled());
-
-	err_code = nrf_sdh_ant_enable();
-	APP_ERROR_CHECK(err_code);
-}
-
 static uint8_t payload_unchanged(uint8_t *new)
 {
 	static uint8_t old[ANT_STANDARD_DATA_PAYLOAD_SIZE];
@@ -1820,7 +1818,7 @@ void telemetry_update(void)
 	uint8_t payload[ANT_STANDARD_DATA_PAYLOAD_SIZE];
   memset(&payload, 0, ANT_STANDARD_DATA_PAYLOAD_SIZE);
 
-	payload[0] = 0; // Page
+	payload[0] = 1; // Page
   payload[1] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
   payload[2] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 >> 8);
 
@@ -1828,7 +1826,7 @@ void telemetry_update(void)
 		return;
 
 	err_code = sd_ant_broadcast_message_tx(
-			0,
+			1,
 			ANT_STANDARD_DATA_PAYLOAD_SIZE,
 			payload);
 	APP_ERROR_CHECK(err_code);
@@ -1840,14 +1838,14 @@ void telemetry_update1(void)
 	uint8_t payload[ANT_STANDARD_DATA_PAYLOAD_SIZE];
   memset(&payload, 0, ANT_STANDARD_DATA_PAYLOAD_SIZE);
 
-	payload[0] = 1; // Page
+	payload[0] = 2; // Page
   payload[3] = ui_vars.ui8_motor_temperature;
 
 	if (payload_unchanged(payload))
 		return;
 
 	err_code = sd_ant_broadcast_message_tx(
-      1,
+      2,
 			ANT_STANDARD_DATA_PAYLOAD_SIZE,
 			payload);
 	APP_ERROR_CHECK(err_code);
@@ -1876,9 +1874,7 @@ int main(void)
     NVIC_SystemReset(); //reboot into bootloader
   }
 
-  // ble_init();
-softdevice_setup();
-
+  ble_init();
   ant_setup();
   uart_init();
   led_init();
@@ -1907,11 +1903,15 @@ softdevice_setup();
       copy_rt_ui_vars();
       rt_processing_start();
 
-      // ble_send_periodic_data();
-      // ble_update_configurations_data();
-      // ble_send_short_data();
-telemetry_update();
-telemetry_update1();
+      ble_send_periodic_data();
+      ble_update_configurations_data();
+      ble_send_short_data();
+
+      if (mp_ui_vars->ui8_ant_lev_enable == 0)
+      {
+        telemetry_update();
+        telemetry_update1();
+      }
 
       TSDZ2_power_manage();
 
@@ -1951,6 +1951,14 @@ telemetry_update1();
       {
         ui8_m_enter_bootloader = 0;
         mp_ui_vars->ui8_enter_bootloader = 1;
+        eeprom_write_variables_and_reset();
+      }
+
+      // see if there a request to change ANT+ LEV change state
+      if (ui8_m_ant_lev_change_state)
+      {
+        ui8_m_ant_lev_change_state = 0;
+        mp_ui_vars->ui8_ant_lev_enable = ui8_m_ant_lev_state;
         eeprom_write_variables_and_reset();
       }
 

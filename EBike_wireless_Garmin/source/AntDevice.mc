@@ -7,7 +7,7 @@ class AntDevice extends Ant.GenericChannel {
 
 
 
-  const ANT_CHANNEL = 0;
+  const ANT_CHANNEL = 1;
 
 
 

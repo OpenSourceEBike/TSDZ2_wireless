@@ -147,8 +147,9 @@ const configurations_t m_configurations_defaults = {
   .ui8_torque_sensor_adc_threshold = DEFAULT_TORQUE_SENSOR_ADC_THRESHOLD,
   .ui8_coast_brake_enable = DEFAULT_COAST_BRAKE_ENABLE,
 
-  .ui8_ant_device_id = 1,
+  .ui8_ant_device_id = DEFAULT_ANT_LEV_ID,
   .ui8_enter_bootloader = 0,
+  .ui8_ant_lev_enable = DEFAULT_ANT_LEV_ENABLE,
 };
 
 /* Keep track of the progress of a delete_all operation. */
@@ -375,6 +376,9 @@ void eeprom_init_variables(void) {
 
   ui_vars->ui8_enter_bootloader =
     m_configurations.ui8_enter_bootloader;
+
+  ui_vars->ui8_ant_lev_enable =
+    m_configurations.ui8_ant_lev_enable;
 }
 
 void eeprom_write_variables(void) {
@@ -478,6 +482,9 @@ void eeprom_write_variables(void) {
 
   m_configurations.ui8_enter_bootloader =
     ui_vars->ui8_enter_bootloader;
+
+    m_configurations.ui8_ant_lev_enable =
+  ui_vars->ui8_ant_lev_enable;
 
   /* Write the updated record to flash. */
   ret_code_t err_code = fds_record_update(&m_desc_config, &m_fds_configurations);
