@@ -82,41 +82,36 @@ class DataField extends WatchUi.SimpleDataField {
     ant_device = device;
   }
 
-  function compute(info) {
+function compute(info) {
+    var value = "---";
 
-    if (!ant_device.opened) {
-      ant_device.maybe_open();
-//      return "Idle";
-      return ant_device.getData();
-    } else if (ant_device.searching) {
-//      return "Searching...";
-      return ant_device.getData();
+    ant_device.timerTick();
+
+    if (ant_device.validData == false) {
+        return value;
     }
 
-    var return_value = "---";
-//    switch (fieldDataID) {
-//      case 1:
-//      case 4:
-//      case 2:
-//      case 5:
-//      case 13:
-//        return_value = ant_device.getData(fieldDataID).format("%.1f");
-//        break;
-//
-//      case 3:
-//      case 6:
-//      case 7:
-//      case 8:
-//      case 9:
-//      case 10:
-//      case 11:
-//      case 12:
-//        return_value = ant_device.getData(fieldDataID);
-//        break;
-//    }
+    switch (fieldDataID) {
+      case 1:
+      case 4:
+      case 2:
+      case 5:
+      case 13:
+        value = ant_device.getData().format("%.1f");
+        break;
 
-return_value = ant_device.getData();
+      case 3:
+      case 6:
+      case 7:
+      case 8:
+      case 9:
+      case 10:
+      case 11:
+      case 12:
+        value = ant_device.getData();
+        break;
+    }
 
-    return return_value;
+    return value;
   }
 }
