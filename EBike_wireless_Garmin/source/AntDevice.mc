@@ -40,17 +40,7 @@ class AntDevice extends Ant.GenericChannel {
 
     GenericChannel.initialize(method(:onMessage), chan_ass);
     GenericChannel.setDeviceConfig(device_cfg);
-
-    try
-    {
-        GenericChannel.open();
-        opened = true;
-        searching = true;
-    }
-
-    catch (ex instanceof AnExceptionClass) {
-     opened = false;
-    }
+    GenericChannel.open();
   }
 
   function maybe_open() {
@@ -75,11 +65,6 @@ class AntDevice extends Ant.GenericChannel {
     }
 
     opened = false;
-  }
-
-  function getData(id) {
-    fieldDataID = id;
-    return fieldData;
   }
 
     hidden function doChResponse(id, code) {
@@ -148,4 +133,26 @@ class AntDevice extends Ant.GenericChannel {
     searching = false;
     }
   }
+  
+function getData() {
+    return fieldData;
+  }
+
+//  function timerTick() {
+//    timer++;
+//
+//    if (timerOnTimer > 0) {
+//        timerOnTimer--;
+//    } else if (timerOnTimer == 0) {
+//        onTimer();
+//        timerOnTimer = -1;
+//    }
+//
+//    if (timerReopen > 0) {
+//        timerReopen--;
+//    } else if (timerReopen == 0) {
+//        reopen();
+//        timerReopen = -1;
+//    }
+//  }
 }

@@ -87,10 +87,10 @@ class DataField extends WatchUi.SimpleDataField {
     if (!ant_device.opened) {
       ant_device.maybe_open();
 //      return "Idle";
-      return ant_device.getData(fieldDataID);
+      return ant_device.getData();
     } else if (ant_device.searching) {
 //      return "Searching...";
-      return ant_device.getData(fieldDataID);
+      return ant_device.getData();
     }
 
     var return_value = "---";
@@ -115,7 +115,7 @@ class DataField extends WatchUi.SimpleDataField {
 //        break;
 //    }
 
-return_value = ant_device.getData(fieldDataID);
+return_value = ant_device.getData();
 
     return return_value;
   }
