@@ -4,44 +4,53 @@ using Toybox.System;
 using Toybox.Ant;
 
 class AntDevice extends Ant.GenericChannel {
-  const ANT_CHANNEL = 1 + (fieldDataID - 1);
-  const DEV_NUMBER = 36 + (fieldDataID - 1);
+  const ANT_CHANNEL = fieldDataID;
+  const DEV_NUMBER = 35 + fieldDataID;
   const DEVICE_TYPE = 2;
   const PERIOD = 8192;
-  const CHANNEL = 67 + (fieldDataID - 1);
+  const CHANNEL = 71;
   var device_cfg;
 
-  const REOPEN_DELAY = 3; // 20
+  const REOPEN_DELAY = 3;
   var open_delay = 1;
   var opened = false;
   var searching = false;
   var deviceNum;
-  var data_valid = false;
-    var fieldData = 0;
+    var fieldData = "STARTING";
     var chan_ass;
 
   function initialize() {
+    open();
+  }
+
+  function open() {
     chan_ass = new Ant.ChannelAssignment(
         Ant.CHANNEL_TYPE_RX_ONLY,
         Ant.NETWORK_PUBLIC);
-    GenericChannel.initialize(method(:onMessage), chan_ass);
 
     device_cfg = new Ant.DeviceConfig({
         :deviceNumber => DEV_NUMBER,
         :deviceType => DEVICE_TYPE,
-        :transmissionType => 0, // WILDCARD_PAIRING
+        :transmissionType => 1,
         :messagePeriod => PERIOD,
         :radioFrequency => CHANNEL,
         :searchTimeoutLowPriority => 12, // 30 seconds
-        :searchThreshold => 10,
+        :searchThreshold => 0, // Pair to all transmitting sensors
         });
-  }
 
-  function open() {
+    GenericChannel.initialize(method(:onMessage), chan_ass);
     GenericChannel.setDeviceConfig(device_cfg);
-    GenericChannel.open();
-    opened = true;
-    searching = true;
+
+    try
+    {
+        GenericChannel.open();
+        opened = true;
+        searching = true;
+    }
+
+    catch (ex instanceof AnExceptionClass) {
+     opened = false;
+    }
   }
 
   function maybe_open() {
@@ -56,10 +65,16 @@ class AntDevice extends Ant.GenericChannel {
 
     open_delay = REOPEN_DELAY;
     open();
+  fieldData = "SEARCHING";
   }
 
   function close() {
-    GenericChannel.close();
+    if (opened) {
+      GenericChannel.close();
+      GenericChannel.release();
+    }
+
+    opened = false;
   }
 
   function getData(id) {
@@ -70,21 +85,22 @@ class AntDevice extends Ant.GenericChannel {
     hidden function doChResponse(id, code) {
         if (id == Ant.MSG_ID_RF_EVENT && code == Ant.MSG_CODE_EVENT_RX_FAIL) {
         } else if (id == Ant.MSG_ID_RF_EVENT && code == Ant.MSG_CODE_EVENT_RX_SEARCH_TIMEOUT) {
-            opened = false;
-            searching = false;
-            data_valid = false;
-            close();
-            fieldData = 9902;
+          opened = false;
+          searching = false;
+          open_delay = REOPEN_DELAY;
+          fieldData = "EV_RX_FAIL searching";
         } else if (id == Ant.MSG_ID_RF_EVENT && code == Ant.MSG_CODE_EVENT_RX_FAIL_GO_TO_SEARCH) {
             opened = false;
             searching = false;
-            data_valid = false;
-            close();
+            open_delay = REOPEN_DELAY;
+            fieldData = "EV_RX_FAIL GO SEARCH";
         } else if (id == Ant.MSG_ID_RF_EVENT && code == Ant.MSG_CODE_EVENT_CHANNEL_CLOSED) {
-            opened = false;
-            data_valid = false;
-            close();
+          opened = false;
+          searching = false;
+          open_delay = REOPEN_DELAY;
+          fieldData = "EV_CH_CLOSED searching";
         } else {
+
         }
     }
 
@@ -99,29 +115,37 @@ class AntDevice extends Ant.GenericChannel {
 
         } else if (msgId == Ant.MSG_ID_BROADCAST_DATA) {
 
-            deviceNum = msg.deviceNumber;
+      switch (fieldDataID) {
+        case 1:
+        case 4:
+          fieldData = (payload[0] | (payload[1] << 8)) / 10.0;
+          break;
 
-        if ((payload[0] != ANT_CHANNEL) &&
-             (deviceNum != DEV_NUMBER)) {
-            return;
-        }
+        case 2:
+        case 5:
+          fieldData = payload[0] / 5;
+          break;
 
-          switch (fieldDataID) {
-            case 0:
-              fieldData = (payload[1] | (payload[2] << 8)) / 10.0;
-              break;
+        case 3:
+        case 7:
+        case 9:
+        case 10:
+        case 12:
+          fieldData = payload[0];
+          break;
 
-            case 1:
-              fieldData = (payload[1] | (payload[2] << 8)) / 10.0;
-              break;
+        case 6:
+        case 8:
+        case 11:
+          fieldData = (payload[0] | (payload[1] << 8));
+          break;
 
-            case 5: // motor temperature
-              fieldData = payload[1];
-              break;
-          }
+        case 13:
+          fieldData = (payload[0] | (payload[1] << 8) | (payload[2] << 16) | (payload[3] << 24)) / 10;
+          break;
+      }
 
-        data_valid = true;
-        searching = false;
+    searching = false;
     }
   }
 }

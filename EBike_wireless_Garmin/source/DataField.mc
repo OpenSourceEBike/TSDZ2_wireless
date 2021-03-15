@@ -1,6 +1,9 @@
 using Toybox.WatchUi;
 using Toybox.System;
 
+
+var fieldDataID = 4;
+
 // 1 - battery voltage
 // 2 - battery current
 // 3 - battery SOC
@@ -15,11 +18,8 @@ using Toybox.System;
 // 12 - assist level
 // 13 - odometer
 
-const fieldDataID = 1;
-
 class DataField extends WatchUi.SimpleDataField {
   hidden var ant_device;
-  hidden var id_displayed = false;
   var fieldData = 1;
 
   function initialize(device) {
@@ -27,39 +27,39 @@ class DataField extends WatchUi.SimpleDataField {
 
       switch (fieldDataID) {
         case 1:
-          label = "battery voltage";
+          label = "bat voltage";
           break;
 
         case 2:
-          label = "battery current";
+          label = "bat current";
           break;
 
         case 3:
-          label = "battery SOC";
+          label = "bat SOC";
           break;
 
         case 4:
-          label = "battery used energy";
+          label = "bat used energy";
           break;
 
         case 5:
-          label = "motor current";
+          label = "mot current";
           break;
 
         case 6:
-          label = "motor power";
+          label = "mot power";
           break;
 
         case 7:
-          label = "motor PWM";
+          label = "mot PWM";
           break;
 
         case 8:
-          label = "motor speed";
+          label = "mot speed";
           break;
 
         case 9:
-          label = "motor temperature";
+          label = "mot temperature";
           break;
 
         case 10:
@@ -85,32 +85,37 @@ class DataField extends WatchUi.SimpleDataField {
   function compute(info) {
 
     if (!ant_device.opened) {
-
-      id_displayed = false;
       ant_device.maybe_open();
-      return "Idle";
-
+//      return "Idle";
+      return ant_device.getData(fieldDataID);
     } else if (ant_device.searching) {
-
-      return "Searching...";
-
-    } else if (!id_displayed || !ant_device.data_valid) {
-
-      id_displayed = true;
-      return "id: " + ant_device.deviceNum;
-
+//      return "Searching...";
+      return ant_device.getData(fieldDataID);
     }
 
-    var return_value;
-    switch (fieldDataID) {
-      case 0:
-        return_value = ant_device.getData(fieldDataID).format("%.1f");
-        break;
+    var return_value = "---";
+//    switch (fieldDataID) {
+//      case 1:
+//      case 4:
+//      case 2:
+//      case 5:
+//      case 13:
+//        return_value = ant_device.getData(fieldDataID).format("%.1f");
+//        break;
+//
+//      case 3:
+//      case 6:
+//      case 7:
+//      case 8:
+//      case 9:
+//      case 10:
+//      case 11:
+//      case 12:
+//        return_value = ant_device.getData(fieldDataID);
+//        break;
+//    }
 
-      case 5:
-          return_value = ant_device.getData(fieldDataID);
-        break;
-    }
+return_value = ant_device.getData(fieldDataID);
 
     return return_value;
   }

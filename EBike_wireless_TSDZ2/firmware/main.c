@@ -611,7 +611,7 @@ static void ant_setup(void)
     .channel_number    = 1,
     .channel_type      = CHANNEL_TYPE_MASTER,
     .ext_assign        = 0x00,
-    .rf_freq           = 67,
+    .rf_freq           = 71,
     .transmission_type = 1,
     .device_type       = 2,
     .device_number     = 36,
@@ -627,9 +627,14 @@ static void ant_setup(void)
     err_code = sd_ant_channel_open(t_channel_config.channel_number);
     APP_ERROR_CHECK(err_code);
 
+      
+    err_code = sd_ant_channel_radio_tx_power_set(t_channel_config.channel_number,
+                                                 3,
+                                                 0);
+    APP_ERROR_CHECK(err_code);
+
     t_channel_config.channel_number++;
     t_channel_config.device_number++;
-    t_channel_config.rf_freq++;
   }
 }
 
@@ -1263,19 +1268,6 @@ void eeprom_write_variables_and_reset(void)
   NVIC_SystemReset();
 }
 
-
-
-
-
-
-
-
-
-// 12 - assist level
-// 13 - throttle
-// 14 - odometer
-
-
 void ble_send_periodic_data(void)
 {
   // send periodic to mobile app
@@ -1738,12 +1730,11 @@ void ant_channels_update(void)
 {
 	ret_code_t err_code;
 
-  #define PAYLOAD_1_LEN 3
+  #define PAYLOAD_1_LEN 2
 	uint8_t payload_1[PAYLOAD_1_LEN];
   static uint8_t payload_1_previous[PAYLOAD_1_LEN];
-	payload_1[0] = 1; // Page
-  payload_1[1] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
-  payload_1[2] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 >> 8);
+  payload_1[0] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
+  payload_1[1] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 >> 8);
 
 	if (payload_unchanged(payload_1_previous, payload_1, PAYLOAD_1_LEN))
 		return;
@@ -1752,11 +1743,10 @@ void ant_channels_update(void)
 	APP_ERROR_CHECK(err_code);
 
 
-  #define PAYLOAD_2_LEN 2
+  #define PAYLOAD_2_LEN 1   
 	uint8_t payload_2[PAYLOAD_2_LEN];
   static uint8_t payload_2_previous[PAYLOAD_2_LEN];
-	payload_2[0] = 2; // Page
-  payload_2[1] = ui_vars.ui8_battery_current_x5;
+  payload_2[0] = ui_vars.ui8_battery_current_x5;
 
 	if (payload_unchanged(payload_2_previous, payload_2, PAYLOAD_2_LEN))
 		return;
@@ -1765,11 +1755,10 @@ void ant_channels_update(void)
 	APP_ERROR_CHECK(err_code);
 
 
-  #define PAYLOAD_3_LEN 2
+  #define PAYLOAD_3_LEN 1
 	uint8_t payload_3[PAYLOAD_3_LEN];
   static uint8_t payload_3_previous[PAYLOAD_3_LEN];
-	payload_3[0] = 3; // Page
-  payload_3[1] = ui8_g_battery_soc;
+  payload_3[0] = ui8_g_battery_soc;
 
 	if (payload_unchanged(payload_3_previous, payload_3, PAYLOAD_3_LEN))
 		return;
@@ -1778,12 +1767,11 @@ void ant_channels_update(void)
 	APP_ERROR_CHECK(err_code);
 
 
-  #define PAYLOAD_4_LEN 3
+  #define PAYLOAD_4_LEN 2
 	uint8_t payload_4[PAYLOAD_4_LEN];
   static uint8_t payload_4_previous[PAYLOAD_4_LEN];
-	payload_4[0] = 4; // Page
-  payload_4[1] = (uint8_t) (ui_vars.ui32_wh_x10 & 0xff);
-  payload_4[2] = (uint8_t) (ui_vars.ui32_wh_x10 >> 8);
+  payload_4[0] = (uint8_t) (ui_vars.ui32_wh_x10 & 0xff);
+  payload_4[1] = (uint8_t) (ui_vars.ui32_wh_x10 >> 8);
 
 	if (payload_unchanged(payload_4_previous, payload_4, PAYLOAD_4_LEN))
 		return;
@@ -1792,11 +1780,10 @@ void ant_channels_update(void)
 	APP_ERROR_CHECK(err_code);
 
 
-  #define PAYLOAD_5_LEN 2
+  #define PAYLOAD_5_LEN 1
 	uint8_t payload_5[PAYLOAD_5_LEN];
   static uint8_t payload_5_previous[PAYLOAD_5_LEN];
-	payload_5[0] = 5; // Page
-  payload_5[1] = ui_vars.ui8_motor_current_x5;
+  payload_5[0] = ui_vars.ui8_motor_current_x5;
 
 	if (payload_unchanged(payload_5_previous, payload_5, PAYLOAD_5_LEN))
 		return;
@@ -1805,12 +1792,11 @@ void ant_channels_update(void)
 	APP_ERROR_CHECK(err_code);
 
 
-  #define PAYLOAD_6_LEN 3
+  #define PAYLOAD_6_LEN 2
 	uint8_t payload_6[PAYLOAD_6_LEN];
   static uint8_t payload_6_previous[PAYLOAD_6_LEN];
-	payload_6[0] = 6; // Page
-  payload_6[1] = (uint8_t) (ui_vars.ui16_motor_power & 0xff);
-  payload_6[2] = (uint8_t) (ui_vars.ui16_motor_power >> 8);
+  payload_6[0] = (uint8_t) (ui_vars.ui16_motor_power & 0xff);
+  payload_6[1] = (uint8_t) (ui_vars.ui16_motor_power >> 8);
 
 	if (payload_unchanged(payload_6_previous, payload_6, PAYLOAD_6_LEN))
 		return;
@@ -1819,11 +1805,10 @@ void ant_channels_update(void)
 	APP_ERROR_CHECK(err_code);
 
 
-  #define PAYLOAD_7_LEN 2
+  #define PAYLOAD_7_LEN 1
 	uint8_t payload_7[PAYLOAD_7_LEN];
   static uint8_t payload_7_previous[PAYLOAD_7_LEN];
-	payload_7[0] = 7; // Page
-  payload_7[1] = ui_vars.ui8_duty_cycle;
+  payload_7[0] = ui_vars.ui8_duty_cycle;
 
 	if (payload_unchanged(payload_7_previous, payload_7, PAYLOAD_7_LEN))
 		return;
@@ -1832,12 +1817,11 @@ void ant_channels_update(void)
 	APP_ERROR_CHECK(err_code);
 
 
-  #define PAYLOAD_8_LEN 3
+  #define PAYLOAD_8_LEN 2
 	uint8_t payload_8[PAYLOAD_8_LEN];
   static uint8_t payload_8_previous[PAYLOAD_8_LEN];
-	payload_8[0] = 8; // Page
-  payload_8[1] = (uint8_t) (ui_vars.ui16_motor_speed_erps & 0xff);
-  payload_8[2] = (uint8_t) (ui_vars.ui16_motor_speed_erps >> 8);
+  payload_8[0] = (uint8_t) (ui_vars.ui16_motor_speed_erps & 0xff);
+  payload_8[1] = (uint8_t) (ui_vars.ui16_motor_speed_erps >> 8);
 
 	if (payload_unchanged(payload_8_previous, payload_8, PAYLOAD_8_LEN))
 		return;
@@ -1846,11 +1830,10 @@ void ant_channels_update(void)
 	APP_ERROR_CHECK(err_code);
 
 
-  #define PAYLOAD_9_LEN 2
+  #define PAYLOAD_9_LEN 1
 	uint8_t payload_9[PAYLOAD_9_LEN];
   static uint8_t payload_9_previous[PAYLOAD_9_LEN];
-	payload_9[0] = 9; // Page
-  payload_9[1] = ui_vars.ui8_motor_temperature;
+  payload_9[0] = ui_vars.ui8_motor_temperature;
 
 	if (payload_unchanged(payload_9_previous, payload_9, PAYLOAD_9_LEN))
 		return;
@@ -1859,11 +1842,10 @@ void ant_channels_update(void)
 	APP_ERROR_CHECK(err_code);
 
 
-  #define PAYLOAD_10_LEN 2
+  #define PAYLOAD_10_LEN 1
 	uint8_t payload_10[PAYLOAD_10_LEN];
   static uint8_t payload_10_previous[PAYLOAD_10_LEN];
-	payload_10[0] = 10; // Page
-  payload_10[1] = ui_vars.ui8_pedal_cadence_filtered;
+  payload_10[0] = ui_vars.ui8_pedal_cadence_filtered;
 
 	if (payload_unchanged(payload_10_previous, payload_10, PAYLOAD_10_LEN))
 		return;
@@ -1872,12 +1854,11 @@ void ant_channels_update(void)
 	APP_ERROR_CHECK(err_code);
   
 
-  #define PAYLOAD_11_LEN 3
+  #define PAYLOAD_11_LEN 2
 	uint8_t payload_11[PAYLOAD_11_LEN];
   static uint8_t payload_11_previous[PAYLOAD_11_LEN];
-	payload_11[0] = 11; // Page
-  payload_11[1] = (uint8_t)(ui_vars.ui16_pedal_power & 0xff);
-  payload_11[2] = (uint8_t)(ui_vars.ui16_pedal_power >> 8);
+  payload_11[0] = (uint8_t)(ui_vars.ui16_pedal_power & 0xff);
+  payload_11[1] = (uint8_t)(ui_vars.ui16_pedal_power >> 8);
 
 	if (payload_unchanged(payload_11_previous, payload_11, PAYLOAD_11_LEN))
 		return;
@@ -1886,11 +1867,10 @@ void ant_channels_update(void)
 	APP_ERROR_CHECK(err_code);
 
 
-  #define PAYLOAD_12_LEN 2
+  #define PAYLOAD_12_LEN 1
 	uint8_t payload_12[PAYLOAD_12_LEN];
   static uint8_t payload_12_previous[PAYLOAD_12_LEN];
-	payload_12[0] = 12; // Page
-  payload_12[1] = ui_vars.ui8_assist_level;
+  payload_12[0] = ui_vars.ui8_assist_level;
 
 	if (payload_unchanged(payload_12_previous, payload_12, PAYLOAD_12_LEN))
 		return;
@@ -1899,14 +1879,13 @@ void ant_channels_update(void)
 	APP_ERROR_CHECK(err_code);
 
 
-  #define PAYLOAD_13_LEN 5
+  #define PAYLOAD_13_LEN 4
 	uint8_t payload_13[PAYLOAD_13_LEN];
   static uint8_t payload_13_previous[PAYLOAD_13_LEN];
-	payload_13[0] = 13; // Page
-  payload_13[1] = (uint8_t)(ui_vars.ui32_odometer_x10 & 0xff);
-  payload_13[2] = (uint8_t)(ui_vars.ui32_odometer_x10 >> 8);
-  payload_13[3] = (uint8_t)(ui_vars.ui32_odometer_x10 >> 16);
-  payload_13[4] = (uint8_t)(ui_vars.ui32_odometer_x10 >> 24);
+  payload_13[0] = (uint8_t)(ui_vars.ui32_odometer_x10 & 0xff);
+  payload_13[1] = (uint8_t)(ui_vars.ui32_odometer_x10 >> 8);
+  payload_13[2] = (uint8_t)(ui_vars.ui32_odometer_x10 >> 16);
+  payload_13[3] = (uint8_t)(ui_vars.ui32_odometer_x10 >> 24);
 
 	if (payload_unchanged(payload_13_previous, payload_13, PAYLOAD_13_LEN))
 		return;

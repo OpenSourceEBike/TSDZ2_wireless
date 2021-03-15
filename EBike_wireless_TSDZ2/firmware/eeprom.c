@@ -269,7 +269,6 @@ void eeprom_init() {
 }
 
 void eeprom_init_variables(void) {
-  rt_vars_t *rt_vars = get_rt_vars();
 	ui_vars_t *ui_vars = get_ui_vars();
 
   ui_vars->ui8_configurations_version = m_configurations.ui8_configurations_version;
