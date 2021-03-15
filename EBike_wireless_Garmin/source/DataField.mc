@@ -20,7 +20,6 @@ var fieldDataID = 4;
 
 class DataField extends WatchUi.SimpleDataField {
   hidden var ant_device;
-  var fieldData = 1;
 
   function initialize(device) {
     SimpleDataField.initialize();
