@@ -2,7 +2,7 @@ using Toybox.WatchUi;
 using Toybox.System;
 
 
-var fieldDataID = 4;
+var fieldDataID = 12;
 
 // 1 - battery voltage
 // 2 - battery current
@@ -82,7 +82,7 @@ class DataField extends WatchUi.SimpleDataField {
   }
 
 function compute(info) {
-    var value = "---";
+    var value = "--";
 
     ant_device.timerTick();
 
