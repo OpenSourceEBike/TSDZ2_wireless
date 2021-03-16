@@ -611,11 +611,11 @@ static void ant_setup(void)
     .channel_number    = 1,
     .channel_type      = CHANNEL_TYPE_MASTER,
     .ext_assign        = 0x00,
-    .rf_freq           = 71,
+    .rf_freq           = 66,
     .transmission_type = 1,
     .device_type       = 2,
     .device_number     = 36,
-    .channel_period    = 8192,
+    .channel_period    = 16384,
     .network_number    = 1,
   };
 

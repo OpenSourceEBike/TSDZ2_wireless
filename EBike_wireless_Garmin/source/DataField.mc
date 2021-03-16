@@ -2,7 +2,7 @@ using Toybox.WatchUi;
 using Toybox.System;
 
 
-var fieldDataID = 1;
+var fieldDataID = 4;
 
 // 1 - battery voltage
 // 2 - battery current
@@ -20,7 +20,6 @@ var fieldDataID = 1;
 
 class DataField extends WatchUi.SimpleDataField {
   hidden var ant_device;
-  var fieldData = 1;
 
   function initialize(device) {
     SimpleDataField.initialize();
@@ -82,8 +81,8 @@ class DataField extends WatchUi.SimpleDataField {
     ant_device = device;
   }
 
-  function compute(info) {
-    var value = "---";
+function compute(info) {
+    var value = "--";
 
     ant_device.timerTick();
 
@@ -97,7 +96,7 @@ class DataField extends WatchUi.SimpleDataField {
       case 2:
       case 5:
       case 13:
-        value = ant_device.getData(fieldDataID).format("%.1f");
+        value = ant_device.getData().format("%.1f");
         break;
 
       case 3:
@@ -108,7 +107,7 @@ class DataField extends WatchUi.SimpleDataField {
       case 10:
       case 11:
       case 12:
-        value = ant_device.getData(fieldDataID);
+        value = ant_device.getData();
         break;
     }
 
