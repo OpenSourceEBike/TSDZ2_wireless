@@ -584,6 +584,11 @@ void ant_generic_evt_handler(ant_evt_t * p_ant_evt, void * p_context)
 
           switch (p_ant_evt->channel)
           {
+            case 1:
+              payload[0] = 3;
+              payload[1] = ui8_g_battery_soc;
+              break;
+
             case 3:
               payload[0] = 3;
               payload[1] = ui8_g_battery_soc;
@@ -616,6 +621,11 @@ void ant_generic_evt_handler(ant_evt_t * p_ant_evt, void * p_context)
                                                   payload);
           APP_ERROR_CHECK(err_code);
 
+          break;
+
+        case EVENT_CHANNEL_COLLISION:
+            err_code = 0;
+            APP_ERROR_CHECK(err_code);
           break;
 
         default:
@@ -664,9 +674,9 @@ static void ant_setup(void)
     .channel_number    = 1,
     .channel_type      = CHANNEL_TYPE_MASTER,
     .ext_assign        = 0x00,
-    .rf_freq           = 66,
-    .transmission_type = 1,
-    .device_type       = 2,
+    .rf_freq           = 48,
+    .transmission_type = 5,
+    .device_type       = 0x7b,
     .device_number     = 36,
     .channel_period    = 16384,
     .network_number    = 1,
@@ -680,13 +690,6 @@ static void ant_setup(void)
     err_code = sd_ant_channel_open(t_channel_config.channel_number);
     APP_ERROR_CHECK(err_code);
 
-      
-    err_code = sd_ant_channel_radio_tx_power_set(t_channel_config.channel_number,
-                                                 3,
-                                                 0);
-    APP_ERROR_CHECK(err_code);
-
-
 
     t_channel_config.channel_number = 6;
     t_channel_config.device_number = 41;
@@ -697,13 +700,6 @@ static void ant_setup(void)
     APP_ERROR_CHECK(err_code);
 
       
-    err_code = sd_ant_channel_radio_tx_power_set(t_channel_config.channel_number,
-                                                 3,
-                                                 0);
-    APP_ERROR_CHECK(err_code);
-
-
-
     t_channel_config.channel_number = 9;
     t_channel_config.device_number = 44;
     err_code = ant_channel_init(&t_channel_config);
@@ -711,13 +707,6 @@ static void ant_setup(void)
 
     err_code = sd_ant_channel_open(t_channel_config.channel_number);
     APP_ERROR_CHECK(err_code);
-
-      
-    err_code = sd_ant_channel_radio_tx_power_set(t_channel_config.channel_number,
-                                                 3,
-                                                 0);
-    APP_ERROR_CHECK(err_code);
-
 
 
     t_channel_config.channel_number = 12;
@@ -727,26 +716,15 @@ static void ant_setup(void)
 
     err_code = sd_ant_channel_open(t_channel_config.channel_number);
     APP_ERROR_CHECK(err_code);
+    
 
-      
-    err_code = sd_ant_channel_radio_tx_power_set(t_channel_config.channel_number,
-                                                 3,
-                                                 0);
-    APP_ERROR_CHECK(err_code);
+    // for (uint8_t i = 0; i < 13; i++)
+    // {
+    //   err_code = ant_channel_init(&t_channel_config);
+    //   APP_ERROR_CHECK(err_code);
 
-  // for (uint8_t i = 0; i < 13; i++)
-  // {
-  //   err_code = ant_channel_init(&t_channel_config);
-  //   APP_ERROR_CHECK(err_code);
-
-  //   err_code = sd_ant_channel_open(t_channel_config.channel_number);
-  //   APP_ERROR_CHECK(err_code);
-
-      
-  //   err_code = sd_ant_channel_radio_tx_power_set(t_channel_config.channel_number,
-  //                                                3,
-  //                                                0);
-  //   APP_ERROR_CHECK(err_code);
+    //   err_code = sd_ant_channel_open(t_channel_config.channel_number);
+    //   APP_ERROR_CHECK(err_code);
 
   //   t_channel_config.channel_number++;
   //   t_channel_config.device_number++;

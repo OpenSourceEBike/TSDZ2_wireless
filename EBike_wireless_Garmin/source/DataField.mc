@@ -2,7 +2,7 @@ using Toybox.WatchUi;
 using Toybox.System;
 
 
-var fieldDataID = 4;
+var fieldDataID = 12;
 
 // 1 - battery voltage
 // 2 - battery current

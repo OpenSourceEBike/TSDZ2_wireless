@@ -6,11 +6,11 @@ using Toybox.Ant;
 class AntDevice extends Ant.GenericChannel {
   const ANT_CHANNEL = fieldDataID;
   const DEV_NUMBER = 35 + fieldDataID;
-  const DEVICE_TYPE = 0;
+  const DEVICE_TYPE = 0x7b;
   const PERIOD = 16384;
-  const CHANNEL = 66;
+  const FREQUENCY = 48;
   var device_cfg;
-
+  
   var searching = false;
   var deviceNum;
     var fieldData = 0;
@@ -19,12 +19,14 @@ class AntDevice extends Ant.GenericChannel {
     // timers for self-checking
     hidden var _lastMessageTime = 0;
     var timer = 0;
-    var timerOnTimer = 7;
+    var timerOnTimer = 0;
     var timerReopen = -1;
     var validData = false;
     
   function initialize() {
-      chan_ass = new Ant.ChannelAssignment(
+  	Math.srand(System.getTimer());
+  
+    chan_ass = new Ant.ChannelAssignment(
         Ant.CHANNEL_TYPE_RX_ONLY,
         Ant.NETWORK_PUBLIC);
 
@@ -33,26 +35,24 @@ class AntDevice extends Ant.GenericChannel {
         :deviceType => 0,
         :transmissionType => 0,
         :messagePeriod => PERIOD,
-        :radioFrequency => CHANNEL,
-        :searchTimeoutLowPriority => 2, // 5 seconds
+        :radioFrequency => FREQUENCY,
+        :searchTimeoutLowPriority => 4, // 10 seconds
         :searchThreshold => 10,
         });
+        
+    GenericChannel.initialize(method(:onMessage), chan_ass);
   
-    open();
+    reopen(); // will open but with a kind of random timming
   }
 
   function open() {
     GenericChannel.initialize(method(:onMessage), chan_ass);
- 	GenericChannel.setDeviceConfig(device_cfg);
-	GenericChannel.open();
+    GenericChannel.setDeviceConfig(device_cfg);
+    GenericChannel.open();
   }
 
   function close() {
-	  GenericChannel.release();
-	  	  GenericChannel.release();
-	  	  	  GenericChannel.release();
-	  	  	  	  GenericChannel.release();
-	  	  	  	  	  GenericChannel.release();
+    GenericChannel.release();
   }
   
       // Re-open connection. Use this when sensor is not responding
@@ -62,7 +62,7 @@ class AntDevice extends Ant.GenericChannel {
         timerOnTimer = -1;
         
         if (reopening == false) {
-            timerReopen = 3;
+            timerReopen = random(fieldDataID);
             reopening = true;
             close();
         }
@@ -70,9 +70,9 @@ class AntDevice extends Ant.GenericChannel {
 
     function reopen_finish() {
         timerReopen = -1;
-        reopening = false;
         timerOnTimer = 7;
         open();
+        reopening = false;
     }
 
     // execute a timer to check the activity of the sensor. Reset if there is a lapse.
@@ -80,7 +80,7 @@ class AntDevice extends Ant.GenericChannel {
         timerOnTimer = -1;
         
         var secondsSinceLastUpdate = timer - _lastMessageTime;
-        if (secondsSinceLastUpdate > 2) {
+        if (secondsSinceLastUpdate > 3) {
             reopen();
             _lastMessageTime = timer;
             validData = false;
@@ -92,22 +92,27 @@ class AntDevice extends Ant.GenericChannel {
   function onMessage(msg) {
     var payload = msg.getPayload();
     var msgId = msg.messageId;
-    
-    _lastMessageTime = timer;
 
         if (Ant.MSG_ID_BROADCAST_DATA == msg.messageId)
         {
-            validData = true;
+        
+	        _lastMessageTime = timer;
+        
+	        if (payload[0] != fieldDataID) {
+	        	return;
+	        }
+	       
+	        validData = true;
 
          switch (fieldDataID) {
             case 1:
             case 4:
-              fieldData = (payload[0] | (payload[1] << 8)) / 10.0;
+              fieldData = (payload[1] | (payload[2] << 8)) / 10.0;
               break;
 
             case 2:
             case 5:
-              fieldData = payload[0] / 5;
+              fieldData = payload[1] / 5;
               break;
 
             case 3:
@@ -115,17 +120,17 @@ class AntDevice extends Ant.GenericChannel {
             case 9:
             case 10:
             case 12:
-              fieldData = payload[0];
+              fieldData = payload[1];
               break;
 
             case 6:
             case 8:
             case 11:
-              fieldData = (payload[0] | (payload[1] << 8));
+              fieldData = (payload[1] | (payload[2] << 8));
               break;
 
             case 13:
-              fieldData = (payload[0] | (payload[1] << 8) | (payload[2] << 16) | (payload[3] << 24)) / 10;
+              fieldData = (payload[1] | (payload[2] << 8) | (payload[3] << 16) | (payload[4] << 24)) / 10;
               break;
             }
 
@@ -164,7 +169,7 @@ class AntDevice extends Ant.GenericChannel {
         }
   }
   
-function getData() {
+  function getData() {
     return fieldData;
   }
 
@@ -184,5 +189,10 @@ function getData() {
         timerReopen = -1;
         reopen_finish();
     }
+  }
+
+  // return a random value on the range [n, m]
+  function random(n) {    
+    return Math.rand() % n + n; //Random number between n and 2*n
   }
 }
