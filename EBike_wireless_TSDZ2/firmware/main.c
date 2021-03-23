@@ -581,33 +581,39 @@ void ant_generic_evt_handler(ant_evt_t * p_ant_evt, void * p_context)
         // ANT broadcast success.
         // Increment the counter and send a new broadcast.
         case EVENT_TX:
-
           switch (p_ant_evt->channel)
           {
             case 1:
-              payload[0] = 3;
+              payload[0] = ui_vars.ui8_assist_level & 0x3F;
               payload[1] = ui8_g_battery_soc;
+              payload[2] = (uint8_t) (ui_vars.ui16_motor_power & 0xff);
+              payload[3] = (uint8_t) (ui_vars.ui16_motor_power >> 8);
+              payload[4] = (uint8_t) (ui_vars.ui16_pedal_power & 0xff);
+              payload[5] = (uint8_t) (ui_vars.ui16_pedal_power >> 8);
+              payload[6] = ui_vars.ui8_pedal_cadence_filtered;
+              payload[7] = ui_vars.ui8_motor_temperature;
+              break;
+
+            case 2:
+              payload[0] = ui_vars.ui8_assist_level & 0x3F;
+              payload[0] |= 0x40;
+              payload[1] = (uint8_t) (ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
+              payload[2] = (uint8_t) (ui_vars.ui16_battery_voltage_filtered_x10 >> 8);
+              payload[3] = (uint8_t) (ui_vars.ui16_battery_current_filtered_x5 & 0xff);
+              payload[4] = (uint8_t) (ui_vars.ui16_battery_current_filtered_x5 >> 8);
+              payload[5] = ui_vars.ui8_duty_cycle;  
               break;
 
             case 3:
-              payload[0] = 3;
-              payload[1] = ui8_g_battery_soc;
-              break;
-
-            case 6:
-              payload[0] = 6;
-              payload[1] = (uint8_t) (ui_vars.ui16_motor_power & 0xff);
-              payload[2] = (uint8_t) (ui_vars.ui16_motor_power >> 8);
-              break;
-
-            case 9:
-              payload[0] = 9;
-              payload[1] = ui_vars.ui8_motor_temperature;
-              break;
-
-            case 12:
-              payload[0] = 12;
-              payload[1] = ui_vars.ui8_assist_level;
+              payload[0] = ui_vars.ui8_assist_level & 0x3F;
+              payload[0] |= 0x80;
+              payload[1] = (uint8_t) (ui_vars.ui32_wh_x10 & 0xff);
+              payload[2] = (uint8_t) (ui_vars.ui32_wh_x10 >> 8);
+              payload[3] = (uint8_t) (ui_vars.ui32_wh_x10 >> 16);
+              payload[4] = (uint8_t) (ui_vars.ui32_odometer_x10 & 0xff);
+              payload[5] = (uint8_t) (ui_vars.ui32_odometer_x10 >> 8);
+              payload[6] = (uint8_t) (ui_vars.ui32_odometer_x10 >> 16);
+              payload[7] = (uint8_t) (ui_vars.ui32_odometer_x10 >> 24);             
               break;
 
             default:
@@ -677,58 +683,22 @@ static void ant_setup(void)
     .rf_freq           = 48,
     .transmission_type = 5,
     .device_type       = 0x7b,
-    .device_number     = 36,
+    .device_number     = 65136,
     .channel_period    = 16384,
     .network_number    = 1,
   };
 
-    t_channel_config.channel_number = 3;
-    t_channel_config.device_number = 38;
+  for (uint8_t i = 0; i < 3; i++)
+  {
     err_code = ant_channel_init(&t_channel_config);
     APP_ERROR_CHECK(err_code);
 
     err_code = sd_ant_channel_open(t_channel_config.channel_number);
     APP_ERROR_CHECK(err_code);
 
-
-    t_channel_config.channel_number = 6;
-    t_channel_config.device_number = 41;
-    err_code = ant_channel_init(&t_channel_config);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = sd_ant_channel_open(t_channel_config.channel_number);
-    APP_ERROR_CHECK(err_code);
-
-      
-    t_channel_config.channel_number = 9;
-    t_channel_config.device_number = 44;
-    err_code = ant_channel_init(&t_channel_config);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = sd_ant_channel_open(t_channel_config.channel_number);
-    APP_ERROR_CHECK(err_code);
-
-
-    t_channel_config.channel_number = 12;
-    t_channel_config.device_number = 47;
-    err_code = ant_channel_init(&t_channel_config);
-    APP_ERROR_CHECK(err_code);
-
-    err_code = sd_ant_channel_open(t_channel_config.channel_number);
-    APP_ERROR_CHECK(err_code);
-    
-
-    // for (uint8_t i = 0; i < 13; i++)
-    // {
-    //   err_code = ant_channel_init(&t_channel_config);
-    //   APP_ERROR_CHECK(err_code);
-
-    //   err_code = sd_ant_channel_open(t_channel_config.channel_number);
-    //   APP_ERROR_CHECK(err_code);
-
-  //   t_channel_config.channel_number++;
-  //   t_channel_config.device_number++;
-  // }
+    t_channel_config.channel_number++;
+    t_channel_config.device_number++;
+  }
 }
 
 static void main_timer_timeout(void *p_context)
@@ -1819,179 +1789,6 @@ static uint8_t payload_unchanged(uint8_t *old, uint8_t *new, uint8_t len)
 	return 0;
 }
 
-void ant_channels_update(void)
-{
-	ret_code_t err_code;
-  static uint8_t order = 0;
-
-  // #define PAYLOAD_1_LEN 2
-  // uint8_t payload_1[PAYLOAD_1_LEN];
-  // static uint8_t payload_1_previous[PAYLOAD_1_LEN];
-  // payload_1[0] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
-  // payload_1[1] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 >> 8);
-
-  // if (payload_unchanged(payload_1_previous, payload_1, PAYLOAD_1_LEN))
-  //   return;
-
-  // err_code = sd_ant_broadcast_message_tx(1, PAYLOAD_1_LEN, payload_1);
-  // APP_ERROR_CHECK(err_code);
-
-
-  // #define PAYLOAD_2_LEN 1   
-	// uint8_t payload_2[PAYLOAD_2_LEN];
-  // static uint8_t payload_2_previous[PAYLOAD_2_LEN];
-  // payload_2[0] = ui_vars.ui8_battery_current_x5;
-
-	// if (payload_unchanged(payload_2_previous, payload_2, PAYLOAD_2_LEN))
-	// 	return;
-
-	// err_code = sd_ant_broadcast_message_tx(2, PAYLOAD_2_LEN, payload_2);
-	// APP_ERROR_CHECK(err_code);
-
-
-  #define PAYLOAD_3_LEN 8
-	uint8_t payload_3[PAYLOAD_3_LEN];
-  static uint8_t payload_3_previous[PAYLOAD_3_LEN];
-  payload_3[0] = 3;
-  payload_3[1] = ui8_g_battery_soc;
-
-	// if (payload_unchanged(payload_3_previous, payload_3, PAYLOAD_3_LEN))
-	// 	return;
-
-	err_code = sd_ant_broadcast_message_tx(3, PAYLOAD_3_LEN, payload_3);
-	APP_ERROR_CHECK(err_code);
-
-
-  // #define PAYLOAD_4_LEN 2
-	// uint8_t payload_4[PAYLOAD_4_LEN];
-  // static uint8_t payload_4_previous[PAYLOAD_4_LEN];
-  // payload_4[0] = (uint8_t) (ui_vars.ui32_wh_x10 & 0xff);
-  // payload_4[1] = (uint8_t) (ui_vars.ui32_wh_x10 >> 8);
-
-	// if (payload_unchanged(payload_4_previous, payload_4, PAYLOAD_4_LEN))
-	// 	return;
-
-	// err_code = sd_ant_broadcast_message_tx(4, PAYLOAD_4_LEN, payload_4);
-	// APP_ERROR_CHECK(err_code);
-
-  // #define PAYLOAD_5_LEN 1
-	// uint8_t payload_5[PAYLOAD_5_LEN];
-  // static uint8_t payload_5_previous[PAYLOAD_5_LEN];
-
-  // payload_5[0] = ui_vars.ui8_motor_current_x5;
-
-	// if (payload_unchanged(payload_5_previous, payload_5, PAYLOAD_5_LEN))
-	// 	return;
-
-	// err_code = sd_ant_broadcast_message_tx(5, PAYLOAD_5_LEN, payload_5);
-	// APP_ERROR_CHECK(err_code);
-
-
-  #define PAYLOAD_6_LEN 8
-	uint8_t payload_6[PAYLOAD_6_LEN];
-  static uint8_t payload_6_previous[PAYLOAD_6_LEN];
-  payload_6[0] = 6;
-  payload_6[1] = (uint8_t) (ui_vars.ui16_motor_power & 0xff);
-  payload_6[2] = (uint8_t) (ui_vars.ui16_motor_power >> 8);
-
-	// if (payload_unchanged(payload_6_previous, payload_6, PAYLOAD_6_LEN))
-	// 	return;
-
-	err_code = sd_ant_broadcast_message_tx(6, PAYLOAD_6_LEN, payload_6);
-	APP_ERROR_CHECK(err_code);
-
-
-  // #define PAYLOAD_7_LEN 1
-	// uint8_t payload_7[PAYLOAD_7_LEN];
-  // static uint8_t payload_7_previous[PAYLOAD_7_LEN];
-  // payload_7[0] = ui_vars.ui8_duty_cycle;
-
-	// if (payload_unchanged(payload_7_previous, payload_7, PAYLOAD_7_LEN))
-	// 	return;
-
-	// err_code = sd_ant_broadcast_message_tx(7, PAYLOAD_7_LEN, payload_7);
-	// APP_ERROR_CHECK(err_code);
-
-
-  // #define PAYLOAD_8_LEN 2
-	// uint8_t payload_8[PAYLOAD_8_LEN];
-  // static uint8_t payload_8_previous[PAYLOAD_8_LEN];
-  // payload_8[0] = (uint8_t) (ui_vars.ui16_motor_speed_erps & 0xff);
-  // payload_8[1] = (uint8_t) (ui_vars.ui16_motor_speed_erps >> 8);
-
-	// if (payload_unchanged(payload_8_previous, payload_8, PAYLOAD_8_LEN))
-	// 	return;
-
-	// err_code = sd_ant_broadcast_message_tx(8, PAYLOAD_8_LEN, payload_8);
-	// APP_ERROR_CHECK(err_code);
-
-
-  #define PAYLOAD_9_LEN 8
-	uint8_t payload_9[PAYLOAD_9_LEN];
-  static uint8_t payload_9_previous[PAYLOAD_9_LEN];
-  payload_9[0] = 9;
-  payload_9[1] = ui_vars.ui8_motor_temperature;
-
-	// if (payload_unchanged(payload_9_previous, payload_9, PAYLOAD_9_LEN))
-	// 	return;
-
-	err_code = sd_ant_broadcast_message_tx(9, PAYLOAD_9_LEN, payload_9);
-	APP_ERROR_CHECK(err_code);
-
-
-  // #define PAYLOAD_10_LEN 1
-	// uint8_t payload_10[PAYLOAD_10_LEN];
-  // static uint8_t payload_10_previous[PAYLOAD_10_LEN];
-  // payload_10[0] = ui_vars.ui8_pedal_cadence_filtered;
-
-	// if (payload_unchanged(payload_10_previous, payload_10, PAYLOAD_10_LEN))
-	// 	return;
-
-	// err_code = sd_ant_broadcast_message_tx(10, PAYLOAD_10_LEN, payload_10);
-	// APP_ERROR_CHECK(err_code);
-  
-
-  // #define PAYLOAD_11_LEN 2
-	// uint8_t payload_11[PAYLOAD_11_LEN];
-  // static uint8_t payload_11_previous[PAYLOAD_11_LEN];
-  // payload_11[0] = (uint8_t)(ui_vars.ui16_pedal_power & 0xff);
-  // payload_11[1] = (uint8_t)(ui_vars.ui16_pedal_power >> 8);
-
-	// if (payload_unchanged(payload_11_previous, payload_11, PAYLOAD_11_LEN))
-	// 	return;
-
-	// err_code = sd_ant_broadcast_message_tx(11, PAYLOAD_11_LEN, payload_11);
-	// APP_ERROR_CHECK(err_code);
-
-
-  #define PAYLOAD_12_LEN 2
-	uint8_t payload_12[PAYLOAD_12_LEN];
-  static uint8_t payload_12_previous[PAYLOAD_12_LEN];
-  payload_12[0] = 12;
-  payload_12[1] = ui_vars.ui8_assist_level;
-
-	if (payload_unchanged(payload_12_previous, payload_12, PAYLOAD_12_LEN))
-		return;
-
-	err_code = sd_ant_broadcast_message_tx(12, PAYLOAD_12_LEN, payload_12);
-	APP_ERROR_CHECK(err_code);
-
-
-  // #define PAYLOAD_13_LEN 4
-	// uint8_t payload_13[PAYLOAD_13_LEN];
-  // static uint8_t payload_13_previous[PAYLOAD_13_LEN];
-  // payload_13[0] = (uint8_t)(ui_vars.ui32_odometer_x10 & 0xff);
-  // payload_13[1] = (uint8_t)(ui_vars.ui32_odometer_x10 >> 8);
-  // payload_13[2] = (uint8_t)(ui_vars.ui32_odometer_x10 >> 16);
-  // payload_13[3] = (uint8_t)(ui_vars.ui32_odometer_x10 >> 24);
-
-	// if (payload_unchanged(payload_13_previous, payload_13, PAYLOAD_13_LEN))
-	// 	return;
-
-	// err_code = sd_ant_broadcast_message_tx(13, PAYLOAD_13_LEN, payload_13);
-	// APP_ERROR_CHECK(err_code);
-}
-
 int main(void)
 {
   mp_ui_vars = get_ui_vars();
@@ -2045,12 +1842,12 @@ int main(void)
       rt_processing_start();
 
       // calc motor power
-      ui_vars.ui16_motor_power = ui_vars.ui16_battery_voltage_filtered_x10 * ui_vars.ui8_battery_current_x5;
+      ui_vars.ui16_motor_power = (ui_vars.ui16_battery_voltage_filtered_x10 * ui_vars.ui8_battery_current_x5) / 50;
 
       TSDZ2_power_manage();
 
       if (ui8_walk_assist_state_process_locally) walk_assist_state();
-      handle_buttons();
+      // handle_buttons();
       streetMode();
 
       if ((m_conn_handle != BLE_CONN_HANDLE_INVALID) && (!ui8_ble_connected_shown))
