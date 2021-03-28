@@ -242,12 +242,15 @@ static const uint8_t ui8_led_sequences[LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SE
 #define LED_EVENT_WIRELESS_BOARD_POWER_ON LED_SEQUENCE_RED_YELLOW_LONGGREEN
 #define LED_EVENT_BLUETOOTH_CONNECT LED_SEQUENCE_BLUE_SLOWFLASH_2_LONGGREEN
 #define LED_EVENT_BLUETOOTH_DISCONNECT LED_SEQUENCE_BLUE_SLOWFLASH_2_LONGRED
-#define LED_EVENT_MOTOR_ON_WAIT LED_SEQUENCE_SHORTRED_SHORTBLUE //LED_SEQUENCE_SHORT_YELLOW
+#define LED_EVENT_MOTOR_ON_WAIT LED_SEQUENCE_SHORTRED_SHORTBLUE
+#define LED_EVENT_CONTROLLER_MOTOR_ON_WAIT LED_SEQUENCE_YELLOW_SLOWFLASH
 #define LED_EVENT_MOTOR_ON_COMPLETE LED_SEQUENCE_GREEN_SLOWFLASH_2
 #define LED_EVENT_MOTOR_OFF LED_SEQUENCE_RED_SLOWFLASH_2_LONGRED
 #define LED_EVENT_LIGHTS_OFF LED_SEQUENCE_WHITE_SLOWFLASH_2_LONGRED
 #define LED_EVENT_LIGHTS_ON LED_SEQUENCE_WHITE_SLOWFLASH_2_LONGGREEN
-#define LED_EVENT_ASSIST_LIMITS_REACHED LED_SEQUENCE_SHORT_RED //LED_SEQUENCE_REDFLASH_3
+#define LED_EVENT_ASSIST_LIMITS_REACHED LED_SEQUENCE_SHORT_RED
+#define LED_EVENT_WIRED_REMOTE_ASSIST_LEVEL_DECREASE LED_SEQUENCE_SHORT_YELLOW
+#define LED_EVENT_WIRED_REMOTE_ASSIST_LEVEL_INCREASE LED_SEQUENCE_SHORT_GREEN
 #define LED_EVENT_ASSIST_LEVEL_DECREASE LED_SEQUENCE_SHORT_GREEN
 #define LED_EVENT_ASSIST_LEVEL_INCREASE LED_SEQUENCE_SHORT_GREEN
 #define LED_EVENT_WALK_ASSIST_ACTIVE LED_SEQUENCE_SHORT_GREEN
@@ -281,14 +284,6 @@ static const uint8_t ui8_led_sequences[LED_NUM_SEQUENCES][LED_MAX_COMMANDS_IN_SE
 #define LED_EVENT_GARMIN_PAGEUP LED_SEQUENCE_SHORT_GREEN 
 #define LED_EVENT_BRIGHTNESS_CHECK LED_SEQUENCE_LONGRED_LONGGREEN_LONGBLUE     
 
-// Deprecated - please use the equivalents below
-// extern void led_init(void);                                             // call this to setup app timers
-// extern void led_alert(uint8_t ui8_sequence);                            // call this to queue and play a sequence - e.g. led_alert(LED_SEQUENCE_SHORT_GREEN);
-// extern void led_clear_queue(void);                                      // used if you want to play a sequence right now. clear the queue then the next thing you play is up now.
-// extern void led_hold_queue(void);                                       // Used to keep the current sequence playing until you release the queue
-// extern void led_release_queue(void);                                    // Go back to normal - play the queue as it happens
-// extern void led_set_global_brightness(uint8_t ui8_global_brightness);   // Default is 1 - lowest. 3 currently is highest.
-
 void led_init(void);                                           // call this to setup app timers
 void led_sequence_play(uint8_t ui8_sequence);                  // call this to queue and play a sequence - e.g. led_sequence_play(LED_SEQUENCE_SHORT_GREEN);
 void led_sequence_play_next(uint8_t ui8_sequence);             // used if you want to play a sequence next in the queue - clears queue and plays
@@ -297,4 +292,4 @@ void led_sequence_play_now(uint8_t ui8_sequence);              // used if you wa
 void led_sequence_play_now_until(uint8_t ui8_sequence);        // used if you want to play a sequence now - stops current sequence and plays a repeating sequence
 void led_sequence_cancel_play_until();                         // Cancel repeating sequence
 void led_set_global_brightness(uint8_t ui8_global_brightness); // Default is 1 - lowest 'on'. 7 currently is highest. 0 will switch leds off
-//void led_clear_queue_and_stop_current_sequence(void);
+

@@ -68,6 +68,7 @@ volatile uint8_t ui8_m_flash_configurations = 0;
 
 static uint8_t ui8_walk_assist_timeout = 0;
 static uint8_t ui8_walk_assist_state_process_locally = 0;
+uint8_t ui8_braking_led_state = 0;
 
 // uint16_t ui16_m_battery_current_filtered_x10;
 // uint16_t ui16_m_motor_current_filtered_x10;
@@ -1666,7 +1667,7 @@ bool wiredRemoteOnPress(buttons_events_t events) {
         ui_vars.ui8_assist_level = ui_vars.ui8_number_of_assist_levels;
         led_sequence_play_next(LED_EVENT_ASSIST_LIMITS_REACHED);
       }
-      else led_sequence_play_next(LED_EVENT_ASSIST_LEVEL_INCREASE);
+      else led_sequence_play_next(LED_EVENT_WIRED_REMOTE_ASSIST_LEVEL_INCREASE);
 
       handled = true;
     }
@@ -1676,7 +1677,7 @@ bool wiredRemoteOnPress(buttons_events_t events) {
       if (ui_vars.ui8_assist_level > 0)
       {
         ui_vars.ui8_assist_level--;
-        led_sequence_play_next(LED_EVENT_ASSIST_LEVEL_DECREASE);
+        led_sequence_play_next(LED_EVENT_WIRED_REMOTE_ASSIST_LEVEL_DECREASE);
       }
       else led_sequence_play_next(LED_EVENT_ASSIST_LIMITS_REACHED);
 
@@ -1731,6 +1732,21 @@ void walk_assist_state(void) {
   }
 }
 
+void brakeLights(void)
+{
+
+ if (ui8_braking_led_state != ui_vars.ui8_braking)
+ {
+   ui8_braking_led_state = ui_vars.ui8_braking;
+
+   if (ui8_braking_led_state == 1) led_sequence_play_now(LED_EVENT_BRAKE_ON);
+    else led_sequence_play_now(LED_EVENT_BRAKE_OFF);
+
+  // Todo - add code to replicate brake light signal on NRF pin...
+
+ }
+}
+
 
 /// Called every 50ms to check for wired button events and dispatch to our handlers
 static void handle_buttons() {
@@ -1770,6 +1786,7 @@ int main(void)
   {
     mp_ui_vars->ui8_enter_bootloader = 0;
     nrf_power_gpregret_set(BOOTLOADER_DFU_START); //set the dfu register
+    bsp_board_led_on(LED_B__PIN); // Indicate about to enter bootloader
     nrf_delay_ms(1000);                           //wait for write to complete
     eeprom_write_variables();
     nrf_delay_ms(3000); //wait for write to complete
@@ -1781,7 +1798,7 @@ int main(void)
   uart_init();
   led_init();
   led_set_global_brightness(7); // For wireless controller - brightest
-  ui_vars.ui8_street_mode_function_enabled = 1;
+  //ui_vars.ui8_street_mode_function_enabled = 1;
 
   // setup this member variable ui8_m_ant_device_id
   ui8_m_ant_device_id = mp_ui_vars->ui8_ant_device_id;
@@ -1813,6 +1830,7 @@ int main(void)
       if (ui8_walk_assist_state_process_locally) walk_assist_state();
       handle_buttons();
       streetMode();
+      brakeLights();
 
       if ((m_conn_handle != BLE_CONN_HANDLE_INVALID) && (!ui8_ble_connected_shown))
       {
