@@ -53,11 +53,10 @@ void send_page16(ant_lev_profile_t *p_profile)
 
     uint32_t err_code;
     //err_code = sd_ant_acknowledge_message_tx(p_profile->channel_number, sizeof(p_message_payload), p_message_payload);
-    do
-    {
+   
         err_code = sd_ant_acknowledge_message_tx(p_profile->channel_number, sizeof(p_message_payload), p_message_payload);
-        // } while (err_code == NRF_ANT_ERROR_TRANSFER_IN_PROGRESS);
-    } while (err_code);
+       
+    
 
     //reset the on/off and brake flags
     p_profile->page_16.current_front_gear = 0;
