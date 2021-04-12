@@ -185,6 +185,7 @@ class AntDevice extends Ant.GenericChannel {
     			break;
     			
 			default:
+			    validData = false;
 				break;
         	}    		
         }

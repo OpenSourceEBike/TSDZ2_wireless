@@ -2,7 +2,7 @@ using Toybox.WatchUi;
 using Toybox.System;
 
 
-var fieldDataID = 1;
+var fieldDataID = 10;
 
 
 class DataField extends WatchUi.SimpleDataField {
@@ -79,9 +79,7 @@ function compute(info) {
       case 8:
       case 10:
       case 13:
-      	if (ant_device.getData() != "--") {
-        	value = ant_device.getData().format("%.1f");
-    	}
+    	value = ant_device.getData().format("%.1f");
         break;
 
       case 1:
@@ -92,9 +90,7 @@ function compute(info) {
       case 9:
       case 11:
       case 12:
-		if (ant_device.getData() != "--") {
         	value = ant_device.getData();
-        }
         break;
     }
 

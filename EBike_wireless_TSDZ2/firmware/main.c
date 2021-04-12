@@ -594,7 +594,7 @@ void ant_generic_evt_handler(ant_evt_t * p_ant_evt, void * p_context)
               payload[7] = ui_vars.ui8_motor_temperature;
               break;
 
-            case 2:
+            case 5:
               payload[0] = ui_vars.ui8_assist_level & 0x3F;
               payload[0] |= 0x40;
               payload[1] = (uint8_t) (ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
@@ -604,7 +604,7 @@ void ant_generic_evt_handler(ant_evt_t * p_ant_evt, void * p_context)
               payload[5] = ui_vars.ui8_duty_cycle;  
               break;
 
-            case 3:
+            case 9:
               payload[0] = ui_vars.ui8_assist_level & 0x3F;
               payload[0] |= 0x80;
               payload[1] = (uint8_t) (ui_vars.ui32_wh_x10 & 0xff);
@@ -696,7 +696,7 @@ static void ant_setup(void)
     err_code = sd_ant_channel_open(t_channel_config.channel_number);
     APP_ERROR_CHECK(err_code);
 
-    t_channel_config.channel_number++;
+    t_channel_config.channel_number += 4;
     t_channel_config.device_number++;
   }
 }

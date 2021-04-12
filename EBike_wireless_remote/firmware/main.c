@@ -468,7 +468,9 @@ void ant_lev_evt_handler(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
 {
   nrf_pwr_mgmt_feed();
   // get motor state variables
-  motor_init_state = p_profile->common.gear_state & 0x03;
+  // motor_init_state = p_profile->common.gear_state & 0x03;
+motor_init_state = 1;
+
   motor_error_state = (p_profile->common.gear_state) >> 2;
 
   switch (event)
@@ -648,26 +650,26 @@ static void timer_button_long_press_timeout_handler(void *p_context)
   APP_ERROR_CHECK(err_code);
   if ((nrf_gpio_pin_read(ENTER__PIN) != 0) && (nrf_gpio_pin_read(MINUS__PIN) != 0) && (nrf_gpio_pin_read(STANDBY__PIN) != 0)) //if none of these are pressed
   {
-    led_sequence_play(LED_EVENT_SHORT_GREEN);
+    // led_sequence_play(LED_EVENT_SHORT_GREEN);
   }
   if (configuration_flag)
   {
 
-    //CONFIG long press button options
+    // //CONFIG long press button options
 
-    if (nrf_gpio_pin_read(STANDBY__PIN) == 0)
-    {
+    // if (nrf_gpio_pin_read(STANDBY__PIN) == 0)
+    // {
 
-      new_ant_device_id = 0x99;
-    }
-    if (nrf_gpio_pin_read(PLUS__PIN) == 0)
-    {
-      new_ant_device_id = 0x90;
-    }
-    if (nrf_gpio_pin_read(MINUS__PIN) == 0)
-    {
-      new_ant_device_id = 0x91;
-    }
+    //   new_ant_device_id = 0x99;
+    // }
+    // if (nrf_gpio_pin_read(PLUS__PIN) == 0)
+    // {
+    //   new_ant_device_id = 0x90;
+    // }
+    // if (nrf_gpio_pin_read(MINUS__PIN) == 0)
+    // {
+    //   new_ant_device_id = 0x91;
+    // }
   }
   else
   {
@@ -710,7 +712,7 @@ static void timer_button_long_press_timeout_handler(void *p_context)
     {
       //turn motor power on/off
       m_button_long_press = true;
-      buttons_send_page16(&m_ant_lev, STANDBY__PIN, m_button_long_press);
+      // buttons_send_page16(&m_ant_lev, STANDBY__PIN, m_button_long_press); // ?????????????? AUI??
     }
   }
   m_button_long_press = true; //needed for app_release long press actions
