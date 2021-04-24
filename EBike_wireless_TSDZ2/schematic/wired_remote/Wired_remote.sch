@@ -1,7 +1,7 @@
 EESchema Schematic File Version 4
 EELAYER 30 0
 EELAYER END
-$Descr A4 11693 8268
+$Descr A3 16535 11693
 encoding utf-8
 Sheet 1 1
 Title ""
@@ -13,406 +13,406 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
-Text Notes 2900 5900 0    60   ~ 0
+Text Notes 4250 7050 0    60   ~ 0
   NOTE!!! Wire colouring and pin numbers\nmay change! Always check with a meter first.
-Text GLabel 4900 4850 2    57   Output ~ 0
+Text GLabel 6250 6000 2    57   Output ~ 0
 V.Battery
-Text GLabel 4900 4950 2    57   Input ~ 0
+Text GLabel 6250 6100 2    57   Input ~ 0
 TSDZ2_Vin
-Text GLabel 4900 5250 2    57   Input ~ 0
+Text GLabel 6250 6400 2    57   Input ~ 0
 TSDZ2_Brake_Input
-Text GLabel 4900 5450 2    57   Output ~ 0
+Text GLabel 6250 6600 2    57   Output ~ 0
 TSDZ2_Tx
-Text GLabel 4900 5050 2    57   Input ~ 0
+Text GLabel 6250 6200 2    57   Input ~ 0
 TSDZ2_Rx
-NoConn ~ 4600 5350
-Text GLabel 4900 6550 2    57   Output ~ 0
+NoConn ~ 5950 6500
+Text GLabel 6250 7700 2    57   Output ~ 0
 V.Battery
-Text GLabel 4900 6750 2    57   Input ~ 0
+Text GLabel 6250 7900 2    57   Input ~ 0
 TSDZ2_Vin
-Text GLabel 4900 6350 2    57   Input ~ 0
+Text GLabel 6250 7500 2    57   Input ~ 0
 TSDZ2_Brake_Input
-Text GLabel 4900 6650 2    57   Output ~ 0
+Text GLabel 6250 7800 2    57   Output ~ 0
 TSDZ2_Tx
-Text GLabel 4900 6450 2    57   Input ~ 0
+Text GLabel 6250 7600 2    57   Input ~ 0
 TSDZ2_Rx
-Text GLabel 5425 1100 0    57   Input ~ 0
+Text GLabel 7575 2250 0    57   Input ~ 0
 V.Battery
-Text GLabel 5450 2875 0    57   Output ~ 0
+Text GLabel 7600 4025 0    57   Output ~ 0
 TSDZ2_Rx
-Text GLabel 5450 2975 0    57   Input ~ 0
+Text GLabel 7600 4125 0    57   Input ~ 0
 TSDZ2_Tx
-Text GLabel 4900 6250 2    57   Output ~ 0
+Text GLabel 6250 7400 2    57   Output ~ 0
 TSDZ2_GND
-Text GLabel 4900 4750 2    57   Output ~ 0
+Text GLabel 6250 5900 2    57   Output ~ 0
 TSDZ2_GND
-Text GLabel 5525 1300 0    57   Input ~ 0
+Text GLabel 7675 2450 0    57   Input ~ 0
 TSDZ2_GND
 Wire Wire Line
-	4600 6250 4900 6250
+	5950 7400 6250 7400
 Wire Wire Line
-	4600 4750 4900 4750
+	5950 5900 6250 5900
 Wire Wire Line
-	4900 4850 4600 4850
+	6250 6000 5950 6000
 Wire Wire Line
-	4900 4950 4600 4950
+	6250 6100 5950 6100
 Wire Wire Line
-	4600 5050 4900 5050
+	5950 6200 6250 6200
 Wire Wire Line
-	4600 5250 4900 5250
+	5950 6400 6250 6400
 Wire Wire Line
-	4600 5450 4900 5450
+	5950 6600 6250 6600
 Wire Wire Line
-	4900 6350 4600 6350
+	6250 7500 5950 7500
 Wire Wire Line
-	4600 6450 4900 6450
+	5950 7600 6250 7600
 Wire Wire Line
-	4900 6550 4600 6550
+	6250 7700 5950 7700
 Wire Wire Line
-	4600 6650 4900 6650
+	5950 7800 6250 7800
 Wire Wire Line
-	4900 6750 4600 6750
+	6250 7900 5950 7900
 Wire Wire Line
-	5525 1300 5725 1300
-Text Notes 2880 4460 0    60   ~ 0
+	7675 2450 7875 2450
+Text Notes 4230 5610 0    60   ~ 0
 If you have the TSDZ2 with the throttle option you will\nhave the 8-Way cable. If you don't have a throttle, you\n      are more likely to have the 6-Way cable
 Wire Wire Line
-	8975 2475 8775 2475
+	11125 3625 10925 3625
 Wire Wire Line
-	7375 2875 5450 2875
+	9525 4025 7600 4025
 Wire Wire Line
-	5450 2975 7375 2975
+	7600 4125 9525 4125
 Wire Wire Line
-	7050 3075 7375 3075
-Text GLabel 5475 1625 0    57   Output ~ 0
+	9200 4225 9525 4225
+Text GLabel 7625 2775 0    57   Output ~ 0
 TSDZ2_Vin
 $Comp
-L Wireless_Ebike:power_GND #PWR?
+L Wired_remote-rescue:power_GND-Wireless_Ebike #PWR?
 U 1 1 6013E89A
-P 6875 1350
-F 0 "#PWR?" H 6875 1100 50  0001 C CNN
-F 1 "power_GND" H 6880 1177 50  0000 C CNN
-F 2 "" H 6875 1350 50  0001 C CNN
-F 3 "" H 6875 1350 50  0001 C CNN
-	1    6875 1350
+P 9025 2500
+F 0 "#PWR?" H 9025 2250 50  0001 C CNN
+F 1 "power_GND" H 9030 2327 50  0000 C CNN
+F 2 "" H 9025 2500 50  0001 C CNN
+F 3 "" H 9025 2500 50  0001 C CNN
+	1    9025 2500
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8975 1100 8975 2475
+	11125 2250 11125 3625
 Wire Wire Line
-	6725 1100 8975 1100
-NoConn ~ 7375 2475
-NoConn ~ 7375 2575
-NoConn ~ 7375 2675
-NoConn ~ 7375 2775
-NoConn ~ 7375 3275
-NoConn ~ 8775 2875
-NoConn ~ 8775 2775
-NoConn ~ 8775 2975
-NoConn ~ 8775 3075
-NoConn ~ 8775 3175
-NoConn ~ 8775 3275
-NoConn ~ 8775 3375
+	8875 2250 11125 2250
+NoConn ~ 9525 3625
+NoConn ~ 9525 3725
+NoConn ~ 9525 3825
+NoConn ~ 9525 3925
+NoConn ~ 9525 4425
+NoConn ~ 10925 4025
+NoConn ~ 10925 3925
+NoConn ~ 10925 4125
+NoConn ~ 10925 4225
+NoConn ~ 10925 4325
+NoConn ~ 10925 4425
+NoConn ~ 10925 4525
 $Comp
 L Wired_remote:8-Way_Higo-Dongle K?
 U 1 1 600F98A9
-P 4000 5250
-F 0 "K?" H 3758 6037 60  0001 C CNN
-F 1 "8 Way Higo" H 3900 5920 60  0000 C CNN
-F 2 "" H 4000 5250 60  0000 C CNN
-F 3 "" H 4000 5250 60  0000 C CNN
-	1    4000 5250
+P 5350 6400
+F 0 "K?" H 5108 7187 60  0001 C CNN
+F 1 "8 Way Higo" H 5250 7070 60  0000 C CNN
+F 2 "" H 5350 6400 60  0000 C CNN
+F 3 "" H 5350 6400 60  0000 C CNN
+	1    5350 6400
 	1    0    0    -1  
 $EndComp
 $Comp
 L Wired_remote:6-Way_Higo-Dongle K?
 U 1 1 600FCB69
-P 4050 6650
-F 0 "K?" H 3833 7337 60  0001 C CNN
-F 1 "6 Way Higo" H 3833 7231 60  0000 C CNN
-F 2 "" H 4050 6650 60  0000 C CNN
-F 3 "" H 4050 6650 60  0000 C CNN
-	1    4050 6650
+P 5400 7800
+F 0 "K?" H 5183 8487 60  0001 C CNN
+F 1 "6 Way Higo" H 5183 8381 60  0000 C CNN
+F 2 "" H 5400 7800 60  0000 C CNN
+F 3 "" H 5400 7800 60  0000 C CNN
+	1    5400 7800
 	1    0    0    -1  
 $EndComp
-NoConn ~ 7375 3375
+NoConn ~ 9525 4525
 $Comp
-L Wireless_Ebike:Generic_DC-DC-Wireless_eBike U?
+L Wired_remote-rescue:Generic_DC-DC-Wireless_eBike-Wireless_Ebike U?
 U 1 1 60103A2E
-P 6225 1200
-F 0 "U?" H 6225 1587 60  0001 C CNN
-F 1 "Generic DC-DC (min input allowed 60V, output 5V)" H 6175 1500 60  0001 C CNN
-F 2 "" H 6175 1200 60  0000 C CNN
-F 3 "" H 6175 1200 60  0000 C CNN
-	1    6225 1200
+P 8375 2350
+F 0 "U?" H 8375 2737 60  0001 C CNN
+F 1 "Generic DC-DC (min input allowed 60V, output 5V)" H 8325 2650 60  0001 C CNN
+F 2 "" H 8325 2350 60  0000 C CNN
+F 3 "" H 8325 2350 60  0000 C CNN
+	1    8375 2350
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	6875 1300 6875 1350
+	9025 2450 9025 2500
 Wire Wire Line
-	6725 1300 6875 1300
+	8875 2450 9025 2450
 $Comp
-L Wireless_Ebike:BTS4140N-Wireless_eBike U?
+L Wired_remote-rescue:BTS4140N-Wireless_eBike-Wireless_Ebike U?
 U 1 1 6007C216
-P 5925 1925
-F 0 "U?" H 5900 2312 60  0001 C CNN
-F 1 "BTS4140N" V 5895 1925 60  0000 C CNN
-F 2 "" H 5325 1975 60  0001 C CNN
-F 3 "" H 5325 1975 60  0000 C CNN
-	1    5925 1925
+P 8075 3075
+F 0 "U?" H 8050 3462 60  0001 C CNN
+F 1 "BTS4140N" V 8045 3075 60  0000 C CNN
+F 2 "" H 7475 3125 60  0001 C CNN
+F 3 "" H 7475 3125 60  0000 C CNN
+	1    8075 3075
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	5425 1100 5625 1100
+	7575 2250 7775 2250
 Wire Wire Line
-	5625 1925 5625 1100
-Connection ~ 5625 1100
+	7775 3075 7775 2250
+Connection ~ 7775 2250
 Wire Wire Line
-	5625 1100 5725 1100
+	7775 2250 7875 2250
 Wire Wire Line
-	6275 1825 6375 1825
+	8425 2975 8525 2975
 Wire Wire Line
-	6375 1825 6375 1625
+	8525 2975 8525 2775
 Wire Wire Line
-	6375 1625 5425 1625
-NoConn ~ 6275 1925
-NoConn ~ 7525 2325
-NoConn ~ 8625 2325
-NoConn ~ 8775 2575
+	8525 2775 7575 2775
+NoConn ~ 8425 3075
+NoConn ~ 9675 3475
+NoConn ~ 10775 3475
+NoConn ~ 10925 3725
 $Comp
-L Wireless_Ebike:power_GND #PWR?
+L Wired_remote-rescue:power_GND-Wireless_Ebike #PWR?
 U 1 1 600CCF08
-P 8975 2725
-F 0 "#PWR?" H 8975 2475 50  0001 C CNN
-F 1 "power_GND" H 8980 2552 50  0000 C CNN
-F 2 "" H 8975 2725 50  0001 C CNN
-F 3 "" H 8975 2725 50  0001 C CNN
-	1    8975 2725
+P 11125 3875
+F 0 "#PWR?" H 11125 3625 50  0001 C CNN
+F 1 "power_GND" H 11130 3702 50  0000 C CNN
+F 2 "" H 11125 3875 50  0001 C CNN
+F 3 "" H 11125 3875 50  0001 C CNN
+	1    11125 3875
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	8975 2675 8975 2725
+	11125 3825 11125 3875
 $Comp
 L Wired_remote:Nordic_nRF52840_USB_Dongle U?
 U 1 1 6003704A
-P 8075 2825
-F 0 "U?" H 8075 2825 60  0001 C CNN
-F 1 "Nordic nRF52840 USB Dongle" H 8175 3750 60  0000 C CNN
-F 2 "" H 7925 2675 60  0000 C CNN
-F 3 "" H 7925 2675 60  0000 C CNN
-	1    8075 2825
+P 10225 3975
+F 0 "U?" H 10225 3975 60  0001 C CNN
+F 1 "Nordic nRF52840 USB Dongle" H 10325 4900 60  0000 C CNN
+F 2 "" H 10075 3825 60  0000 C CNN
+F 3 "" H 10075 3825 60  0000 C CNN
+	1    10225 3975
 	1    0    0    -1  
 $EndComp
-Text Notes 7725 1800 0    60   ~ 0
+Text Notes 9875 2950 0    60   ~ 0
 wireless board
 Wire Wire Line
-	6275 2025 6350 2025
+	8425 3175 8500 3175
 $Comp
-L Wireless_Ebike:BSP296 U?
+L Wired_remote-rescue:BSP296-Wireless_Ebike U?
 U 1 1 6006EF16
-P 6650 2025
-F 0 "U?" H 6625 1638 60  0001 C CNN
-F 1 "BSP296" V 6620 2025 60  0000 C CNN
-F 2 "" H 6050 2075 60  0001 C CNN
-F 3 "" H 6050 2075 60  0001 C CNN
-	1    6650 2025
+P 8800 3175
+F 0 "U?" H 8775 2788 60  0001 C CNN
+F 1 "BSP296" V 8770 3175 60  0000 C CNN
+F 2 "" H 8200 3225 60  0001 C CNN
+F 3 "" H 8200 3225 60  0001 C CNN
+	1    8800 3175
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
-	7000 1925 7250 1925
+	9150 3075 9400 3075
 Wire Wire Line
-	7250 1925 7250 1975
+	9400 3075 9400 3125
 $Comp
-L Wireless_Ebike:power_GND #PWR?
+L Wired_remote-rescue:power_GND-Wireless_Ebike #PWR?
 U 1 1 6005D0CE
-P 7250 1975
-F 0 "#PWR?" H 7250 1725 50  0001 C CNN
-F 1 "power_GND" H 7255 1802 50  0000 C CNN
-F 2 "" H 7250 1975 50  0001 C CNN
-F 3 "" H 7250 1975 50  0001 C CNN
-	1    7250 1975
+P 9400 3125
+F 0 "#PWR?" H 9400 2875 50  0001 C CNN
+F 1 "power_GND" H 9405 2952 50  0000 C CNN
+F 2 "" H 9400 3125 50  0001 C CNN
+F 3 "" H 9400 3125 50  0001 C CNN
+	1    9400 3125
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	7000 2125 7050 2125
-NoConn ~ 7000 2025
+	9150 3275 9200 3275
+NoConn ~ 9150 3175
 Wire Wire Line
-	7050 2125 7050 3075
-Text Notes 5780 960  0    60   ~ 0
+	9200 3275 9200 4225
+Text Notes 7930 2110 0    60   ~ 0
 Generic DC-DC\nmin input allowed 60V, output 5V
 Wire Wire Line
-	8775 2675 8975 2675
-NoConn ~ 3800 8100
+	10925 3825 11125 3825
+NoConn ~ 5150 9250
 $Comp
 L Wired_remote:Switch_SW_Push button_1
 U 1 1 5F4A3714
-P 2601 1874
-F 0 "button_1" H 2601 2074 50  0000 C CNN
-F 1 "UP" H 2601 2174 50  0000 C CNB
-F 2 "" H 2601 2074 50  0001 C CNN
-F 3 "~" H 2601 2074 50  0001 C CNN
-	1    2601 1874
+P 4751 3024
+F 0 "button_1" H 4751 3224 50  0000 C CNN
+F 1 "UP" H 4751 3324 50  0000 C CNB
+F 2 "" H 4751 3224 50  0001 C CNN
+F 3 "~" H 4751 3224 50  0001 C CNN
+	1    4751 3024
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2251 1874 2401 1874
-Connection ~ 2251 2874
+	4401 3024 4551 3024
+Connection ~ 4401 4024
 Wire Wire Line
-	2251 2874 2401 2874
+	4401 4024 4551 4024
 $Comp
 L Wired_remote:Switch_SW_Push button_3
 U 1 1 5F4A4B3B
-P 2601 2874
-F 0 "button_3" H 2601 3074 50  0000 C CNN
-F 1 "ENTER" H 2601 3174 50  0000 C CNB
-F 2 "" H 2601 3074 50  0001 C CNN
-F 3 "~" H 2601 3074 50  0001 C CNN
-	1    2601 2874
+P 4751 4024
+F 0 "button_3" H 4751 4224 50  0000 C CNN
+F 1 "ENTER" H 4751 4324 50  0000 C CNB
+F 2 "" H 4751 4224 50  0001 C CNN
+F 3 "~" H 4751 4224 50  0001 C CNN
+	1    4751 4024
 	1    0    0    -1  
 $EndComp
-Connection ~ 2251 2374
+Connection ~ 4401 3524
 Wire Wire Line
-	2251 2874 2251 2374
+	4401 4024 4401 3524
 Wire Wire Line
-	2251 2374 2251 1874
+	4401 3524 4401 3024
 Wire Wire Line
-	2251 2374 2401 2374
+	4401 3524 4551 3524
 $Comp
 L Wired_remote:Switch_SW_Push button_2
 U 1 1 5F4A3F33
-P 2601 2374
-F 0 "button_2" H 2601 2574 50  0000 C CNN
-F 1 "DOWN" H 2601 2674 50  0000 C CNB
-F 2 "" H 2601 2574 50  0001 C CNN
-F 3 "~" H 2601 2574 50  0001 C CNN
-	1    2601 2374
+P 4751 3524
+F 0 "button_2" H 4751 3724 50  0000 C CNN
+F 1 "DOWN" H 4751 3824 50  0000 C CNB
+F 2 "" H 4751 3724 50  0001 C CNN
+F 3 "~" H 4751 3724 50  0001 C CNN
+	1    4751 3524
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2801 2874 2951 2874
+	4951 4024 5101 4024
 Wire Wire Line
-	2951 2874 2951 2674
+	5101 4024 5101 3824
 Wire Wire Line
-	2951 2574 2951 2374
+	5101 3724 5101 3524
 Wire Wire Line
-	2951 2374 2801 2374
+	5101 3524 4951 3524
 Wire Wire Line
-	2801 1874 3051 1874
+	4951 3024 5201 3024
 Wire Wire Line
-	3051 1874 3051 2474
+	5201 3024 5201 3624
 Wire Notes Line
-	2101 1424 3301 1424
+	4251 2574 5451 2574
 Wire Notes Line
-	3301 1424 3301 3674
+	5451 2574 5451 4824
 Wire Notes Line
-	3301 3674 2101 3674
+	5451 4824 4251 4824
 Wire Notes Line
-	2101 1424 2101 3674
-Text Notes 2101 1374 0    79   ~ 0
+	4251 2574 4251 4824
+Text Notes 4251 2524 0    79   ~ 0
 VLCD5 remote keypad
 Wire Wire Line
-	2801 3374 3051 3374
+	4951 4524 5201 4524
 Wire Wire Line
-	2251 3374 2251 2874
+	4401 4524 4401 4024
 Wire Wire Line
-	3051 3374 3051 2774
+	5201 4524 5201 3924
 Wire Wire Line
-	2401 3374 2251 3374
+	4551 4524 4401 4524
 $Comp
 L Wired_remote:Switch_SW_Push button_4
 U 1 1 5F4A4B45
-P 2601 3374
-F 0 "button_4" H 2601 3574 50  0000 C CNN
-F 1 "POWER" H 2601 3674 50  0000 C CNB
-F 2 "" H 2601 3574 50  0001 C CNN
-F 3 "~" H 2601 3574 50  0001 C CNN
-	1    2601 3374
+P 4751 4524
+F 0 "button_4" H 4751 4724 50  0000 C CNN
+F 1 "POWER" H 4751 4824 50  0000 C CNB
+F 2 "" H 4751 4724 50  0001 C CNN
+F 3 "~" H 4751 4724 50  0001 C CNN
+	1    4751 4524
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	2251 3374 2251 3524
+	4401 4524 4401 4674
 Wire Wire Line
-	2251 3524 3151 3524
+	4401 4674 5301 4674
 Wire Wire Line
-	3151 3524 3151 3374
-Connection ~ 2251 3374
+	5301 4674 5301 4524
+Connection ~ 4401 4524
 Wire Wire Line
-	3050 2475 7375 2475
+	5200 3625 9525 3625
 Wire Wire Line
-	7375 2575 2950 2575
+	9525 3725 5100 3725
 Wire Wire Line
-	2950 2575 2950 2675
+	5100 3725 5100 3825
 Wire Wire Line
-	2950 2675 7375 2675
+	5100 3825 9525 3825
 Wire Wire Line
-	3050 2775 7375 2775
+	5200 3925 9525 3925
 Wire Wire Line
-	3150 3375 7375 3375
-NoConn ~ 7375 3175
-Text GLabel 4900 5150 2    50   Output ~ 0
+	5300 4525 9525 4525
+NoConn ~ 9525 4325
+Text GLabel 6250 6300 2    50   Output ~ 0
 TSDZ2_5V
 Wire Wire Line
-	4600 5150 4900 5150
+	5950 6300 6250 6300
 Wire Notes Line
-	9625 4200 9625 4750
+	10975 5350 10975 5900
 Wire Notes Line
-	8825 4200 8825 4750
-Text Notes 9625 4150 2    79   ~ 0
+	10175 5350 10175 5900
+Text Notes 10975 5300 2    79   ~ 0
 TSDZ2 Brake sensor\nconnector
 Wire Notes Line
-	8825 4750 9625 4750
+	10175 5900 10975 5900
 Wire Notes Line
-	8825 4200 9625 4200
+	10175 5350 10975 5350
 Wire Wire Line
-	7925 4500 9025 4500
+	9275 5650 10375 5650
 Wire Wire Line
-	9025 4400 8025 4400
+	10375 5550 9375 5550
 $Comp
 L Wired_remote:Connector_Generic_Conn_01x02 J?
 U 1 1 600CF908
-P 9225 4500
-F 0 "J?" H 9143 4175 50  0001 C CNN
-F 1 "Brake" V 9350 4450 50  0000 C CNB
-F 2 "" H 9225 4500 50  0001 C CNN
-F 3 "~" H 9225 4500 50  0001 C CNN
-	1    9225 4500
+P 10575 5650
+F 0 "J?" H 10493 5325 50  0001 C CNN
+F 1 "Brake" V 10700 5600 50  0000 C CNB
+F 2 "" H 10575 5650 50  0001 C CNN
+F 3 "~" H 10575 5650 50  0001 C CNN
+	1    10575 5650
 	1    0    0    1   
 $EndComp
 $Comp
 L Wired_remote:Connector_Generic_Conn_01x03 Brake
 U 1 1 60323BC4
-P 9250 5725
-F 0 "Brake" V 9369 5727 50  0000 C CNB
-F 1 "Brake" V 9330 5676 50  0001 L CNN
-F 2 "" H 9250 5725 50  0001 C CNN
-F 3 "" H 9250 5725 50  0001 C CNN
-	1    9250 5725
+P 10600 6875
+F 0 "Brake" V 10719 6877 50  0000 C CNB
+F 1 "Brake" V 10680 6826 50  0001 L CNN
+F 2 "" H 10600 6875 50  0001 C CNN
+F 3 "" H 10600 6875 50  0001 C CNN
+	1    10600 6875
 	1    0    0    -1  
 $EndComp
 Wire Notes Line
-	9625 5450 9625 6000
+	10975 6600 10975 7150
 Wire Notes Line
-	8825 5450 8825 6000
-Text Notes 9625 5400 2    79   ~ 0
+	10175 6600 10175 7150
+Text Notes 10975 6550 2    79   ~ 0
 Bafang Brake sensor\nconnector
 Wire Notes Line
-	8825 6000 9625 6000
+	10175 7150 10975 7150
 Wire Notes Line
-	8825 5450 9625 5450
-Text GLabel 8025 4400 0    57   Output ~ 0
+	10175 6600 10975 6600
+Text GLabel 9375 5550 0    57   Output ~ 0
 TSDZ2_Brake_Input
-Text GLabel 7925 4500 0    57   Input ~ 0
+Text GLabel 9275 5650 0    57   Input ~ 0
 TSDZ2_GND
-Text GLabel 8075 5625 0    57   Output ~ 0
+Text GLabel 9425 6775 0    57   Output ~ 0
 TSDZ2_Brake_Input
-Text GLabel 7975 5825 0    57   Input ~ 0
+Text GLabel 9325 6975 0    57   Input ~ 0
 TSDZ2_GND
-Text GLabel 7975 5725 0    50   Input ~ 0
+Text GLabel 9325 6875 0    50   Input ~ 0
 TSDZ2_5V
 Wire Wire Line
-	9050 5825 7975 5825
+	10400 6975 9325 6975
 Wire Wire Line
-	9050 5625 8075 5625
+	10400 6775 9425 6775
 Wire Wire Line
-	7975 5725 9050 5725
+	9325 6875 10400 6875
 $EndSCHEMATC
