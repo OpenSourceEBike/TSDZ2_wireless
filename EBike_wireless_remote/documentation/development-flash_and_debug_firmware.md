@@ -23,6 +23,7 @@ This guide assumes you are using Linux Ubuntu (if you are on Windows or such, th
 Click on menu File -> Open folder... and select the firmware directory. You should see the firmware similar to this:
 
 ![](flash_debug_1.png)
+![flash_debug_1.png](flash_debug_1.png)
 
 ## Build the code
 
