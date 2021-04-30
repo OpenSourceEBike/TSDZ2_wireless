@@ -52,11 +52,7 @@ void send_page16(ant_lev_profile_t *p_profile)
                            &(p_profile->page_16));
 
     uint32_t err_code;
-    //err_code = sd_ant_acknowledge_message_tx(p_profile->channel_number, sizeof(p_message_payload), p_message_payload);
-   
-        err_code = sd_ant_acknowledge_message_tx(p_profile->channel_number, sizeof(p_message_payload), p_message_payload);
-       
-    
+    err_code = sd_ant_acknowledge_message_tx(p_profile->channel_number, sizeof(p_message_payload), p_message_payload);
 
     //reset the on/off and brake flags
     p_profile->page_16.current_front_gear = 0;
