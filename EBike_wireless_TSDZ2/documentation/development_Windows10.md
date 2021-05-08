@@ -47,7 +47,7 @@ Install Task manager extension (Zhang Shen??) (This is cool. It allows shortcuts
 
 ## Step 6: Install Linux pre-requisites as per documentation
 
-[link to documentation] (development-flash_and_debug_firmware.md)
+[link to documentation](development-flash_and_debug_firmware.md)
 
 But in brief:
 
@@ -85,7 +85,7 @@ https://github.com/OpenSourceEBike/TSDZ2_wireless
 
 (This was new to me, but the repo TSDZ2_wireless uses a file called workspace.code-workspace that organises the projects - at least that's how I understand it. Opening a workspace allows you to open the project you are interested in (more easily perhaps?) )
 
-[link to article on VS Code workspace] (https://code.visualstudio.com/docs/editor/workspaces)
+[link to article on VS Code workspace](https://code.visualstudio.com/docs/editor/workspaces)
 
 ## Step 9: Clean and build
 
