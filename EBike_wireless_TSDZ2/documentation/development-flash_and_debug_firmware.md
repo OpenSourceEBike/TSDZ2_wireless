@@ -4,6 +4,8 @@ For the firmware development, flash and debug, you can use the OpenSource and fr
 
 This guide assumes you are using Linux Ubuntu (if you are on Windows or such, the install process should be similar).
 
+Please see [here](./development_Windows10.md) for a Windows 10 toolchain.
+
 ## Software to install
 
 - Add your user to the dialout group: __sudo usermod -a -G dialout USER_NAME__ and reboot
