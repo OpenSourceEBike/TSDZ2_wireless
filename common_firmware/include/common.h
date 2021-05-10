@@ -11,4 +11,4 @@
 
 void disp_soc(int soc);
 void nrf_lp_delay_ms_init(void);
-void nrf_lp_delay_ms(int ms_delay);
+void nrf_lp_delay_ms(int ms_delay); // SHOULD not be called inside an interrupt or the system will block

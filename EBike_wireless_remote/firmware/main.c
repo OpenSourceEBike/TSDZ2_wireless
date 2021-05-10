@@ -634,8 +634,7 @@ static void timer_button_press_timeout_handler(void *p_context)
   UNUSED_PARAMETER(p_context);
 
   // enter ultra low power mode
-
-  shutdown();
+  shutdown_flag = true;
 }
 
 static void timer_button_long_press_timeout_handler(void *p_context)
@@ -975,6 +974,8 @@ void buttons_init(void)
   err_code = app_timer_stop(m_timer_button_long_press_timeout); //stop the long press timer
   APP_ERROR_CHECK(err_code);
 }
+
+// NOTE: can not be called inside an interrupt because of nrf_lp_delay_ms()
 void shutdown(void)
 {
   led_sequence_play_next(LED_SEQUENCE_SHORT_GREEN);
@@ -1017,8 +1018,7 @@ void shutdown(void)
   nrf_gpio_cfg_default(19);
   sd_clock_hfclk_release();
   nrf_lp_delay_ms(10);
-
-  nrf_lp_delay_ms(WAIT_TIME);
+  nrf_lp_delay_ms(WAIT_TIME);  
   nrf_pwr_mgmt_shutdown(NRF_PWR_MGMT_SHUTDOWN_GOTO_SYSOFF);
 }
 
@@ -1431,7 +1431,6 @@ void check_interrupt_flags(void)
 
   if (disp_config_flag) //display configuration
   {
-
     if (ebike)
     {
       led_sequence_play(LED_EVENT_CONFIG_LEV_ACTIVE);
@@ -1599,7 +1598,6 @@ void power_mgt_init(void)
 
 int main(void)
 {
-
   ret_code_t err_code;
   //lfclk_config()
   ram_retention_setup();
@@ -1615,9 +1613,9 @@ int main(void)
   //read the flash memory and setup the ANT ID and Bluetooth flag
   eeprom_init(&old_ant_device_id, &configuration_flag, &ebike, &garmin, &brake);
   new_ant_device_id = old_ant_device_id; //no change at this time.
+  
   if (configuration_flag)
   {
-
     led_sequence_play_next(LED_EVENT_CONFIGURATION_MODE);
 
     //start the bluetooth 5 min timer -turn off configurartion mode automatically in 5 minutes
@@ -1626,7 +1624,10 @@ int main(void)
     ble_init();
   }
   else
+  {
     profile_setup();
+  }
+
   power_mgt_init();
 
   //idle loop
