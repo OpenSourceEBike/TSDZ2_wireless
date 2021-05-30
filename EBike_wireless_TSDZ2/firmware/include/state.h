@@ -315,8 +315,6 @@ rt_vars_t* get_rt_vars(void);
 extern rt_vars_t rt_vars; // FIXME - this shouldn't be exposed outside of state.c - but currently mid merge
 extern ui_vars_t ui_vars;
 
-// extern volatile uint8_t ui8_g_motorVariablesStabilized;
-
 typedef struct {
   uint8_t major;
   uint8_t minor;

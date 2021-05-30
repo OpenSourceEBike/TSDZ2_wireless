@@ -24,7 +24,6 @@ typedef enum {
 
 static uint8_t ui8_m_usart1_received_first_package = 0;
 uint8_t ui8_g_battery_soc;
-volatile uint8_t ui8_g_motorVariablesStabilized = 0;
 
 volatile uint8_t m_get_tsdz2_firmware_version; // true if we are simulating a motor (and therefore not talking on serial at all)
 volatile motor_init_state_t g_motor_init_state = MOTOR_INIT_OFF;
@@ -657,8 +656,12 @@ void rt_calc_wh(void) {
 
 void reset_wh(void) {
   m_reset_wh_flag = true;
+  ui_vars.ui32_wh_x10_offset = 0;
+  rt_vars.ui32_wh_x10_offset = 0;
   rt_vars.ui32_wh_sum_x5 = 0;
+  ui_vars.ui32_wh_sum_x5 = 0;
   rt_vars.ui32_wh_sum_counter = 0;
+  ui_vars.ui32_wh_sum_counter = 0;
   m_reset_wh_flag = false;
 }
 
@@ -787,50 +790,26 @@ static void rt_calc_trips(void) {
   }
 }
 
-uint8_t rt_first_time_management(void) {
+void rt_calc_battery_soc(void) {
   static uint32_t ui32_counter = 0;
-	static uint8_t ui8_motor_controller_init = 1;
-	uint8_t ui8_status = 0;
+  static uint8_t ui8_g_motorVariablesStabilized = 0;
 
-  // wait 5 seconds to help motor variables data stabilize
-  if (ui8_g_motorVariablesStabilized == 0 &&
-      (g_motor_init_state == MOTOR_INIT_READY)) {
-  
-    if (++ui32_counter > 100) {
-      ui8_g_motorVariablesStabilized = 1;
-    }
+  // wait 5 seconds for motor controller battery voltage value stabilize
+  if ((++ui32_counter > (5 * 20)) &&
+    (ui8_g_motorVariablesStabilized == 0)) {
+    ui8_g_motorVariablesStabilized = 1;
   }
 
-	// don't update LCD up to we get first communication package from the motor controller
-	if (ui8_motor_controller_init
-			&& (ui8_m_usart1_received_first_package < 10)) {
-		ui8_status = 1;
-	}
-	// this will be executed only 1 time at startup
-  else if (ui8_motor_controller_init &&
-      ui8_g_motorVariablesStabilized) {
-
-    ui8_motor_controller_init = 0;
-    
+  if (ui8_g_motorVariablesStabilized) {
     // reset Wh value if battery voltage is over ui16_battery_voltage_reset_wh_counter_x10 (value configured by user)
     if (((uint32_t) ui_vars.ui16_adc_battery_voltage * ADC_BATTERY_VOLTAGE_PER_ADC_STEP_X10000)
         > ((uint32_t) ui_vars.ui16_battery_voltage_reset_wh_counter_x10
             * 1000)) {
-      ui_vars.ui32_wh_x10_offset = 0;
+      reset_wh();
     }
-
-    // if (ui_vars.ui8_offroad_feature_enabled
-    //     && ui_vars.ui8_offroad_enabled_on_startup) {
-    //   ui_vars.ui8_offroad_mode = 1;
-    // }
   }
 
-	return ui8_status;
-}
-
-void rt_calc_battery_soc(void) {
 	uint32_t ui32_temp;
-
 	ui32_temp = rt_vars.ui32_wh_x10 * 100;
 
 	if (rt_vars.ui32_wh_x10_100_percent > 0) {
@@ -864,7 +843,6 @@ void rt_processing(void)
   rt_calc_odometer();
   rt_calc_trips();
   rt_calc_wh();
-  rt_first_time_management();
   rt_calc_battery_soc();
   /************************************************************************************************/
 }
