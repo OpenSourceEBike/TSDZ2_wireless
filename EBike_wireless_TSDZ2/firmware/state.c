@@ -665,6 +665,75 @@ void reset_wh(void) {
   m_reset_wh_flag = false;
 }
 
+void calc_battery_resistance(void) {
+
+  typedef enum {
+    WAIT_MOTOR_STOP = 0,
+    STARTUP = 1,
+    DELAY = 2,
+    CALC_RESISTANCE = 3,
+  } state_t;
+
+  static state_t state = WAIT_MOTOR_STOP;
+  static uint8_t ui8_counter;
+  static uint16_t ui16_batt_voltage_init_x10;
+  uint16_t ui16_batt_voltage_final_x10;
+  uint16_t ui16_batt_voltage_delta_x10;
+  uint16_t ui16_batt_current_final_x5;
+
+  switch (state) {
+    case WAIT_MOTOR_STOP:
+      // wait for motor stop to measure battery initial voltage
+      if (ui_vars.ui16_motor_current_filtered_x5 == 0) {
+        ui16_batt_voltage_init_x10 = ui_vars.ui16_battery_voltage_filtered_x10;
+        ui8_counter = 0;
+        state = STARTUP;
+      }
+      break;
+
+    case STARTUP:
+      // wait for motor running and at high battery current
+      if ((ui_vars.ui16_motor_speed_erps > 10) &&
+          (ui_vars.ui16_battery_current_filtered_x5 > (2 * 5))) {
+        ui8_counter = 0;
+        state = DELAY;
+      } else {
+
+        if (++ui8_counter > (5 * 20)) // wait 5 seconds on this state
+          state = WAIT_MOTOR_STOP;
+      }
+      break;
+
+    case DELAY:
+      if (ui_vars.ui16_battery_current_filtered_x5 > (2 * 5)) {
+
+        if (++ui8_counter > (4 * 20)) // sample battery final voltage after 4 seconds
+          state = CALC_RESISTANCE;
+
+      } else {
+        state = WAIT_MOTOR_STOP;
+      }
+      break;
+
+    case CALC_RESISTANCE:
+      ui16_batt_voltage_final_x10 = ui_vars.ui16_battery_voltage_filtered_x10;
+      ui16_batt_current_final_x5 = ui_vars.ui16_battery_current_filtered_x5;
+
+      if (ui16_batt_voltage_init_x10 > ui16_batt_voltage_final_x10) {
+        ui16_batt_voltage_delta_x10 = ui16_batt_voltage_init_x10 - ui16_batt_voltage_final_x10;
+      } else {
+        ui16_batt_voltage_delta_x10 = 0;
+      }
+
+      // R = U / I
+      ui_vars.ui16_battery_pack_resistance_estimated_x1000 =
+          (ui16_batt_voltage_delta_x10 * 500) / ui16_batt_current_final_x5 ;
+
+      state = WAIT_MOTOR_STOP;
+      break;
+  }
+}
+
 static void rt_calc_odometer(void) {
   static uint8_t ui8_1s_timer_counter;
 	uint8_t ui8_01km_flag = 0;
@@ -824,6 +893,24 @@ void rt_calc_battery_soc(void) {
   ui8_g_battery_soc = (uint8_t) (100 - ui32_temp);
 }
 
+void batteryPower(void) {
+
+  uint16_t ui16_battery_power = ui_vars.ui16_battery_power;
+
+  // loose resolution under 200W
+  if (ui16_battery_power < 200) {
+    ui16_battery_power /= 10;
+    ui16_battery_power *= 10;
+  }
+  // loose resolution under 400W
+  else if (ui16_battery_power < 500) {
+    ui16_battery_power /= 20;
+    ui16_battery_power *= 20;
+  }
+
+  ui_vars.ui16_battery_power_filtered_ui = ui16_battery_power;
+}
+
 // Note: this is called from ISR context every 50ms
 void rt_processing(void)
 {
@@ -833,6 +920,9 @@ void rt_processing(void)
   // montor init processing must be done when exiting the configurations menu
   // once motor is initialized, this should take almost no processing time
   motor_init();
+
+  batteryPower();
+  calc_battery_resistance();
 
   /************************************************************************************************/
   // now do all the calculations that must be done every 50ms

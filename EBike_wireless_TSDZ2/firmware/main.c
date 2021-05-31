@@ -1245,7 +1245,7 @@ void ble_send_periodic_data(void)
   uint8_t tx_data[BLE_TSDZ2_PERIODIC_LEN] = {0};
   tx_data[0] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
   tx_data[1] = (uint8_t)(ui_vars.ui16_battery_voltage_filtered_x10 >> 8);
-  tx_data[2] = ui_vars.ui8_battery_current_x5;
+  tx_data[2] = ui_vars.ui16_battery_current_filtered_x5;
   tx_data[3] = (uint8_t)(ui_vars.ui16_wheel_speed_x10 & 0xff);
   tx_data[4] = (uint8_t)(ui_vars.ui16_wheel_speed_x10 >> 8);
   tx_data[5] = (uint8_t)((ui_vars.ui8_braking & 1) | ((ui_vars.ui8_lights & 1) << 1));
@@ -1280,6 +1280,10 @@ void ble_send_periodic_data(void)
   tx_data[30] = (uint8_t)(ui_vars.ui32_wh_x10 >> 16);
   tx_data[31] = (uint8_t)(ui_vars.ui32_wh_x10 >> 24);
   tx_data[32] = (uint8_t)g_motor_init_state;
+  tx_data[33] = (uint8_t)(ui_vars.ui16_battery_power_filtered_ui & 0xff);
+  tx_data[34] = (uint8_t)(ui_vars.ui16_battery_power_filtered_ui >> 8);
+  tx_data[35] = (uint8_t)(ui_vars.ui16_battery_pack_resistance_estimated_x1000 & 0xff);
+  tx_data[36] = (uint8_t)(ui_vars.ui16_battery_pack_resistance_estimated_x1000 >> 8);
 
   if (m_conn_handle != BLE_CONN_HANDLE_INVALID)
   {
@@ -1743,7 +1747,6 @@ void brakeLights(void)
     else led_sequence_play_now(LED_EVENT_BRAKE_OFF);
 
   // Todo - add code to replicate brake light signal on NRF pin...
-
  }
 }
 
@@ -1824,7 +1827,7 @@ int main(void)
 
       ble_send_periodic_data();
       ble_update_configurations_data();
-      ble_send_short_data();
+      // ble_send_short_data();
       TSDZ2_power_manage();
 
       if (ui8_walk_assist_state_process_locally) walk_assist_state();
