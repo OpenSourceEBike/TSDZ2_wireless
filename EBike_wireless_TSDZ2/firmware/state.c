@@ -470,7 +470,7 @@ static void motor_init(void) {
         ui16_motor_init_command_error_cnt = 2000;
         g_motor_init_state = MOTOR_INIT_WAIT_MOTOR_ALIVE;
         // not break here to follow for next case
-        led_sequence_play_now_until(LED_EVENT_CONTROLLER_MOTOR_ON_WAIT);
+        led_sequence_play_now_until(LED_EVENT_MOTOR_ON_WAIT);
 
       case MOTOR_INIT_WAIT_MOTOR_ALIVE:
         // check timeout
@@ -643,7 +643,7 @@ void rt_calc_wh(void) {
 
       // avoid zero division
       if (rt_vars.ui32_wh_sum_counter != 0) {
-        ui32_temp = rt_vars.ui32_wh_sum_counter / 36;
+        ui32_temp = rt_vars.ui32_wh_sum_counter / 18;
         ui32_temp = (ui32_temp
             * (rt_vars.ui32_wh_sum_x5 / rt_vars.ui32_wh_sum_counter))
             / 500;

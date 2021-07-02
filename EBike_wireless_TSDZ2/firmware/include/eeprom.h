@@ -118,6 +118,9 @@
 #define DEFAULT_TORQUE_SENSOR_CALIBRATION_RIGHT_WEIGHT_8            105
 #define DEFAULT_TORQUE_SENSOR_CALIBRATION_RIGHT_ADC_8               300
 
+#define DEFAULT_ANT_LEV_ID                                          1
+#define DEFAULT_ANT_LEV_ENABLE                                      0
+
 #pragma pack(4)
 typedef struct configurations {
 	uint8_t ui8_assist_level;

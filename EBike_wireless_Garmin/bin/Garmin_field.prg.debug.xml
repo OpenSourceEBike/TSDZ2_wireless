@@ -1,256 +1,277 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <debugInfo>
-    <manifest filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/manifest.xml"/>
+    <manifest filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/manifest.xml"/>
     <pcToLineNum>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="3" lineNum="17" pc="268435456" symbol="getData"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="3" lineNum="18" pc="268435460" symbol="getData"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="3" lineNum="19" pc="268435470" symbol="getData"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="4" lineNum="22" pc="268435480" symbol="initialize"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="4" lineNum="23" pc="268435484" symbol="initialize"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="5" lineNum="26" pc="268435503" symbol="onCharacteristicChanged"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="5" lineNum="27" pc="268435507" symbol="onCharacteristicChanged"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="5" lineNum="29" pc="268435538" symbol="onCharacteristicChanged"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="5" lineNum="31" pc="268435597" symbol="onCharacteristicChanged"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="5" lineNum="32" pc="268435635" symbol="onCharacteristicChanged"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="5" lineNum="35" pc="268435638" symbol="onCharacteristicChanged"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="5" lineNum="36" pc="268435654" symbol="onCharacteristicChanged"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="6" lineNum="41" pc="268435661" symbol="TSDZ_setTSDZShortNotifications_DESC"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="6" lineNum="42" pc="268435665" symbol="TSDZ_setTSDZShortNotifications_DESC"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="6" lineNum="43" pc="268435665" symbol="TSDZ_setTSDZShortNotifications_DESC"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="6" lineNum="44" pc="268435665" symbol="TSDZ_setTSDZShortNotifications_DESC"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="6" lineNum="46" pc="268435665" symbol="TSDZ_setTSDZShortNotifications_DESC"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="6" lineNum="47" pc="268435678" symbol="TSDZ_setTSDZShortNotifications_DESC"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="6" lineNum="50" pc="268435682" symbol="TSDZ_setTSDZShortNotifications_DESC"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="6" lineNum="51" pc="268435709" symbol="TSDZ_setTSDZShortNotifications_DESC"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="6" lineNum="52" pc="268435730" symbol="TSDZ_setTSDZShortNotifications_DESC"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="6" lineNum="53" pc="268435751" symbol="TSDZ_setTSDZShortNotifications_DESC"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="7" lineNum="56" pc="268435799" symbol="onProfileRegister"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="8" lineNum="59" pc="268435804" symbol="registerProfiles"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="8" lineNum="60" pc="268435808" symbol="registerProfiles"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="8" lineNum="68" pc="268435906" symbol="registerProfiles"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="9" lineNum="71" pc="268435927" symbol="onScanStateChange"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="9" lineNum="72" pc="268435931" symbol="onScanStateChange"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="9" lineNum="73" pc="268435949" symbol="onScanStateChange"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="9" lineNum="75" pc="268435962" symbol="onScanStateChange"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="10" lineNum="79" pc="268435973" symbol="onConnectedStateChanged"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="10" lineNum="80" pc="268435977" symbol="onConnectedStateChanged"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="10" lineNum="81" pc="268435995" symbol="onConnectedStateChanged"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="10" lineNum="82" pc="268436005" symbol="onConnectedStateChanged"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="10" lineNum="84" pc="268436025" symbol="onConnectedStateChanged"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="12" lineNum="93" pc="268436086" symbol="onScanResults"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="12" lineNum="94" pc="268436090" symbol="onScanResults"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="12" lineNum="95" pc="268436090" symbol="onScanResults"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="12" lineNum="96" pc="268436090" symbol="onScanResults"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="12" lineNum="97" pc="268436110" symbol="onScanResults"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="12" lineNum="99" pc="268436123" symbol="onScanResults"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="12" lineNum="100" pc="268436155" symbol="onScanResults"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="12" lineNum="101" pc="268436169" symbol="onScanResults"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="13" lineNum="106" pc="268436190" symbol="open"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="13" lineNum="107" pc="268436194" symbol="open"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="13" lineNum="108" pc="268436206" symbol="open"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="14" lineNum="111" pc="268436235" symbol="close"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="14" lineNum="112" pc="268436239" symbol="close"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="14" lineNum="113" pc="268436250" symbol="close"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="14" lineNum="116" pc="268436281" symbol="close"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="14" lineNum="117" pc="268436292" symbol="close"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="14" lineNum="13" pc="268436882" symbol="&lt;init&gt;"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="14" lineNum="4" pc="268436730" symbol="&lt;init&gt;"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="14" lineNum="6" pc="268436758" symbol="&lt;init&gt;"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/BleDevice.mc" id="14" lineNum="7" pc="268436781" symbol="&lt;init&gt;"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldApp.mc" id="16" lineNum="7" pc="268436320" symbol="initialize"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldApp.mc" id="16" lineNum="8" pc="268436324" symbol="initialize"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldApp.mc" id="17" lineNum="12" pc="268436343" symbol="onStart"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldApp.mc" id="17" lineNum="13" pc="268436347" symbol="onStart"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldApp.mc" id="17" lineNum="14" pc="268436377" symbol="onStart"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldApp.mc" id="17" lineNum="15" pc="268436401" symbol="onStart"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldApp.mc" id="18" lineNum="19" pc="268436420" symbol="onStop"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldApp.mc" id="18" lineNum="20" pc="268436424" symbol="onStop"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldApp.mc" id="19" lineNum="24" pc="268436443" symbol="getInitialView"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldApp.mc" id="19" lineNum="25" pc="268436447" symbol="getInitialView"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldView.mc" id="21" lineNum="22" pc="268436493" symbol="initialize"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldView.mc" id="21" lineNum="23" pc="268436497" symbol="initialize"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldView.mc" id="21" lineNum="25" pc="268436515" symbol="initialize"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldView.mc" id="21" lineNum="27" pc="268436574" symbol="initialize"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldView.mc" id="21" lineNum="28" pc="268436587" symbol="initialize"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldView.mc" id="21" lineNum="31" pc="268436590" symbol="initialize"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldView.mc" id="21" lineNum="32" pc="268436603" symbol="initialize"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldView.mc" id="21" lineNum="35" pc="268436606" symbol="initialize"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldView.mc" id="22" lineNum="38" pc="268436617" symbol="compute"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldView.mc" id="22" lineNum="39" pc="268436621" symbol="compute"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldView.mc" id="22" lineNum="40" pc="268436638" symbol="compute"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldView.mc" id="22" lineNum="41" pc="268436647" symbol="compute"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldView.mc" id="22" lineNum="42" pc="268436666" symbol="compute"/>
-        <entry filename="/home/cas/work/EBike_wireless/EBike_wireless_Garmin/source/datafieldView.mc" id="22" lineNum="45" pc="268436675" symbol="compute"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/Main.mc" id="3" lineNum="6" pc="268435456" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/Main.mc" id="3" lineNum="7" pc="268435460" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/Main.mc" id="4" lineNum="10" pc="268435479" symbol="onStart"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/Main.mc" id="4" lineNum="11" pc="268435483" symbol="onStart"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/Main.mc" id="5" lineNum="14" pc="268435514" symbol="getInitialView"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/Main.mc" id="5" lineNum="15" pc="268435518" symbol="getInitialView"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/Main.mc" id="6" lineNum="18" pc="268435564" symbol="onStop"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/Main.mc" id="6" lineNum="19" pc="268435568" symbol="onStop"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="11" pc="268435587" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="12" pc="268435591" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="14" pc="268435609" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="16" pc="268435858" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="17" pc="268435871" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="20" pc="268435874" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="21" pc="268435887" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="24" pc="268435890" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="25" pc="268435903" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="28" pc="268435906" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="29" pc="268435919" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="32" pc="268435922" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="33" pc="268435935" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="36" pc="268435938" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="37" pc="268435951" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="40" pc="268435954" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="41" pc="268435967" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="44" pc="268435970" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="45" pc="268435983" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="48" pc="268435986" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="49" pc="268435999" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="52" pc="268436002" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="53" pc="268436015" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="56" pc="268436018" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="57" pc="268436031" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="60" pc="268436034" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="61" pc="268436047" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="8" lineNum="64" pc="268436050" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="9" lineNum="67" pc="268436061" symbol="compute"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="9" lineNum="68" pc="268436065" symbol="compute"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="9" lineNum="70" pc="268436072" symbol="compute"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="9" lineNum="72" pc="268436090" symbol="compute"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="9" lineNum="73" pc="268436110" symbol="compute"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="9" lineNum="76" pc="268436116" symbol="compute"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="9" lineNum="82" pc="268436384" symbol="compute"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="9" lineNum="83" pc="268436417" symbol="compute"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="9" lineNum="93" pc="268436420" symbol="compute"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="9" lineNum="94" pc="268436439" symbol="compute"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/DataField.mc" id="9" lineNum="97" pc="268436442" symbol="compute"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="11" lineNum="27" pc="268436446" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="11" lineNum="28" pc="268436450" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="11" lineNum="30" pc="268436472" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="11" lineNum="32" pc="268436505" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="11" lineNum="36" pc="268436563" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="11" lineNum="46" pc="268436703" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="11" lineNum="48" pc="268436745" symbol="initialize"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="12" lineNum="51" pc="268436758" symbol="open"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="12" lineNum="52" pc="268436762" symbol="open"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="12" lineNum="53" pc="268436804" symbol="open"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="12" lineNum="54" pc="268436830" symbol="open"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="13" lineNum="57" pc="268436849" symbol="close"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="13" lineNum="58" pc="268436853" symbol="close"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="14" lineNum="64" pc="268436872" symbol="reopen"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="14" lineNum="65" pc="268436876" symbol="reopen"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="14" lineNum="67" pc="268436889" symbol="reopen"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="14" lineNum="68" pc="268436903" symbol="reopen"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="14" lineNum="69" pc="268436930" symbol="reopen"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="14" lineNum="70" pc="268436940" symbol="reopen"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="15" lineNum="74" pc="268436956" symbol="reopen_finish"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="15" lineNum="75" pc="268436960" symbol="reopen_finish"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="15" lineNum="76" pc="268436973" symbol="reopen_finish"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="15" lineNum="77" pc="268436986" symbol="reopen_finish"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="15" lineNum="78" pc="268436998" symbol="reopen_finish"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="16" lineNum="82" pc="268437009" symbol="onTimer"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="16" lineNum="83" pc="268437013" symbol="onTimer"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="16" lineNum="85" pc="268437026" symbol="onTimer"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="16" lineNum="86" pc="268437045" symbol="onTimer"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="16" lineNum="87" pc="268437056" symbol="onTimer"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="16" lineNum="88" pc="268437068" symbol="onTimer"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="16" lineNum="89" pc="268437084" symbol="onTimer"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="16" lineNum="92" pc="268437097" symbol="onTimer"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="95" pc="268437111" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="96" pc="268437115" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="97" pc="268437128" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="99" pc="268437138" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="101" pc="268437162" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="104" pc="268437178" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="106" pc="268437198" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="108" pc="268437208" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="110" pc="268437286" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="111" pc="268437308" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="114" pc="268437311" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="115" pc="268437327" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="118" pc="268437330" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="119" pc="268437362" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="123" pc="268437371" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="125" pc="268437395" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="127" pc="268437419" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="130" pc="268437443" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="131" pc="268437455" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="133" pc="268437468" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="136" pc="268437492" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="137" pc="268437504" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="139" pc="268437517" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="142" pc="268437541" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="143" pc="268437553" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="17" lineNum="145" pc="268437566" symbol="onMessage"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="18" lineNum="157" pc="268437600" symbol="getData"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="18" lineNum="158" pc="268437604" symbol="getData"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="19" lineNum="161" pc="268437614" symbol="timerTick"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="19" lineNum="162" pc="268437618" symbol="timerTick"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="19" lineNum="164" pc="268437637" symbol="timerTick"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="19" lineNum="165" pc="268437654" symbol="timerTick"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="19" lineNum="166" pc="268437676" symbol="timerTick"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="19" lineNum="167" pc="268437693" symbol="timerTick"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="19" lineNum="168" pc="268437706" symbol="timerTick"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="19" lineNum="171" pc="268437721" symbol="timerTick"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="19" lineNum="172" pc="268437738" symbol="timerTick"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="19" lineNum="173" pc="268437760" symbol="timerTick"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="19" lineNum="174" pc="268437777" symbol="timerTick"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="19" lineNum="175" pc="268437790" symbol="timerTick"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="20" lineNum="179" pc="268437806" symbol="random"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="20" lineNum="180" pc="268437810" symbol="random"/>
+        <entry filename="/home/cas/work/TSDZ2/EBike_wireless/EBike_wireless_Garmin/source/AntDevice.mc" id="20" lineNum="7" pc="268437900" symbol="&lt;init&gt;"/>
     </pcToLineNum>
     <symbolTable>
+        <entry field="true" id="8389246" symbol="transmissionType"/>
+        <entry field="true" id="19" symbol="FREQUENCY"/>
         <entry id="8388632" method="true" symbol="&lt;init&gt;"/>
         <entry id="4" module="true" symbol="globals/Rez/Menus"/>
-        <entry field="true" id="10" symbol="DEVICE_NAME"/>
+        <entry field="true" id="26" symbol="timer"/>
+        <entry id="8391211" method="true" symbol="onMessage"/>
+        <entry field="true" id="16" symbol="ANT_CHANNEL"/>
         <entry field="true" id="8388611" module="true" symbol="Toybox"/>
-        <entry id="8391256" method="true" symbol="onScanResults"/>
-        <entry field="true" id="20" symbol="AppName"/>
-        <entry id="8391255" method="true" symbol="onScanStateChange"/>
+        <entry field="true" id="8389274" symbol="searchThreshold"/>
+        <entry field="true" id="17" symbol="DEVICE_TYPE"/>
+        <entry field="true" id="8389244" symbol="deviceNumber"/>
+        <entry id="8388634" module="true" symbol="Ant"/>
+        <entry field="true" id="15" symbol="AppName"/>
+        <entry field="true" id="25" symbol="_lastMessageTime"/>
         <entry id="8" module="true" symbol="globals/Rez/Strings"/>
-        <entry id="29" method="true" symbol="&lt;globals/BleDevice/&lt;&gt;connect&gt;"/>
         <entry id="8388772" module="true" object="true" symbol="Fonts"/>
+        <entry id="11" object="true" symbol="AntDevice"/>
         <entry id="8388648" module="true" symbol="WatchUi"/>
-        <entry id="14" object="true" symbol="datafieldApp"/>
         <entry id="2" module="true" symbol="globals/Rez"/>
-        <entry id="13" object="true" symbol="BleDevice"/>
-        <entry field="true" id="9" symbol="TSDZ_SERVICE"/>
-        <entry id="8391340" symbol="descriptors"/>
-        <entry id="8391263" method="true" symbol="onCharacteristicChanged"/>
+        <entry id="8389024" object="true" symbol="DataField"/>
+        <entry field="true" id="8389245" symbol="deviceType"/>
+        <entry field="true" id="18" symbol="PERIOD"/>
         <entry id="8388771" module="true" object="true" symbol="Drawables"/>
-        <entry id="8391258" method="true" symbol="onConnectedStateChanged"/>
-        <entry id="18" module="true" symbol="Menus"/>
+        <entry id="31" method="true" symbol="reopen"/>
+        <entry id="13" module="true" symbol="Menus"/>
         <entry id="6" module="true" symbol="globals/Rez/Layouts"/>
-        <entry id="26" method="true" symbol="getData"/>
+        <entry id="36" method="true" symbol="random"/>
+        <entry id="34" method="true" symbol="getData"/>
         <entry id="8389137" method="true" symbol="compute"/>
-        <entry field="true" id="21" symbol="fieldData"/>
+        <entry id="35" method="true" symbol="timerTick"/>
+        <entry field="true" id="23" symbol="fieldData"/>
+        <entry field="true" id="21" symbol="searching"/>
+        <entry field="true" id="20" symbol="device_cfg"/>
         <entry id="7" module="true" symbol="globals/Rez/JsonData"/>
+        <entry field="true" id="8389271" symbol="radioFrequency"/>
         <entry id="3" module="true" symbol="globals/Rez/Drawables"/>
-        <entry field="true" id="24" symbol="m_rx_data"/>
+        <entry field="true" id="24" symbol="chan_ass"/>
+        <entry field="true" id="30" symbol="reopening"/>
+        <entry field="true" id="27" symbol="timerOnTimer"/>
+        <entry field="true" id="29" symbol="validData"/>
         <entry id="8388644" module="true" symbol="System"/>
-        <entry id="28" method="true" symbol="registerProfiles"/>
-        <entry id="8391257" method="true" symbol="onProfileRegister"/>
+        <entry field="true" id="28" symbol="timerReopen"/>
+        <entry field="true" id="8389270" symbol="messagePeriod"/>
         <entry id="8388769" module="true" object="true" symbol="Rez"/>
-        <entry field="true" id="22" symbol="scanning"/>
         <entry id="8389256" method="true" symbol="open"/>
         <entry id="8390088" module="true" object="true" symbol="JsonData"/>
-        <entry field="true" id="19" symbol="LauncherIcon"/>
+        <entry field="true" id="14" symbol="LauncherIcon"/>
         <entry id="8388610" symbol="statics"/>
+        <entry field="true" id="8389272" symbol="searchTimeoutLowPriority"/>
+        <entry field="true" id="38" symbol="ant_device"/>
         <entry id="8389350" module="true" symbol="globals"/>
-        <entry id="8391334" symbol="uuid"/>
         <entry id="8388770" module="true" object="true" symbol="Strings"/>
-        <entry field="true" id="25" symbol="fieldDataID"/>
+        <entry field="true" id="10" symbol="fieldDataID"/>
         <entry id="8388702" method="true" symbol="initialize"/>
+        <entry field="true" id="22" symbol="deviceNum"/>
         <entry id="8389279" method="true" symbol="onStart"/>
-        <entry id="27" method="true" symbol="TSDZ_setTSDZShortNotifications_DESC"/>
+        <entry id="32" method="true" symbol="reopen_finish"/>
         <entry id="8389280" method="true" symbol="getInitialView"/>
+        <entry field="true" id="37" symbol="antDevice"/>
         <entry id="8389281" method="true" symbol="onStop"/>
-        <entry field="true" id="12" symbol="TSDZ_SHORT_DESC"/>
-        <entry id="15" object="true" symbol="datafieldView"/>
-        <entry id="8391341" symbol="characteristics"/>
-        <entry field="true" id="16" symbol="bleDevice"/>
-        <entry field="true" id="23" symbol="device"/>
-        <entry id="17" module="true" symbol="Layouts"/>
+        <entry id="9" object="true" symbol="Main"/>
+        <entry id="12" module="true" symbol="Layouts"/>
         <entry id="8389257" method="true" symbol="close"/>
-        <entry field="true" id="11" symbol="TSDZ_CHARACTERISTICS_SHORT"/>
         <entry id="5" module="true" symbol="globals/Rez/Fonts"/>
         <entry id="8388635" module="true" symbol="Application"/>
+        <entry id="33" method="true" symbol="onTimer"/>
     </symbolTable>
     <localVars>
-        <entry arg="true" endPc="268435480" name="id" stackId="1" startPc="268435456"/>
-        <entry arg="true" endPc="268435661" name="ch" stackId="1" startPc="268435503"/>
-        <entry arg="true" endPc="268435661" name="value" stackId="2" startPc="268435503"/>
-        <entry endPc="268435798" name="service" stackId="2" startPc="268435665"/>
-        <entry endPc="268435798" name="ch" stackId="3" startPc="268435665"/>
-        <entry endPc="268435798" name="desc" stackId="4" startPc="268435665"/>
-        <entry arg="true" endPc="268435799" name="value" stackId="1" startPc="268435661"/>
-        <entry arg="true" endPc="268435804" name="status" stackId="2" startPc="268435799"/>
-        <entry arg="true" endPc="268435804" name="uuid" stackId="1" startPc="268435799"/>
-        <entry endPc="268435926" name="profile" stackId="1" startPc="268435808"/>
-        <entry arg="true" endPc="268435973" name="status" stackId="2" startPc="268435927"/>
-        <entry arg="true" endPc="268435973" name="scanState" stackId="1" startPc="268435927"/>
-        <entry arg="true" endPc="268436035" name="device" stackId="1" startPc="268435973"/>
-        <entry arg="true" endPc="268436035" name="state" stackId="2" startPc="268435973"/>
-        <entry arg="true" endPc="268436086" name="result" stackId="1" startPc="268436035"/>
-        <entry endPc="268436189" name="result" stackId="8" startPc="268436110"/>
-        <entry endPc="268436189" name="service" stackId="7" startPc="268436090"/>
-        <entry endPc="268436189" name="appearance" stackId="2" startPc="268436090"/>
-        <entry endPc="268436189" name="name" stackId="3" startPc="268436090"/>
-        <entry endPc="268436189" name="uuids" stackId="6" startPc="268436090"/>
-        <entry endPc="268436189" name="rssi" stackId="4" startPc="268436090"/>
-        <entry endPc="268436189" name="mfg" stackId="5" startPc="268436090"/>
-        <entry arg="true" endPc="268436190" name="scanResults" stackId="1" startPc="268436086"/>
-        <entry arg="true" endPc="268436420" name="state" stackId="1" startPc="268436343"/>
-        <entry arg="true" endPc="268436443" name="state" stackId="1" startPc="268436420"/>
-        <entry arg="true" endPc="268436617" name="device" stackId="1" startPc="268436493"/>
-        <entry arg="true" endPc="268436702" name="info" stackId="1" startPc="268436617"/>
+        <entry arg="true" endPc="268435514" name="state" stackId="1" startPc="268435479"/>
+        <entry arg="true" endPc="268435587" name="state" stackId="1" startPc="268435564"/>
+        <entry arg="true" endPc="268436061" name="device" stackId="1" startPc="268435587"/>
+        <entry endPc="268436445" name="value" stackId="2" startPc="268436065"/>
+        <entry arg="true" endPc="268436446" name="info" stackId="1" startPc="268436061"/>
+        <entry endPc="268437110" name="secondsSinceLastUpdate" stackId="1" startPc="268437013"/>
+        <entry endPc="268437599" name="msgId" stackId="3" startPc="268437115"/>
+        <entry endPc="268437599" name="payload" stackId="2" startPc="268437115"/>
+        <entry arg="true" endPc="268437600" name="msg" stackId="1" startPc="268437111"/>
+        <entry arg="true" endPc="268437835" name="n" stackId="1" startPc="268437806"/>
     </localVars>
     <annotations/>
     <dataEntryOffsetMappings>
         <dataEntry offset="87" parentId="" symbolId="globals" type="module"/>
-        <dataEntry offset="190" parentId="globals" symbolId="datafieldApp" type="class"/>
-        <dataEntry offset="269" parentId="globals" symbolId="Rez" type="module"/>
-        <dataEntry offset="348" parentId="Rez" symbolId="Drawables" type="module"/>
-        <dataEntry offset="387" parentId="Rez" symbolId="Menus" type="module"/>
-        <dataEntry offset="418" parentId="Rez" symbolId="Fonts" type="module"/>
-        <dataEntry offset="449" parentId="Rez" symbolId="Layouts" type="module"/>
-        <dataEntry offset="480" parentId="Rez" symbolId="JsonData" type="module"/>
-        <dataEntry offset="511" parentId="Rez" symbolId="Strings" type="module"/>
-        <dataEntry offset="550" parentId="globals" symbolId="datafieldView" type="class"/>
-        <dataEntry offset="621" parentId="globals" symbolId="BleDevice" type="class"/>
+        <dataEntry offset="166" parentId="globals" symbolId="Rez" type="module"/>
+        <dataEntry offset="245" parentId="Rez" symbolId="Drawables" type="module"/>
+        <dataEntry offset="284" parentId="Rez" symbolId="Menus" type="module"/>
+        <dataEntry offset="315" parentId="Rez" symbolId="Fonts" type="module"/>
+        <dataEntry offset="346" parentId="Rez" symbolId="Layouts" type="module"/>
+        <dataEntry offset="377" parentId="Rez" symbolId="JsonData" type="module"/>
+        <dataEntry offset="408" parentId="Rez" symbolId="Strings" type="module"/>
+        <dataEntry offset="447" parentId="globals" symbolId="AntDevice" type="class"/>
+        <dataEntry offset="694" parentId="globals" symbolId="Main" type="class"/>
+        <dataEntry offset="773" parentId="globals" symbolId="DataField" type="class"/>
     </dataEntryOffsetMappings>
     <functions>
-        <functionEntry accessMode="public" name="getData" parent="BleDevice">
-            <param id="id"/>
+        <functionEntry accessMode="public" name="initialize" parent="Main">
             <documentation/>
         </functionEntry>
-        <functionEntry accessMode="public" name="initialize" parent="BleDevice">
-            <documentation/>
-        </functionEntry>
-        <functionEntry accessMode="public" name="onCharacteristicChanged" parent="BleDevice">
-            <param id="ch"/>
-            <param id="value"/>
-            <documentation/>
-        </functionEntry>
-        <functionEntry accessMode="public" name="TSDZ_setTSDZShortNotifications_DESC" parent="BleDevice">
-            <param id="value"/>
-            <documentation/>
-        </functionEntry>
-        <functionEntry accessMode="public" name="onProfileRegister" parent="BleDevice">
-            <param id="uuid"/>
-            <param id="status"/>
-            <documentation/>
-        </functionEntry>
-        <functionEntry accessMode="public" name="registerProfiles" parent="BleDevice">
-            <documentation/>
-        </functionEntry>
-        <functionEntry accessMode="public" name="onScanStateChange" parent="BleDevice">
-            <param id="scanState"/>
-            <param id="status"/>
-            <documentation/>
-        </functionEntry>
-        <functionEntry accessMode="public" name="onConnectedStateChanged" parent="BleDevice">
-            <param id="device"/>
+        <functionEntry accessMode="public" name="onStart" parent="Main">
             <param id="state"/>
             <documentation/>
         </functionEntry>
-        <functionEntry accessMode="private" name="&lt;globals/BleDevice/&lt;&gt;connect&gt;" parent="BleDevice">
-            <param id="result"/>
+        <functionEntry accessMode="public" name="getInitialView" parent="Main">
             <documentation/>
         </functionEntry>
-        <functionEntry accessMode="public" name="onScanResults" parent="BleDevice">
-            <param id="scanResults"/>
-            <documentation/>
-        </functionEntry>
-        <functionEntry accessMode="public" name="open" parent="BleDevice">
-            <documentation/>
-        </functionEntry>
-        <functionEntry accessMode="public" name="close" parent="BleDevice">
-            <documentation/>
-        </functionEntry>
-        <functionEntry accessMode="public" name="initialize" parent="datafieldApp">
-            <documentation/>
-        </functionEntry>
-        <functionEntry accessMode="public" name="onStart" parent="datafieldApp">
+        <functionEntry accessMode="public" name="onStop" parent="Main">
             <param id="state"/>
             <documentation/>
         </functionEntry>
-        <functionEntry accessMode="public" name="onStop" parent="datafieldApp">
-            <param id="state"/>
-            <documentation/>
-        </functionEntry>
-        <functionEntry accessMode="public" name="getInitialView" parent="datafieldApp">
-            <documentation/>
-        </functionEntry>
-        <functionEntry accessMode="public" name="initialize" parent="datafieldView">
+        <functionEntry accessMode="public" name="initialize" parent="DataField">
             <param id="device"/>
             <documentation/>
         </functionEntry>
-        <functionEntry accessMode="public" name="compute" parent="datafieldView">
+        <functionEntry accessMode="public" name="compute" parent="DataField">
             <param id="info"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="initialize" parent="AntDevice">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="open" parent="AntDevice">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="close" parent="AntDevice">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="reopen" parent="AntDevice">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="reopen_finish" parent="AntDevice">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="onTimer" parent="AntDevice">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="onMessage" parent="AntDevice">
+            <param id="msg"/>
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="getData" parent="AntDevice">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="timerTick" parent="AntDevice">
+            <documentation/>
+        </functionEntry>
+        <functionEntry accessMode="public" name="random" parent="AntDevice">
+            <param id="n"/>
             <documentation/>
         </functionEntry>
     </functions>

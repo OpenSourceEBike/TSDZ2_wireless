@@ -209,7 +209,7 @@ typedef struct ui_vars_struct {
 	uint16_t ui16_motor_current_filtered_x5;
 	uint16_t ui16_full_battery_power_filtered_x50;
 	uint16_t ui16_battery_power;
-  	uint16_t ui16_battery_power_filtered_ui;
+  uint16_t ui16_battery_power_filtered_ui;
 	uint16_t ui16_pedal_torque_filtered;
 	uint16_t ui16_pedal_power;
 	uint8_t ui8_pedal_cadence_filtered;

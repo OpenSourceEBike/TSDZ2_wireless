@@ -572,6 +572,58 @@ void ant_lev_evt_handler_post(ant_lev_profile_t *p_profile, ant_lev_evt_t event)
   }
 }
 
+void ant_generic_evt_handler(ant_evt_t * p_ant_evt, void * p_context)
+{
+    uint8_t payload[8];
+    uint32_t err_code;
+
+    switch (p_ant_evt->event)
+    {
+        // ANT broadcast success.
+        // Increment the counter and send a new broadcast.
+        case EVENT_TX:
+          switch (p_ant_evt->channel)
+          {
+            case 1:
+              payload[0] = 1;
+              payload[1] = ui_vars.ui8_assist_level & 0x3F;
+              break;
+
+            case 2:
+              payload[0] = 2;
+              payload[1] = ui8_g_battery_soc;
+              break;
+
+            case 3:
+              payload[0] = 3;
+              payload[1] = (uint8_t) (ui_vars.ui16_battery_power_filtered_ui & 0xff);
+              payload[2] = (uint8_t) (ui_vars.ui16_battery_power_filtered_ui >> 8);
+              break;
+
+            default:
+              return;
+              break;
+          }
+
+          // Broadcast the data.
+          err_code = sd_ant_broadcast_message_tx(p_ant_evt->channel,
+                                                  ANT_STANDARD_DATA_PAYLOAD_SIZE,
+                                                  payload);
+          APP_ERROR_CHECK(err_code);
+
+          break;
+
+        case EVENT_CHANNEL_COLLISION:
+            err_code = 0;
+            APP_ERROR_CHECK(err_code);
+          break;
+
+        default:
+            break;
+    }
+}
+
+NRF_SDH_ANT_OBSERVER(m_ant_observer_generic, APP_ANT_OBSERVER_PRIO, ant_generic_evt_handler, NULL);
 static void ant_setup(void)
 {
   ret_code_t err_code;
@@ -601,6 +653,36 @@ static void ant_setup(void)
 
   err_code = ant_lev_sens_open(&m_ant_lev);
   APP_ERROR_CHECK(err_code);
+
+  // now setup the ANT generic channels
+  uint8_t array[] = {0, 0, 0, 0, 0, 0, 0, 0};
+  err_code = sd_ant_network_address_set(1, array);
+  APP_ERROR_CHECK(err_code);
+
+  // add ANT communications for the Garmin data fields 
+  ant_channel_config_t t_channel_config = {
+    .channel_number    = 1,
+    .channel_type      = CHANNEL_TYPE_MASTER,
+    .ext_assign        = 0x00,
+    .rf_freq           = 48,
+    .transmission_type = 5,
+    .device_type       = 0x7b,
+    .device_number     = 65136,
+    .channel_period    = 16384,
+    .network_number    = 1,
+  };
+
+  for (uint8_t i = 0; i < 3; i++)
+  {
+    err_code = ant_channel_init(&t_channel_config);
+    APP_ERROR_CHECK(err_code);
+
+    err_code = sd_ant_channel_open(t_channel_config.channel_number);
+    APP_ERROR_CHECK(err_code);
+
+    t_channel_config.channel_number++;
+    t_channel_config.device_number++;
+  }
 }
 
 static void main_timer_timeout(void *p_context)
@@ -761,11 +843,6 @@ static void tsdz2_write_handler_periodic(uint8_t *p_data, uint16_t len)
       break;
     }
   }
-}
-
-static void tsdz2_write_handler_short(uint8_t *p_data, uint16_t len)
-{
-
 }
 
 static void tsdz2_write_handler_configurations(uint8_t *p_data, uint16_t len)
@@ -1006,7 +1083,6 @@ static void services_init(void)
 
   init_tsdz2.tsdz2_write_handler_periodic = tsdz2_write_handler_periodic;
   init_tsdz2.tsdz2_write_handler_configurations = tsdz2_write_handler_configurations;
-  init_tsdz2.tsdz2_write_handler_short = tsdz2_write_handler_short;
 
   err_code = ble_service_tsdz2_init(&m_ble_tsdz2_service, &init_tsdz2);
   APP_ERROR_CHECK(err_code);
@@ -1289,73 +1365,6 @@ void ble_send_periodic_data(void)
   {
     ret_code_t err_code;
     err_code = ble_tsdz2_periodic_on_change(m_conn_handle, &m_ble_tsdz2_service, tx_data);
-    if (err_code == NRF_SUCCESS)
-    {
-    }
-  }
-}
-
-void ble_send_short_data(void)
-{
-  // - Garmin Edge datafields only update every 1 second
-  // - send data in less bytes possible, assuming wireless data transmitting uses more power than processing power 
-
-  // send periodic to mobile app
-  uint8_t tx_data[BLE_TSDZ2_SHORT_LEN] = {0};
-  // battery voltage: 10 bits, max 102.3 volts
-  tx_data[0] = (uint8_t) (ui_vars.ui16_battery_voltage_filtered_x10 & 0xff);
-  tx_data[1] = (uint8_t) ((ui_vars.ui16_battery_voltage_filtered_x10 >> 8) & 0x03);
-  // brakes: 1 bit
-  // lights: 1 bit 
-  tx_data[1] |= (uint8_t) (((ui_vars.ui8_braking & 1) << 2) | ((ui_vars.ui8_lights & 1) << 3));
-  // throttle: 8 bits, max of 255 | 4 bits here
-  tx_data[1] |= (uint8_t) (ui_vars.ui8_throttle << 4);
-
-  // battery current: 8 bits, max of 51 amps
-  tx_data[2] = ui_vars.ui8_battery_current_x5;
-
-  // battery SOC: 7 bits, max of 127 (only needs 100)
-  tx_data[3] = (ui8_g_battery_soc & 0x7f);
-  // throttle: 8 bits, max of 255 | 1 bit here
-  tx_data[3] |= (uint8_t) ((ui_vars.ui8_throttle & 0x10) << 4);
-
-  // battery power usage: 16 bits, max of ~6.5kwh
-  tx_data[4] = (uint8_t) (ui_vars.ui32_wh_x10 & 0xff);
-  tx_data[5] = (uint8_t) (ui_vars.ui32_wh_x10 >> 8);
-
-  // motor current: 8 bits, max of 51 amps
-  tx_data[6] = ui_vars.ui8_motor_current_x5;
-
-  // motor temperature: 8 bits, max of 255 degrees
-  tx_data[7] = ui_vars.ui8_motor_temperature;
-
-  // motor speed: 11 bits, max of 2047 erps
-  tx_data[8] = (uint8_t) (ui_vars.ui16_motor_speed_erps & 0xff);
-  tx_data[9] = (uint8_t) ((ui_vars.ui16_motor_speed_erps >> 8) & 0x07);
-  // assist level: 5 bits, max of 31
-  tx_data[9] |= (ui_vars.ui8_assist_level << 3);
-
-  // wheel speed: 10 bits, max of 102.3 km/h
-  tx_data[10] = (uint8_t) (ui_vars.ui16_wheel_speed_x10 & 0xff);
-  tx_data[11] = (uint8_t) ((ui_vars.ui16_wheel_speed_x10 >> 8) & 0x03);
-  // duty_cycle: 8 bits, max of 255 | 6 bits here
-  tx_data[11] |= (uint8_t) (ui_vars.ui8_duty_cycle << 10);
-
-  // pedal power: 11 bits, max of 2047 watts
-  tx_data[12] = (uint8_t) (ui_vars.ui16_pedal_power & 0xff);
-  tx_data[13] = (uint8_t) ((ui_vars.ui16_pedal_power >> 8) & 0x07);
-  // duty_cycle: 8 bits, max of 255 | 2 bits here
-  tx_data[13] |= (uint8_t) ((ui_vars.ui8_duty_cycle & 0xC0) >> 3);
-  // throttle: 8 bits, max of 255 | 1 bit here
-  tx_data[13] |= ui_vars.ui8_throttle & 0xE0;
-
-  // cadence: 8 bits, max of 255
-  tx_data[14] = ui_vars.ui8_pedal_cadence_filtered;
-
-  if (m_conn_handle != BLE_CONN_HANDLE_INVALID)
-  {
-    ret_code_t err_code;
-    err_code = ble_tsdz2_short_on_change(m_conn_handle, &m_ble_tsdz2_service, tx_data);
     if (err_code == NRF_SUCCESS)
     {
     }
@@ -1671,7 +1680,7 @@ bool wiredRemoteOnPress(buttons_events_t events) {
         ui_vars.ui8_assist_level = ui_vars.ui8_number_of_assist_levels;
         led_sequence_play_next(LED_EVENT_ASSIST_LIMITS_REACHED);
       }
-      else led_sequence_play_next(LED_EVENT_WIRED_REMOTE_ASSIST_LEVEL_INCREASE);
+      else led_sequence_play_next(LED_EVENT_ASSIST_LEVEL_DECREASE);
 
       handled = true;
     }
@@ -1681,7 +1690,7 @@ bool wiredRemoteOnPress(buttons_events_t events) {
       if (ui_vars.ui8_assist_level > 0)
       {
         ui_vars.ui8_assist_level--;
-        led_sequence_play_next(LED_EVENT_WIRED_REMOTE_ASSIST_LEVEL_DECREASE);
+        led_sequence_play_next(LED_EVENT_ASSIST_LEVEL_DECREASE);
       }
       else led_sequence_play_next(LED_EVENT_ASSIST_LIMITS_REACHED);
 
@@ -1772,6 +1781,16 @@ static void handle_buttons() {
 	buttons_clock(); // Note: this is done _after_ button events is checked to provide a 50ms debounce
 }
 
+static uint8_t payload_unchanged(uint8_t *old, uint8_t *new, uint8_t len)
+{
+	if (memcmp(old, new, len) == 0)
+		return 1;
+
+	memcpy(old, new, len);
+
+	return 0;
+}
+
 int main(void)
 {
   mp_ui_vars = get_ui_vars();
@@ -1827,7 +1846,6 @@ int main(void)
 
       ble_send_periodic_data();
       ble_update_configurations_data();
-      // ble_send_short_data();
       TSDZ2_power_manage();
 
       if (ui8_walk_assist_state_process_locally) walk_assist_state();
