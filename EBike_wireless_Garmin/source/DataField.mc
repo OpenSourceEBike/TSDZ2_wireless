@@ -2,7 +2,7 @@ using Toybox.WatchUi;
 using Toybox.System;
 
 
-var fieldDataID = 1;
+var fieldDataID = 3;
 
 
 class DataField extends WatchUi.SimpleDataField {
@@ -13,7 +13,7 @@ class DataField extends WatchUi.SimpleDataField {
 
       switch (fieldDataID) {
         case 1:
-          label = "Assist";
+          label = "Motor Assist";
           break;
 
         case 2:
@@ -21,7 +21,7 @@ class DataField extends WatchUi.SimpleDataField {
           break;
 
         case 3:
-          label = "Power";
+          label = "Motor Power";
           break;
 
         case 4:

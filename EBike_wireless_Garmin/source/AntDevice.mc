@@ -97,12 +97,10 @@ class AntDevice extends Ant.GenericChannel {
     var msgId = msg.messageId;
 
         if (Ant.MSG_ID_BROADCAST_DATA == msg.messageId) {
- 
-	        _lastMessageTime = timer;
-	        
 	        
 	        if (payload[0] == fieldDataID) {
 	        
+    	        _lastMessageTime = timer;
         		validData = true;
 	        
 		        switch (fieldDataID) { 
