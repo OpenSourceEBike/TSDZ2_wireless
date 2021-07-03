@@ -3,15 +3,20 @@ using Toybox.BluetoothLowEnergy as Ble;
 
 const TSDZ_SERVICE = Ble.stringToUuid("dac21400-cfdd-462f-bfaf-7f6e4ccbb45f");
 const DEVICE_NAME = "TSDZ";
-const TSDZ_CHARACTERISTICS_SHORT = Ble.stringToUuid("dac21401-cfdd-462f-bfaf-7f6e4ccbb45f");
+
+
+
+const TSDZ_CHARACTERISTICS = Ble.stringToUuid("dac21403-cfdd-462f-bfaf-7f6e4ccbb45f");
+
+
+
 const TSDZ_SHORT_DESC = Ble.cccdUuid();
 
 class BleDevice extends Ble.BleDelegate {
   var scanning = false;
   var device = null;
 
-  var m_rx_data = new [15];
-  var fieldData = 0;
+  var fieldData = -1;
   var fieldDataID = 0;
 
   function getData(id) {
@@ -24,15 +29,19 @@ class BleDevice extends Ble.BleDelegate {
   }
 
   function onCharacteristicChanged(ch, value) {
-    if (ch.getUuid().equals(TSDZ_CHARACTERISTICS_SHORT)) {
+    if (ch.getUuid().equals(TSDZ_CHARACTERISTICS)) {
 
-      switch (fieldDataID) {
-        case 0: // battery voltage
-          fieldData = value[0] | ((value[1] & 0x03) << 8);
+      switch (value[0]) {
+        case 1: // assist level
+          fieldData =  value[1];
           break;
 
-        case 5: // motor temperature
-          fieldData = value[7];
+        case 2: // battery SOC
+          fieldData = value[2];
+          break;
+          
+     	 case 3: // battery SOC
+          fieldData = value[3] | (value[4] << 8);
           break;
       }
     }
@@ -48,7 +57,7 @@ class BleDevice extends Ble.BleDelegate {
     }
 
     service = device.getService(TSDZ_SERVICE);
-    ch = service.getCharacteristic(TSDZ_CHARACTERISTICS_SHORT);
+    ch = service.getCharacteristic(TSDZ_CHARACTERISTICS);
     desc = ch.getDescriptor(TSDZ_SHORT_DESC);
     desc.requestWrite([value & 0x01, 0x00]b);
   }
@@ -60,7 +69,7 @@ class BleDevice extends Ble.BleDelegate {
     var profile = {
       :uuid => TSDZ_SERVICE,
       :characteristics => [{
-        :uuid => TSDZ_CHARACTERISTICS_SHORT,
+        :uuid => TSDZ_CHARACTERISTICS,
         :descriptors => [TSDZ_SHORT_DESC],
       }]
     };

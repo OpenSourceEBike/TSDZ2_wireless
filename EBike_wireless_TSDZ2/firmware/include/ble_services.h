@@ -12,7 +12,9 @@ extern "C" {
 
 #define BLE_TSDZ2_PERIODIC_LEN 37
 #define BLE_TSDZ2_CONFIGURATIONS_LEN 161
-#define BLE_TSDZ2_SHORT_LEN 15
+#define BLE_TSDZ2_GARMIN_DATAFIELD_1_LEN 2
+#define BLE_TSDZ2_GARMIN_DATAFIELD_2_LEN 2
+#define BLE_TSDZ2_GARMIN_DATAFIELD_3_LEN 3
 
 #define BLE_ANT_ID_BLE_OBSERVER_PRIO 2
 #define BLE_TSDZ2_BLE_OBSERVER_PRIO 2
@@ -31,10 +33,12 @@ NRF_SDH_BLE_OBSERVER(_name ## _obs,                                             
 
 #define TSDZ2_UUID_BASE                 {0x5f, 0xB4, 0xCB, 0x4C, 0x6E, 0x7F, 0xAF, 0xBF, \
                                         0x2F, 0x46, 0xDD, 0xCF, 0xB0, 0xEA, 0xC2, 0xDA}
-#define TSDZ2_UUID_SERVICE              0x1400
-#define TSDZ2_PERIODIC_UUID_CHAR        0x1401
-#define TSDZ2_CONFIGURATIONS_UUID_CHAR  0x1402
-#define TSDZ2_SHORT_UUID_CHAR           0x1403
+#define TSDZ2_UUID_SERVICE                    0x1400
+#define TSDZ2_PERIODIC_UUID_CHAR              0x1401
+#define TSDZ2_CONFIGURATIONS_UUID_CHAR        0x1402
+#define TSDZ2_GARMIN_DATAFIELD_1_UUID_CHAR    0x1403
+#define TSDZ2_GARMIN_DATAFIELD_2_UUID_CHAR    0x1404
+#define TSDZ2_GARMIN_DATAFIELD_3_UUID_CHAR    0x1405
 
 #define ANT_ID_UUID_BASE                {0xf9, 0xAD, 0xE9, 0x68, 0x49, 0x08, 0x40, 0x5C, \
                                         0x9A, 0x0B, 0xD2, 0x4D, 0x31, 0x46, 0xf7, 0x97}
@@ -72,7 +76,9 @@ struct ble_tsdz2_s
   uint16_t                    service_handle;      
   ble_gatts_char_handles_t    tsdz2_periodic_char_handles;
   ble_gatts_char_handles_t    tsdz2_configurations_char_handles;
-  ble_gatts_char_handles_t    tsdz2_short_char_handles;
+  ble_gatts_char_handles_t    tsdz2_garmin_datafield_1_char_handles;
+  ble_gatts_char_handles_t    tsdz2_garmin_datafield_2_char_handles;
+  ble_gatts_char_handles_t    tsdz2_garmin_datafield_3_char_handles;
   uint8_t                     uuid_type;
   ble_tsdz2_write_handler_t   tsdz2_write_handler_periodic;
   ble_tsdz2_write_handler_t   tsdz2_write_handler_configurations;
@@ -86,7 +92,9 @@ void ble_tsdz2_on_ble_evt(ble_evt_t const * p_ble_evt, void * p_context);
 uint32_t ble_ant_id_on_change(uint16_t conn_handle, ble_ant_id_t * p_ant_id_t, uint8_t value);
 uint32_t ble_tsdz2_periodic_on_change(uint16_t conn_handle, ble_tsdz2_t * p_ble_tsdz2_t, uint8_t *p_value);
 uint32_t ble_tsdz2_configurations_on_change(uint16_t conn_handle, ble_tsdz2_t * p_ble_tsdz2_t, uint8_t *p_value);
-uint32_t ble_tsdz2_short_on_change(uint16_t conn_handle, ble_tsdz2_t * p_ble_tsdz2_t, uint8_t *p_value);
+uint32_t ble_tsdz2_garmin_datafield_1_on_change(uint16_t conn_handle, ble_tsdz2_t * p_ble_tsdz2_t, uint8_t *p_value, uint16_t len);
+uint32_t ble_tsdz2_garmin_datafield_2_on_change(uint16_t conn_handle, ble_tsdz2_t * p_ble_tsdz2_t, uint8_t *p_value, uint16_t len);
+uint32_t ble_tsdz2_garmin_datafield_3_on_change(uint16_t conn_handle, ble_tsdz2_t * p_ble_tsdz2_t, uint8_t *p_value, uint16_t len);
 
 #ifdef __cplusplus
 }

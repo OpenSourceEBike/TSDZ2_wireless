@@ -3,32 +3,24 @@ using Toybox.WatchUi;
 class datafieldView extends WatchUi.SimpleDataField {
   hidden var bleDevice;
 
-// 0 - battery voltage
-// 1 - batter current
-// 2 - battery SOC
-// 3 - battery used energy
-// 4 - motor current
-// 5 - motor temperature
-// 6 - motor speed
-// 7 - speed
-// 8 - throttle
-// 9 - cadence
-// 10 - duty-cycle
-// 11 - human power
-// 12 - assist level
 
-  var fieldData = 5;
+  var fieldData = 2;
+
 
   function initialize(device) {
     SimpleDataField.initialize();
 
     switch (fieldData) {
-      case 0:
-        label = "battery voltage";
+      case 1:
+        label = "Assist";
         break;
 
-      case 5:
-        label = "motor temperature";
+      case 2:
+        label = "Battery SOC";
+        break;
+        
+      case 3:
+        label = "Motor Power";
         break;
     }
 
@@ -41,6 +33,10 @@ class datafieldView extends WatchUi.SimpleDataField {
     } else if (bleDevice.device == null) {
       return "Disconnected";
     }
+    
+    if (bleDevice.getData(fieldData) == -1) {
+    	return "ERROR 1";
+	}
 
     return bleDevice.getData(fieldData);
   }
